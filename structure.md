@@ -8,11 +8,11 @@
 
 ## A brief history of PerLa
 
-## Abstracting network nodes
+## Managing heterogeneity
 
 ### FPCs and device attributes
 
-### Support for runtime configurability
+### Runtime configurability
 
 ## The PerLa query language
 
@@ -32,45 +32,53 @@
 
 ## Core concepts
 
-### Asynchronous methods
+### Asynchronous paradigm
 
-### Improved device configurability
+### Plugin system
 
-### Architecture overview
+### Factory patterns
 
-## Main differences with classic architecture
+## Architecture overview
 
-
-# In-depth architecture description
-
-## Communication
-
-### Requests, asynchronous responses and payloads ????????????
-
-### An overview on Channel implementations
+## Comparison with the classic architecture
 
 
-## Encoding and decoding information
+# Component description
 
-### Encoding and Decoding procedure
+## Communication: Channel
 
-### FPCMessage class
+### IORequest management
 
-### An overview on Mapper implementations
+### Handling asynchronous data transmissions
+
+### Implementations: HTTPChannel and SimulatorChannel
 
 
-## Data management
+## Encoding and decoding information: Messages and Mappers
 
-### Transforming FPCMessages into records
+### The Mapper interface
+
+### The Message interface
+
+### Vector type management
+
+### Distinguishing different messagge types
+
+### Implementations: JSONMapper and URLEncodedMapper
+
+
+## Data management: Scripts
+
+### Transforming Messages into records
 
 ### Available instructions
 
 ### Engine architecture and execution model (debugger?)
 
 
-## FPC design
+## Putting it all together: the FPC
 
-### Public interface
+### Data access interface
 
 ### How is the FPC composed?
 
