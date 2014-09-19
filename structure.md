@@ -24,11 +24,11 @@ Cos'e' l'FPC, paradigma di accesso ai dati generati da un dispositivo.
 
 ### Runtime heterogeneity support
 
-Introduzione ai concetti di FPC Factory e Device Descriptor. Descrizione ad alto livello della procedura di creazione di nuove FPC.
+Introduzione ai concetti di FPC Factory e Device Descriptor. Descrizione ad alto livello della procedura di creazione di nuovi FPC.
 
 ## The PerLa query language
 
-Descrizione delle Low Level Query, esempi di Query utilizzate in precedenti progetti.
+Descrizione delle Low Level Query e delle query di Set, esempi estratti da progetti e paper precedenti.
 
 ## Context-management
 
@@ -90,7 +90,7 @@ Descrizione dettagliata di tutti i componenti del middleware. Motivazione dell'o
 
 ## Communicating with Channels
 
-Gestione delle comunicazioni tramite l'interfaccia Channel, descrizione e vantaggi del nuovo stack (promuove l'utilizzo di librerie off-the-shelf). Spiegazione dell'interfaccia Payload e della sua attuale implementazione ByteArrayPayload.
+Gestione delle comunicazioni tramite l'interfaccia Channel, descrizione e vantaggi del nuovo stack (promuove l'utilizzo di librerie off-the-shelf). Spiegazione dell'interfaccia Payload e della sua attuale implementazione (ByteArrayPayload).
 
 ### IORequest management
 
@@ -129,9 +129,9 @@ Descrizione delle attuali implementazioni dell'interfaccia Mapper.
 
 Motivazioni che hanno portato all'implementazione del sistema di scripting (impedence adapter tra i messaggi ricevuti dai dispositivi ed i Record utilizzati dal modello PerLa).
 
-### Transforming Messages into records
+### From Messages to Records
 
-Questa sezione descrive i meccanismi che permettono di rimodellare un messaggio ricevuto da un dispositivo della rete in un record (istruzioni Put/Emit), con particolare attenzione alla gestione di messaggi con campi di tipo composito o vettoriale.
+Questa sezione descrive i meccanismi che permettono la creazione di un Record a partire dai messaggi ricevuti dalla rete (istruzioni Put/Emit), con particolare attenzione alla gestione di messaggi con campi di tipo composito o vettoriale.
 
 ### Available instructions
 
@@ -139,7 +139,7 @@ Descrizione approfondita delle istruzioni a disposizione degli utenti, completa 
 
 ### Engine architecture and execution model
 
-Architettura dell'esecutore degli script, gestione delle comunicazioni asincrone tramite  script (istruzione submit), dettagli implementativi relativi all'utilizzo dell'Expression Language all'interno dell'esecutore.
+Architettura dell'esecutore degli script, gestione delle comunicazioni asincrone tramite  script (istruzione submit), dettagli implementativi relativi all'utilizzo dell'Expression Language nell'esecutore.
 
 ### Script examples
 
@@ -152,9 +152,9 @@ Spiega come i vari componenti descritti nelle sezioni precedenti interagiscono a
 
 ### Data access interface
 
-Metodi che l'FPC mette a disposizione dell'utente per comunicare con i dispositivi remoti.
+Metodi che l'FPC mette a disposizione dell'utente per comunicare con il dispositivo controllato.
 
-### Operations
+### Controlling the remote device
 
 Descrizione Operations. L'oggetto Operation raggruppa uno o piu' script che permettono all'FPC di estrarre (o inviare) un determinato set di attributi da un nodo della rete.
 
@@ -171,13 +171,13 @@ Riepilogo dei vari elementi che compongono il descrittore, focus sull'attuale si
 
 ### FPC Factory
 
-Creazione e configurazione dell'FPCFactory, registrazione di nuovi plugin. Descrizione della procedura di creazione di una nuova FPC.
+Configurazione dell'FPCFactory, registrazione di nuovi plugin. Descrizione della procedura di creazione di una nuova FPC.
 
 ### Registry
 
 Funzionamento e design della nuova versione dell'FPC Registry.
 
-### Complete XML Descriptor examples
+### Complete XML Device Descriptor examples
 
 Esempi commentati di descrittori XML.
 
