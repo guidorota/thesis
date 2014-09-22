@@ -1,0 +1,92 @@
+\chapter{In-depth component description}
+
+\section{Communicating with Channels}
+
+Channel is an interface for performing I/O operations.
+
+
+\lstset{language=Java}
+\begin{lstlisting}[caption=The Channel interface]
+public interface Channel {
+	public String getId();
+	
+	public IOTask submit(IORequest request, IOHandler handler)
+			throws ChannelException;
+	
+	public void setAsyncIOHandler(IOHandler handler)
+			throws IllegalStateException;
+			
+	public boolean isClosed();
+	
+	public void close();		
+}
+\end{lstlisting}
+
+There is no limit on the number of channels used by an FPC. Complex behaviours can be implemented using different channels
+
+What is a Channel? What does it do?
+
+Interface description: methods, IORequest, IOHandler IOTask and Payload.
+ByteArrayPayload description
+
+The new Channel structure is monolithic, in that it contains all network layers required for the communication. This is in contrast with the previous middleware architecture, where communication layers where diveded between the legacy Channel implementation and the FPC. This new structure allows better reuse of off-the-shelf libraries.
+
+ChannelFactory interface, methods and generic ChannelDescriptor structure
+
+Basic XML 
+
+\subsection{IORequest management}
+
+Customizing request with parameters
+
+IORequestBuilder and IORequestBuilderFactory
+
+\subsection{Handling asynchronous data transmissions}
+
+setAsyncIOHandler, how does it work and why do we need it
+
+\subsection{Implementations: HTTPChannel and SimulatorChannel}
+
+Full examples of actual implementations, complete with XML descriptor snippets
+
+
+\section{Encoding and decoding information}
+
+\subsection{The Message and Mapper interfaces}
+
+\subsection{Handling composite data structures}
+
+\subsection{Managing multiple message types}
+
+\subsection{Implementations: JSONMapper and URLEncodedMapper}
+
+
+\section{Data management: Scripts}
+
+\subsection{From Messages to Records}
+
+\subsection{Available instructions}
+
+\subsection{Engine architecture and execution model}
+
+\subsection{Script examples}
+
+
+\section{Putting it all together: the FPC}
+
+\subsection{Data access interface}
+
+\subsection{Controlling the remote device}
+
+\subsection{Scheduling mechanism}
+
+
+\section{Device Descriptor and FPC Factory}
+
+\subsection{The XML Device Descriptor}
+
+\subsection{FPC Factory}
+
+\subsection{Registry}
+
+\subsection{Complete XML Device Descriptor examples}
