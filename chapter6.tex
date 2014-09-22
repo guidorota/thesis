@@ -2,17 +2,30 @@
 
 \section{Communicating with Channels}
 
-\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used to communicate with the external world.
+\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services. Thanks to their generic interface, \texttt{Channel}s can be used for a wide variety of I/O taks, including but not limited to networking, file management, and automatic data generation.
 
-In this new middleware architecture, \texttt{Channel}s are designed to implement a complete communication stack. This characteristics makes them better suited
+All \texttt{Channel}s are created open and ready to be used. They may be optionally closed to relinquish resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be opened again, and every subsequent attempt to perform an IO operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
 
-\texttt{Channel}s are open upon creation, and may be optionally closed by invoking the \texttt{close()} method to relinquish resources. Once closed, a \texttt{Channel} cannot be reopened again, and every subsequent attempt to perform an IO operation will fail causing a \texttt{ChannelException} to be thrown. The status of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
+New I/O operations are started using the \texttt{submit()} method. As can be seen by reading the signature available in listing~\ref{lst:channel.submit}, this method is a direct implementation of the asynchronous invocation paradigm introduced in section~\ref{sec:newmiddleware.async}. Calls to \texttt{submit()} are non-blocking, and require the caller to specify an \texttt{IOHandler} through which data and errors will be notified once the requested operation is fulfilled. 
 
-As can be seen in \ref{lst:channel}, \texttt{Channel}s are identified by an string identifier, used 
+Explain the methods in the IOHandler interface
+
+
+Ongoing I/O operations can be handled through the \texttt{IOTask} object, which is returned upon submitting a new request
+
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=H,caption=The Channel.submit() method signature,label={lst:channel.submit}]
+public IOTask submit(IORequest request, IOHandler handler)
+	throws ChannelException;
+\end{lstlisting}
+
+
+
+
 
 
 \lstset{language=Java}
-\begin{lstlisting}[caption=The Channel interface,label={lst:channel}]
+\begin{lstlisting}[float,floatplacement=H,caption=The Channel interface,label={lst:channel}]
 public interface Channel {
 	public String getId();
 	
@@ -28,9 +41,15 @@ public interface Channel {
 }
 \end{lstlisting}
 
-There is no limit on the number of channels used by an FPC. Complex behaviours can be implemented using different channels
 
-What is a Channel? What does it do?
+
+
+
+
+
+
+
+There is no limit on the number of channels used by an FPC. Complex behaviours can be implemented using different channels
 
 Interface description: methods, IORequest, IOHandler IOTask and Payload.
 ByteArrayPayload description
