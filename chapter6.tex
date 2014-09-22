@@ -2,38 +2,11 @@
 
 \section{Communicating with Channels}
 
-\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services. The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result, a wide variety of I/O taks, including but not limited to networking, file management, and automatic data generation can be implemented as a \texttt{Channel}
+\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services. The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
 
-\texttt{Channel} implementations can be used for a wide variety of I/O taks, including but not limited to networking, file management, and automatic data generation.
+\texttt{Channel}s are created open and ready to be used. They may be optionally closed to relinquish unused resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened, and every subsequent attempt to perform an IO operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
 
-All \texttt{Channel}s are created open and ready to be used. They may be optionally closed to relinquish resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be opened again, and every subsequent attempt to perform an IO operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
-
-\lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=H,caption=The Channel.submit() method signature,label={lst:channel.submit}]
-public IOTask submit(IORequest request, IOHandler handler)
-	throws ChannelException;
-\end{lstlisting}
-
-New I/O operations are started by dispatching an \texttt{IORequest} object through the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel.submit}, this method is a direct implementation of the asynchronous invocation paradigm introduced in section~\ref{sec:newmiddleware.async}. Calls to \texttt{submit()} are non-blocking and require the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
-
-\texttt{IORequest} is an interface that identifies a generic task that can be executed by a \texttt{Channel}. 
-
-
-The status of an ongoing operation can be queried and modified with the \texttt{IOTask} object, which is returned upon submitting a new request.
-
-
-\lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=H,caption=The IOHandler interface,label={lst:iohandler}]
-public interface IOHandler {
-	public void complete(IORequest request, Optional<Payload> result);
-	
-	public void error(IORequest request, Throwable cause);
-}
-\end{lstlisting}
-
-
-
-
+Every user-initiated interaction with a \texttt{Channel} begins with the creation of an appropriate \texttt{IORequest}, an object that contains all parameters required to characterize the specific I/O operation to be performed. No default implementation is provided for this interface, as its structure strictly depends on the gamut of operations supported by each individual \texttt{Channel}. A set of guidelines for the implementation and management of \texttt{IORequest} objects will follow in the next sections of this chapter.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The Channel interface,label={lst:channel}]
@@ -52,7 +25,32 @@ public interface Channel {
 }
 \end{lstlisting}
 
+\texttt{IORequest} objects can be submitted to a \texttt{Channel} by means of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, this method is a direct implementation of the asynchronous invocation paradigm introduced in section~\ref{sec:newmiddleware.async}. Calls to \texttt{submit()} are non-blocking and require the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
 
+The status of an ongoing operation can be queried and modified with the \texttt{IOTask} object, which is returned upon submitting a new request.
+
+
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=H,caption=The IOHandler interface,label={lst:iohandler}]
+public interface IOHandler {
+	public void complete(IORequest request, Optional<Payload> result);
+	
+	public void error(IORequest request, Throwable cause);
+}
+\end{lstlisting}
+
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=H,caption=The IOTask interface,label={lst:iotask}]
+public interface IOTask {
+	public void cancel();
+	
+	public IORequest getRequest();
+	
+	public boolean isCancelled();
+	
+	public boolean isDone();
+}
+\end{lstlisting}
 
 
 
