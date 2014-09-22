@@ -2,11 +2,17 @@
 
 \section{Communicating with Channels}
 
-Channel is an interface for performing I/O operations.
+\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used to communicate with the external world.
+
+In this new middleware architecture, \texttt{Channel}s are designed to implement a complete communication stack. This characteristics makes them better suited
+
+\texttt{Channel}s are open upon creation, and may be optionally closed by invoking the \texttt{close()} method to relinquish resources. Once closed, a \texttt{Channel} cannot be reopened again, and every subsequent attempt to perform an IO operation will fail causing a \texttt{ChannelException} to be thrown. The status of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
+
+As can be seen in \ref{lst:channel}, \texttt{Channel}s are identified by an string identifier, used 
 
 
 \lstset{language=Java}
-\begin{lstlisting}[caption=The Channel interface]
+\begin{lstlisting}[caption=The Channel interface,label={lst:channel}]
 public interface Channel {
 	public String getId();
 	
