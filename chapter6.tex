@@ -4,28 +4,9 @@
 
 \texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services. The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
 
-The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around a third-party communication library. The \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of this design strategy; implemented as a simple wrapper around Apache's HTTPComponents toolkit, its development only required a basic understanding of the HTTP protocol, yet this \texttt{Channel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for further details).
+The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around third-party communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of this design strategy. Implemented as a simple wrapper around Apache's HTTP Components toolkit, its development only required a basic understanding of the HTTP protocol; yet this \texttt{Channel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for additional details).
 
-
-
-\texttt{Channel}s are created open and ready to be used. They may be optionally closed to relinquish unused resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened, and every subsequent attempt to perform an IO operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
-
-Every user-initiated interaction with a \texttt{Channel} begins with the creation of an appropriate \texttt{IORequest}, an object that contains all parameters required to characterize the I/O operation being started. Different types of Channel require different types IORequests, since the parameters needed for starting an I/O operation depend upon the technical characteristics of the I/O operation itself.
-
-Since the specific contents of an \texttt{IORequest} object vary with the type of , the middleware does not provide a universal implementation for the \texttt{IORequest} object, 
-
-
-A class of \texttt{IORequest} objects is tipically designed to be used with a specific \texttt{Channel} implementation, as its contents strictly depend on the gamut of operations supported by the \texttt{Channel} by which it is supposed to be executed 
-
-The specific contents of an this object depend on the type of operations supported by the \texttt{Channel} that will perform
-
-Different communication tasks require different parameters to be performed successfully: an appropriate URL is needed 
-
-It is clear, even from this short lists of examples, that different IORequest objects
-
-As such, a class of \texttt{IORequest} objects is typically...
-
- A class of \texttt{IORequest} objects is tipically designed to be used with a specific \texttt{Channel} implementation, as its contents strictly depend on the gamut of operations supported by the \texttt{Channel} by which it is supposed to be executed (e.g., \texttt{HTTPIORequests} can only be processed by an \texttt{HTTPChannel}). For this reason, the middleware does not provide a default implementation is provided for the \texttt{IORequest} interface. A set of guidelines for the implementation and management of \texttt{IORequest} objects will follow in the next sections of this chapter.
+Upon instantiation, \texttt{Channel}s are open and ready to be used. They may be optionally closed to relinquish unused resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened, and every subsequent attempt to perform an I/O operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The Channel interface,label={lst:channel}]
@@ -43,6 +24,44 @@ public interface Channel {
 	public void close();		
 }
 \end{lstlisting}
+
+All user-initiated \texttt{Channel} interactions begin with an invocation of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, this method is a direct implementation of the asynchronous interaction paradigm introduced in section~\ref{sec:newmiddleware.async}. \texttt{submit()} is non-blocking and requires the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
+
+The emphasis on asynchronous execution is underscored by the absence of blocking operations from the \texttt{Channel} interface. This aspect is of paramount importance for the entire middleware design, as implementing a truly asynchronous system would prove impossible if such feature were not provided by its core data access objects.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Every user-initiated interaction with a \texttt{Channel} begins with the creation of an appropriate \texttt{IORequest}, an object that contains all parameters required to characterize the I/O operation being started. Different \texttt{Channel}s require different \texttt{IORequest}s, since the parameters needed for starting an I/O operation depend upon the technical characteristics of the I/O operation itself.
+
+Since the specific contents of an \texttt{IORequest} object vary with the type of , the middleware does not provide a universal implementation for the \texttt{IORequest} object, 
+
+
+A class of \texttt{IORequest} objects is tipically designed to be used with a specific \texttt{Channel} implementation, as its contents strictly depend on the gamut of operations supported by the \texttt{Channel} by which it is supposed to be executed 
+
+The specific contents of an this object depend on the type of operations supported by the \texttt{Channel} that will perform
+
+Different communication tasks require different parameters to be performed successfully: an appropriate URL is needed 
+
+It is clear, even from this short lists of examples, that different IORequest objects
+
+As such, a class of \texttt{IORequest} objects is typically...
+
+ A class of \texttt{IORequest} objects is tipically designed to be used with a specific \texttt{Channel} implementation, as its contents strictly depend on the gamut of operations supported by the \texttt{Channel} by which it is supposed to be executed (e.g., \texttt{HTTPIORequests} can only be processed by an \texttt{HTTPChannel}). For this reason, the middleware does not provide a default implementation is provided for the \texttt{IORequest} interface. A set of guidelines for the implementation and management of \texttt{IORequest} objects will follow in the next sections of this chapter.
 
 \texttt{IORequest} objects can be submitted to a \texttt{Channel} by means of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, this method is a direct implementation of the asynchronous invocation paradigm introduced in section~\ref{sec:newmiddleware.async}. Calls to \texttt{submit()} are non-blocking and require the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
 
