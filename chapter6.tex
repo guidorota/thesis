@@ -29,16 +29,39 @@ public interface Channel {
 
 All user-initiated I/O operations begin with an invocation of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, \texttt{submit()} is a direct implementation of the asynchronous interaction paradigm introduced in section~\ref{sec:newmiddleware.async}.
 
-The emphasis on asynchronous execution is underscored by the absence of blocking operations in the \texttt{Channel} interface. This aspect is of paramount importance for the entire middleware design, as implementing a truly asynchronous system would prove impossible if such feature were not provided by its core data access layer.
+The emphasis on asynchronous execution is underscored by the absence of blocking operations in the \texttt{Channel} interface. This aspect is of paramount importance for the entire Middleware design, as implementing a truly asynchronous system would prove impossible if such feature were not provided by its core data access layer.
 
 
 \section{Instantiating new Channels}
 
-Instantiation of new \texttt{Channel} objects is performed by means of the  \texttt{ChannelFactory}, an interface that implements the general Factory pattern outlined in section~\ref{sec:newmiddleware.factory}.
+Instantiation of new \texttt{Channel} objects is performed by means of the  \texttt{ChannelFactory} interface. \texttt{ChannelFactories}, as suggested by their name, are actual reifications of the Factory design pattern.
 
-The Factory pattern is a methodology employed to polymorphically instantiate new objects, so that the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the middleware to adapt in response to new environmental conditions, like the introduction of a new sensing device, and to support extension through the addition of new user-defined \texttt{Channel}s.
+The Factory pattern is a methodology employed to polymorphically instantiate new objects, so that the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the Middleware to dynamically adapt in response to environment changes, and to support extension through the addition of new user-defined \texttt{Channel}s. For further information regarding the Factory pattern and its uses inside the PerLa Middleware refer to section~\ref{sec:newmiddleware.factory}.
 
-Every
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=H,caption=The ChannelFactory interface,label={lst:channelFactory}]
+public interface ChannelFactory {
+	public Class<? extends ChannelDescriptor>
+			acceptedChannelDescriptorClass();
+
+	public Channel createChannel(ChannelDescriptor descriptor)
+			throws InvalidDeviceDescriptorException;
+
+}
+\end{lstlisting}
+
+Construction of a new \texttt{Channel} can be triggered by invoking the \texttt{createChannel()} method on an appropriate \texttt{ChannelFactory} instance. As shown in listing~\ref{lst:channelFactory}, this method required a single parameter of type \texttt{ChannelDescriptor}, a container object that holds all information required to configure the \texttt{Channel} being created.
+
+\texttt{ChannelFactories} can only be used to instantiate a single class of \texttt{Channel} objects. For instance, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor} objects and creates \texttt{HTTPChannel}s, whereas the hypotetical \texttt{SerialChannelFactory} would parse \texttt{SerialChannelDescriptor}s and create \texttt{SerialChannel} instances.
+
+The specific \texttt{ChannelDescriptor} class accepted by a \texttt{ChannelFactory} can be discovered by invoking the \texttt{ChannelFactory.acceptedChannelDescriptorClass()} method.
+
+
+
+
+
+
+Each \texttt{ChannelFactory} implementation is designed to implement a single type of \texttt{Channel}. This 
 
 The PerLa middleware contains several concrete implementations of this interface, one for each available \texttt{Channel} type. 
 
@@ -54,18 +77,6 @@ Before delving into the mechanics of the latter method, whose semantics should b
 
 
 The semantics of the latter is self explanatory; \texttt{createChannel()} is invoked to trigger the creation of a new \texttt{Channel} instance. The particular 
-
-\lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=H,caption=The ChannelFactory interface,label={lst:channelFactory}]
-public interface ChannelFactory {
-	public Class<? extends ChannelDescriptor>
-			acceptedChannelDescriptorClass();
-
-	public Channel createChannel(ChannelDescriptor descriptor)
-			throws InvalidDeviceDescriptorException;
-
-}
-\end{lstlisting}
 
 
 
