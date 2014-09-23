@@ -2,9 +2,11 @@
 
 \section{Communicating with Channels}
 
-\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services. The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
+\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services.
 
-The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around third-party communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of this design strategy. Implemented as a simple wrapper around Apache's HTTP Components toolkit, its development only required a basic understanding of the HTTP protocol; yet this \texttt{Channel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for additional details).
+The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
+
+The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around third-party communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of the advantages of this design strategy. Implemented as a simple wrapper around Apache's HTTP Components toolkit, its development only required a basic understanding of the HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for additional details).
 
 Upon instantiation, \texttt{Channel}s are open and ready to be used. They may be optionally closed to relinquish unused resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened, and every subsequent attempt to perform an I/O operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
 
@@ -25,21 +27,95 @@ public interface Channel {
 }
 \end{lstlisting}
 
-All user-initiated \texttt{Channel} interactions begin with an invocation of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, this method is a direct implementation of the asynchronous interaction paradigm introduced in section~\ref{sec:newmiddleware.async}. \texttt{submit()} is non-blocking and requires the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
+All user-initiated I/O operations begin with an invocation of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, \texttt{submit()} is a direct implementation of the asynchronous interaction paradigm introduced in section~\ref{sec:newmiddleware.async}.
 
-The emphasis on asynchronous execution is underscored by the absence of blocking operations from the \texttt{Channel} interface. This aspect is of paramount importance for the entire middleware design, as implementing a truly asynchronous system would prove impossible if such feature were not provided by its core data access objects.
-
-
+The emphasis on asynchronous execution is underscored by the absence of blocking operations in the \texttt{Channel} interface. This aspect is of paramount importance for the entire middleware design, as implementing a truly asynchronous system would prove impossible if such feature were not provided by its core data access layer.
 
 
+\section{Instantiating new Channels}
+
+Instantiation of new \texttt{Channel} objects is performed by means of the  \texttt{ChannelFactory}, an interface that implements the general Factory pattern outlined in section~\ref{sec:newmiddleware.factory}.
+
+The Factory pattern is a methodology employed to polymorphically instantiate new objects, so that the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the middleware to adapt in response to new environmental conditions, like the introduction of a new sensing device, and to support extension through the addition of new user-defined \texttt{Channel}s.
+
+Every
+
+The PerLa middleware contains several concrete implementations of this interface, one for each available \texttt{Channel} type. 
+
+as ..., the main purpose of the \texttt{ChannelFactory} method is to construct new \texttt{Channel} objects from a 
+
+As shown in listing~\ref{lst:channelFactory}, all \texttt{ChannelFactory} objects are composed of the following two methods: \texttt{acceptedChannelDescriptorClass()} and \texttt{createChannel()}. Before delving into the mechanics of these two methods, it is worth spending a moment to review the 
+
+
+Before delving into the mechanics of the latter method, whose semantics should be self explanatory, it is worth spending a moment to review and explain the rationale behind the former of the two.
+
+\texttt{acceptedChannelDescriptorClass} returns 
+
+
+
+The semantics of the latter is self explanatory; \texttt{createChannel()} is invoked to trigger the creation of a new \texttt{Channel} instance. The particular 
+
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=H,caption=The ChannelFactory interface,label={lst:channelFactory}]
+public interface ChannelFactory {
+	public Class<? extends ChannelDescriptor>
+			acceptedChannelDescriptorClass();
+
+	public Channel createChannel(ChannelDescriptor descriptor)
+			throws InvalidDeviceDescriptorException;
+
+}
+\end{lstlisting}
+
+
+
+Each \texttt{ChannelFactory} implementation is responsible for the creation of a single \texttt{Channel} type. It comes there 
+
+This interface is the 
+
+The \texttt{SerialChannelFactory} for an hypothetical \texttt{SerialChannel}, would be implemented in the following way:
+
+Each \texttt{ChannelFactory} implementation is responsible for the creation of a single \texttt{Channel} type. Continuing the example started in the introductory section of this chapter, \texttt{HTTPChannel}
+
+As shown in listing~\ref{lst:channelFactory}, 
+
+The ChannelDescriptor objects contain the configuration information that is needed by the ChannelFactory to instantiate new Channels.
+Example of a hypothetical ChannelDescriptor for Serial communications
+
+\texttt{Channel}s are one of the extension points available in the PerLa middleware. Instantiation of new \texttt{Channel}s is therefore delegated to a series of \texttt{ChannelFactory} objects, they are instantiated using the factory pattern introduced in section~\ref{sec:newmiddleware.factory}
+
+New \texttt{Channel} objects are instantiated through the Factory pattern introduced in section~\ref{sec:newmiddleware.factory}. The factory object responsible for the creation of new \texttt{Channel} instances is called \texttt{ChannelFactory}.
 
 
 
 
 
+usually done by the FPC Factory component, as channels are part of the PerLa plugin system
+
+related XML tags, ChannelDescriptor
+
+Previous design had a single channel, multiplexed through a channelmanager so tat it could be used by different fpc. Now there is a single channel instance for each fpc, and if multiplexing still has to be done, it has to be implemented by each single channel (maybe I wouldn't brag about this)
+
+
+\subsection{IORequest management}
+
+Every user-initiated interaction with a \texttt{Channel} begins with the creation of an appropriate \texttt{IORequest}, an object that contains all parameters required to characterize the I/O operation being started. Different \texttt{Channel}s require different \texttt{IORequest}s, since the parameters needed for starting an I/O operation depend upon the technical characteristics of the I/O operation itself.
+
+
+Every \texttt{Channel} comes bundled with one or more \texttt{IORequest} concrete classes. \texttt{IORequest}s objects that are used to pass
 
 
 
+
+
+\section{Performing I/O operations}
+
+
+The outcome of an I/O operation are collected through the \texttt{IOHandler} passed as parameter to the \texttt{submit()} method. 
+
+\texttt{submit()} requires the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
+
+The execution of an ongoing I/O operations can be monitored and altered using the \texttt{IOTask} object returned 
 
 
 
@@ -106,10 +182,6 @@ The new Channel structure is monolithic, in that it contains all network layers 
 ChannelFactory interface, methods and generic ChannelDescriptor structure
 
 Basic XML 
-
-\subsection{IORequest management}
-
-Customizing request with parameters
 
 IORequestBuilder and IORequestBuilderFactory
 
