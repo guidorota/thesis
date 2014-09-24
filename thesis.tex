@@ -1,6 +1,6 @@
 \documentclass[12pt,a4paper,twoside]{book}
 \usepackage[utf8]{inputenc}
-\usepackage{graphicx}
+\usepackage[pctex32]{graphicx}
 \usepackage{setspace}
 \usepackage{emptypage}
 \usepackage{float}
@@ -29,11 +29,12 @@
 	stringstyle=\color{code_string},
 	breaklines=true,
 	breakatwhitespace=true
-	tabsize=3
+	tabsize=3,
+	captionpos=b
 }
 
-\DeclareCaptionFormat{listing}{\rule{\dimexpr\textwidth\relax}{0.4pt}\par\addvspace{-6pt} #1#2#3}
-\captionsetup[lstlisting]{format=listing,singlelinecheck=false, margin=0pt, font={sf}}
+\captionsetup[lstlisting]{singlelinecheck=false,margin=0pt,font={small,sf}}
+\captionsetup[figure]{singlelinecheck=false,margin=0pt,font={small,sf}}
 
 \linespread{1.3}
 

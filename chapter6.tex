@@ -52,17 +52,20 @@ public interface ChannelFactory {
 
 All information required to create a new \texttt{Channel} instance must be stored inside a \texttt{ChannelDescriptor}. As shown in listing~\ref{lst:channelFactory}, this configuration object is the only parameter required to correctly invoke the \texttt{createChannel()} method.
 
-Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas the hypothetical \texttt{SerialChannelFactory} would parse \texttt{SerialChannelDescriptor} objects to create \texttt{SerialChannel} instances.
+Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas the hypothetical \texttt{SerialChannelFactory} would parse \texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to provide a suitable \texttt{ChannelDescriptor} object will cause the \texttt{createChannel()} method to fail, throwing an \texttt{InvalidDeviceDescriptorException}.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{imgs/channel_factory.eps}
+\caption{Class diagram of the Channel layer}
+\end{figure}
 
 The type of \texttt{ChannelDescriptor} accepted by a \texttt{ChannelFactory} can be queried with the \texttt{acceptedChannelDescriptorClass()} method. This dynamic discovery mechanism is the fulcrum of the Middleware plugin system, as it allows the \texttt{FPCFactory} to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
 
+Contents of the \texttt{ChannelDescriptor} are loaded at runtime from an XML representation; this process is automatically performed by the JAXB library, which is also responsible for instantiating the correct \texttt{ChannelDescriptor} class using XML Namespace information (refer to section~\label{sec:newmiddleware.descriptor} for additional details).
+
+Since the 
 
 
-
-
-usually done by the FPC Factory component, as channels are part of the PerLa plugin system
-
-related XML tags, ChannelDescriptor
 
 Previous design had a single channel, multiplexed through a channelmanager so tat it could be used by different fpc. Now there is a single channel instance for each fpc, and if multiplexing still has to be done, it has to be implemented by each single channel (maybe I wouldn't brag about this)
 
