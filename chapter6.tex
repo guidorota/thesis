@@ -4,7 +4,7 @@
 
 \texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services.
 
-The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
+The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to, networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
 
 The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around third-party communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of the advantages of this design strategy. Implemented as a simple wrapper around Apache's HTTP Components toolkit, its development only required a basic understanding of the HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for additional details).
 
@@ -34,7 +34,7 @@ The emphasis on asynchronous execution is underscored by the absence of blocking
 
 \section{Instantiating Channels}
 
-Creation of new \texttt{Channel}s is performed by means of the  \texttt{ChannelFactory} interface, an actual reifications of the Factory design pattern that allows polymorphic instantiation of object classes.
+Creation of new \texttt{Channel}s is performed by means of the  \texttt{ChannelFactory} interface, a reification of the Factory design pattern that allows polymorphic instantiation of object classes.
 
 By using the Factory instantiation model, the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the Middleware to dynamically adapt in response to environment changes, and to support extension through the addition of new user-defined \texttt{Channel}s. For further information regarding the Factory pattern and its uses inside the PerLa Middleware, refer to section~\ref{sec:newmiddleware.factory}.
 
@@ -50,21 +50,34 @@ public interface ChannelFactory {
 }
 \end{lstlisting}
 
-All information required to create a new \texttt{Channel} instance must be stored inside a \texttt{ChannelDescriptor}. As shown in listing~\ref{lst:channelFactory}, this configuration object is the only parameter required to correctly invoke the \texttt{createChannel()} method.
+All data required to create a new \texttt{Channel} must be stored inside a \texttt{ChannelDescriptor}. As shown in listing~\ref{lst:channelFactory}, this configuration object is the only parameter required to correctly invoke the \texttt{createChannel()} method.
 
-Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas the hypothetical \texttt{SerialChannelFactory} would parse \texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to provide a suitable \texttt{ChannelDescriptor} object will cause the \texttt{createChannel()} method to fail, throwing an \texttt{InvalidDeviceDescriptorException}.
-
-\begin{figure}
+\begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/channel_factory.eps}
 \caption{Class diagram of the Channel layer}
 \end{figure}
 
-The type of \texttt{ChannelDescriptor} accepted by a \texttt{ChannelFactory} can be queried with the \texttt{acceptedChannelDescriptorClass()} method. This dynamic discovery mechanism is the fulcrum of the Middleware plugin system, as it allows the \texttt{FPCFactory} to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
+Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas the hypothetical \texttt{SerialChannelFactory} would parse \texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to provide a suitable \texttt{ChannelDescriptor} object will cause the \texttt{createChannel()} method to throw an \texttt{InvalidDeviceDescriptorException}.
 
-Contents of the \texttt{ChannelDescriptor} are loaded at runtime from an XML representation; this process is automatically performed by the JAXB library, which is also responsible for instantiating the correct \texttt{ChannelDescriptor} class using XML Namespace information (refer to section~\label{sec:newmiddleware.descriptor} for additional details).
+The \texttt{ChannelDescriptor} type supported by a \texttt{ChannelFactory} can be queried with the \texttt{acceptedChannelDescriptorClass()} method. This dynamic discovery mechanism is the fulcrum of the Middleware plugin system, as it allows the \texttt{FPCFactory} to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
 
-Since the 
+\texttt{ChannelDescriptor} objects are automatically instantiated by the Middleware using the information contained in the Device Descriptor XML files. This binding process is automatically performed by the JAXB library, which is also responsible for instantiating the correct \texttt{ChannelDescriptor} class using XML Namespace information (refer to section~\label{sec:newmiddleware.descriptor} for additional details).
 
+An example of the complete Channel creation procedure is given 
+
+\begin{figure}[h!]
+\includegraphics[width=\textwidth]{imgs/channel_creation_process.eps}
+\caption{The Channel creation process}
+{
+\begin{footnotesize}
+\begin{enumerate}
+  \item JAXB binds the XML Device Descriptor to an apropriate \texttt{ChannelDescriptor} object
+  \item A suitable \texttt{ChannelFactory} is selected using the \texttt{acceptedChannelDescriptorClass()} method
+  \item The information contained in the \texttt{SerialChannelDescriptor} to create a new \texttt{SerialChannel}
+\end{enumerate}
+\end{footnotesize}
+}
+\end{figure}
 
 
 Previous design had a single channel, multiplexed through a channelmanager so tat it could be used by different fpc. Now there is a single channel instance for each fpc, and if multiplexing still has to be done, it has to be implemented by each single channel (maybe I wouldn't brag about this)
