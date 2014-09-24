@@ -82,6 +82,24 @@ It is important to note that a single JVM instance running the PerLa Middleware 
 
 \subsection{IORequest management}
 
+IORequest is the object that allows users to specify which operation has to be performed by a channel.
+
+Since different channels are built over different communication technologies, each channel comes with its particular IOReqeust imlementation (HTTPIORequest, SerialIORequest)
+
+IORequestBuilder is a class for constructing new IORequest following a pattern given in the XML Device Descriptor. This is necessary since a single request may have to be used several times during the lifecycle of a device (e.g., query multiple times the same server, starting and stopping a sampling operation based on current active user queries.
+
+Once an IORequestBuilder is created, it can be used several times to create new requests.
+
+IORequestBuilders are created by an IORequestBuilderFactory, which takes an IORequestDescriptor object and uses it to parameterize the IORequestBuilder.
+
+
+Once an IORequest is created, it can be parameterized with one or more Payloads. The entity of these payloads depends on the underlying Channel technology (HTTP body, etc). Should I introduce the Payload concept in the introductory section?
+
+
+
+
+
+
 Every user-initiated interaction with a \texttt{Channel} begins with the creation of an appropriate \texttt{IORequest}, an object that contains all parameters required to characterize the I/O operation being started. Different \texttt{Channel}s require different \texttt{IORequest}s, since the parameters needed for starting an I/O operation depend upon the technical characteristics of the I/O operation itself.
 
 
@@ -91,7 +109,7 @@ Every \texttt{Channel} comes bundled with one or more \texttt{IORequest} concret
 
 
 
-\section{Performing I/O operations}
+\subsection{Handling asynchronous I/O operations}
 
 
 The outcome of an I/O operation are collected through the \texttt{IOHandler} passed as parameter to the \texttt{submit()} method. 
@@ -167,8 +185,6 @@ ChannelFactory interface, methods and generic ChannelDescriptor structure
 Basic XML 
 
 IORequestBuilder and IORequestBuilderFactory
-
-\subsection{Handling asynchronous data transmissions}
 
 setAsyncIOHandler, how does it work and why do we need it
 
