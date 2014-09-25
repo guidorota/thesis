@@ -59,7 +59,7 @@ All data required to create a new \texttt{Channel} must be stored inside a \text
 
 Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas the hypothetical \texttt{SerialChannelFactory} would consume \texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to provide a suitable \texttt{ChannelDescriptor} object will cause the \texttt{createChannel()} method to throw an \texttt{InvalidDeviceDescriptorException}.
 
-The \texttt{ChannelDescriptor} type supported by a \texttt{ChannelFactory} can be queried with the \texttt{acceptedChannelDescriptorClass()} method. This dynamic discovery mechanism is the fulcrum of the plugin system, as it allows the Middleware to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
+The \texttt{acceptedChannelDescriptorClass()} method can be used to dynamically discover which \texttt{ChannelDescriptor} type is supported by a specific \texttt{ChannelFactory}. This method is the fulcrum of the \texttt{Channel} plugin system, as it allows the Middleware to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/channel_creation_process.eps}
@@ -83,11 +83,11 @@ It is important to note that a single JVM instance running the PerLa Middleware 
 
 \subsection{IORequest management}
 
-\texttt{IORequest} is the base object interface employed to interact with a device connected to the Middleware. It contains two types of information: payload data to be transferred, and \texttt{Channel}-dependent configurations needed for a correct communication with the endpoint device.
+\texttt{IORequest} is the base object interface employed to interact with a device connected to the Middleware. It contains two types of information: the payload to be transferred, and \texttt{Channel}-dependent data needed for a correct communication with the endpoint device.
 
-Since different communication technologies require different settings to establish end-to-end connectivity, every \texttt{Channel} is bundled with one or more custom \texttt{IORequest} classes. Following up on previous examples, at least one \texttt{SerialIORequest} should be made available for the fictitious \texttt{SerialChannel} implementation to work correctly.
+Since different communication technologies require different configuration settings to establish end-to-end connectivity, every \texttt{Channel} is bundled with one or more custom \texttt{IORequest} classes. Following up on previous examples, the \texttt{HTTPChannel} package contains a \texttt{HTTPIORequest} object, whereas the fictitious \texttt{SerialChannel} would be supplied with a \texttt{SerialIORequest} class of request objects.
 
-As shown in listing~\ref{lst:iorequest}, payload data can be set by means of the generic \texttt{setParameter()} method. \texttt{Payload}sare addressed by name, and a single \texttt{IORequest} implementation may support several at once. The exact set of \texttt{Payload} parameters accepted by an \texttt{IORequest} class depends on the design of the associated \texttt{Channel}; for example, the \texttt{HTTPChannel} implementation provided with the Middleware supports two: an `entity' payload (e.g., a JSON or XML message sent as request body), and a `query' payload (usually an URL-encoded string).
+As shown in listing~\ref{lst:iorequest}, payload data can be set in an \texttt{IORequest} by means of the generic \texttt{setParameter()} method. \texttt{Payload}s are addressed by name, and a single \texttt{IORequest} implementation may support several at once. The exact set of \texttt{Payload} parameters accepted by an \texttt{IORequest} class depends on the design of the associated \texttt{Channel}; for example, the \texttt{HTTPChannel} implementation provided with the Middleware supports three: an `entity' payload (e.g., a JSON or XML message sent as request body), a `query' payload (usually an URL-encoded string), and a `path' payload (a path component used to identify a single resource accessible from a base URI).
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The IORequest interface,label={lst:iorequest}]
@@ -98,15 +98,16 @@ public interface IORequest {
 }
 \end{lstlisting}
 
-\texttt{IORequest}s are disposable objects; they are created, submitted to a \texttt{Channel}, and garbage collected once the communication is over. Creation is performed by means of a factory interface dubbed \texttt{IORequestBuilder}, which allows the Middleware to build new copies of an \texttt{IORequest} from a fixed template. It is important to note, however, that \texttt{IORequest} objects built using this technique do not contain any \texttt{Payload} parameter; this information has to be added manually before the newly created request is used.
+\texttt{IORequest}s are disposable objects; they are created, submitted to a \texttt{Channel}, and garbage collected once the communication is over. Creation is performed by means of a factory interface dubbed \texttt{IORequestBuilder}, which allows the Middleware to build new copies of an \texttt{IORequest} from a fixed template. It is important to note that \texttt{IORequest} objects built using this technique do not contain any \texttt{Payload} parameter.
 
-The main advantage brought by this templating mechanism is that \texttt{Channel}-related configuration settings are only to be specified once. The same \texttt{IORequest} structure can be reused multiple times to transport different payload information as needed.
+A single device connected to the PerLa Middleware is usually managed using several \texttt{IORequestBuilder}s, any one of which is responsible for controlling a single aspect of the interaction with the endpoint. The main advantage brought by this templating mechanism is that \texttt{Channel}-related configuration settings are only specified once, hence the same \texttt{IORequest} structure can be reused multiple times to transport different payload information.
 
-REST APIs are an excellent source of usage examples for the \texttt{IORequestBuilder} interface. 
+REST APIs are an excellent use case for the concepts introduced in this section, as every operation on a RESTful resource can be easily abstracted using an appropriately configured \texttt{HTTPIORequestBuilder} object.
 
-A typical usage example of the \texttt{IORequestBuilder} interface 
+Protocol information, like base URL, HTTP method, and header information, are only specified once while creating the request builder. Once this step is done, the API endpoint can be invoked several times just by building an IORequest with the \texttt{HTTPIORequestBuilder}. Payload information may be added as needed (e.g. to create a new object).
 
-A series of \texttt{HTTPIORequestBuilders} may be created to map a REST interface
+In later sections we will see how this ties together with the other parts of the middleware (submit script instruction)
+
 
 Through this technique communication operations are abstracted like a set of methods, we forget that we are using a network. We just have to set up an IORequest so that it will play nice with the channel, we fill it with the payload parameters that we need, and then we submit it to the Channel.
 
