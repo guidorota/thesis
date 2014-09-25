@@ -124,11 +124,9 @@ public interface IORequest {
 
 A single device connected to the PerLa Middleware is usually managed using several \texttt{IORequestBuilder}s, any one of which is responsible for controlling a single aspect of the interaction with the endpoint. The main advantage brought by this templating mechanism is that \texttt{Channel}-related configuration settings are only specified once, hence the same \texttt{IORequest} structure can be reused multiple times to transport different payload information.
 
-REST APIs are an excellent use case to demonstrate the concepts introduced in this section, as every operation on a RESTful resource can be easily abstracted using an appropriately configured request builder object. HTTP protocol information (base URL, HTTP method, header information, \ldots) is specified one single time only, i.e., while creating the \texttt{IORequestBuilder} for the REST endpoint. Once this step is done, the API can be invoked several times just by building a new \texttt{IORequest} from the template in the request builder. Payload information may be added as needed.
+REST APIs are an excellent use case to demonstrate the concepts introduced in this section, as every operation on a RESTful resource can be easily abstracted using an appropriately configured request builder object. HTTP protocol information (base URL, HTTP method, header information, \ldots) is specified one single time only, i.e., while creating the \texttt{IORequestBuilder} for the REST endpoint. Once this step is done, the API can be invoked several times just by building a new \texttt{IORequest} and submitting it to a \texttt{HTTPChannel}.
 
-
-
-Payload parameter information is stored inside the request builder
+Besides \texttt{IORequest} creation, the \texttt{IORequestBuilder} interface can be used to dynamically discover all \texttt{Payload} parameters supported by the \texttt{IORequest} objects built by it. This functionality is exposed through the \texttt{getParameterList()} method, and can be used to determine at runtime if an \texttt{IORequest} was correctly populated with all the required parameters before being submitted to a \texttt{Channel}. The intention behind this design will be clarified in section~\ref{sec:components.script}
 
 In later sections we will see how this ties together with the other parts of the middleware (submit script instruction)
 
@@ -142,10 +140,6 @@ Usage example with REST api
 
 
 IORequestBuilders are created by an IORequestBuilderFactory, which takes an IORequestDescriptor object and uses it to parameterize the IORequestBuilder.
-
-
-Once an IORequest is created, it can be parameterized with one or more Payloads. The entity of these payloads depends on the underlying Channel technology (HTTP body, etc). Should I introduce the Payload concept in the introductory section?
-
 
 
 
@@ -248,6 +242,7 @@ Full examples of actual implementations, complete with XML descriptor snippets
 
 
 \section{Data management: Scripts}
+\label{sec:components.script}
 
 \subsection{From Messages to Records}
 
