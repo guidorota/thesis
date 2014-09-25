@@ -4,15 +4,10 @@
 
 \texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services.
 
-The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to, networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
-
-The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around third-party communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of the advantages of this design strategy. Implemented as a simple wrapper around Apache's HTTP Components toolkit, its development only required a basic understanding of the HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for additional details).
-
-Upon instantiation, \texttt{Channel}s are open and ready to be used. They may be optionally closed to relinquish unused resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened, and every subsequent attempt to perform an I/O operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
-
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=H,caption=The Channel interface,label={lst:channel}]
+\begin{lstlisting}[float,caption=The Channel interface,label={lst:channel}]
 public interface Channel {
+
 	public String getId();
 	
 	public IOTask submit(IORequest request, IOHandler handler)
@@ -23,11 +18,35 @@ public interface Channel {
 			
 	public boolean isClosed();
 	
-	public void close();		
+	public void close();
+			
 }
 \end{lstlisting}
 
-All user-initiated I/O operations begin with an invocation of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, \texttt{submit()} is a direct implementation of the asynchronous interaction paradigm introduced in section~\ref{sec:newmiddleware.async}.
+The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to, networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
+
+The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around third-party communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of the advantages of this design strategy. Implemented as a simple wrapper around Apache's HTTP Components toolkit, its development only required a basic understanding of the HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for additional details).
+
+Upon instantiation, \texttt{Channel}s are open and ready to be used. They may be optionally closed to relinquish unused resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened, and every subsequent attempt to perform an I/O operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
+
+Bytes sent or received with a \texttt{Channel} are encapsulated within a \texttt{Payload}, an object whose interface (listing~\ref{lst:payload}) allows \texttt{Channel}s and other data manipulation components to handle different data types regardless of the particular data representation chosen by the Middleware. \texttt{Payload}s will be the subject of further discussion in section~\ref{sec:components.mapper}
+
+\lstset{language=Java}
+\begin{lstlisting}[float,caption=The Payload interface,label={lst:payload}]
+public interface Payload {
+
+	public Charset getCharset();
+
+	public InputStream asInputStream();
+
+	public ByteBuffer asByteBuffer();
+
+	public String asString();
+
+}
+\end{lstlisting}
+
+All user-initiated I/O operations begin with an invocation of the \texttt{Channel.submit()} method. As can be seen in listing~\ref{lst:channel}, \texttt{submit()} is a direct implementation of the asynchronous interaction paradigm introduced in section~\ref{sec:newmiddleware.async}.
 
 The emphasis on asynchronous execution is underscored by the absence of blocking operations in the \texttt{Channel} interface. This aspect is of paramount importance for the entire Middleware design, as implementing a truly asynchronous system would prove impossible if such feature were not provided by its core data access layer.
 
@@ -38,9 +57,12 @@ Creation of new \texttt{Channel}s is performed by means of the  \texttt{ChannelF
 
 By using the Factory instantiation model, the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the Middleware to dynamically adapt in response to environment changes, and to support extension through the addition of new user-defined \texttt{Channel}s. For further information regarding the Factory pattern and its uses inside the PerLa Middleware, refer to section~\ref{sec:newmiddleware.factory}.
 
+All data required to create a new \texttt{Channel} must be stored inside a \texttt{ChannelDescriptor}. As shown in listing~\ref{lst:channelFactory}, this configuration object is the only parameter required to correctly invoke the \texttt{createChannel()} method.
+
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=H,caption=The ChannelFactory interface,label={lst:channelFactory}]
+\begin{lstlisting}[float,caption=The ChannelFactory interface,label={lst:channelFactory}]
 public interface ChannelFactory {
+
 	public Class<? extends ChannelDescriptor>
 			acceptedChannelDescriptorClass();
 
@@ -49,8 +71,6 @@ public interface ChannelFactory {
 
 }
 \end{lstlisting}
-
-All data required to create a new \texttt{Channel} must be stored inside a \texttt{ChannelDescriptor}. As shown in listing~\ref{lst:channelFactory}, this configuration object is the only parameter required to correctly invoke the \texttt{createChannel()} method.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/channel_factory.eps}
@@ -87,14 +107,16 @@ It is important to note that a single JVM instance running the PerLa Middleware 
 
 Since different communication technologies require different configuration settings to establish end-to-end connectivity, every \texttt{Channel} is bundled with one or more custom \texttt{IORequest} classes. Following up on previous examples, the \texttt{HTTPChannel} package contains a \texttt{HTTPIORequest} object, whereas the fictitious \texttt{SerialChannel} would be supplied with a \texttt{SerialIORequest} class of request objects.
 
-As shown in listing~\ref{lst:iorequest}, payload data can be set in an \texttt{IORequest} by means of the generic \texttt{setParameter()} method. \texttt{Payload}s are addressed by name, and a single \texttt{IORequest} implementation may support several at once. The exact set of \texttt{Payload} parameters accepted by an \texttt{IORequest} class depends on the design of the associated \texttt{Channel}; for example, the \texttt{HTTPChannel} implementation provided with the Middleware supports three: an `entity' payload (e.g., a JSON or XML message sent as request body), a `query' payload (usually an URL-encoded string), and a `path' payload (a path component used to identify a single resource accessible from a base URI).
+As shown in listing~\ref{lst:iorequest}, payload data can be set in an \texttt{IORequest} by means of the \texttt{setParameter()} method. \texttt{Payload}s are addressed by name, and a single \texttt{IORequest} implementation may support several at once. The exact set of \texttt{Payload} parameters accepted by an \texttt{IORequest} class depends on the design of the associated \texttt{Channel}; for example, the \texttt{HTTPChannel} implementation provided with the Middleware supports three: an `entity' payload (request body), a `query' payload (an URL-encoded string), and a `path' payload (a path component used to identify a single resource accessible from the base URL).
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The IORequest interface,label={lst:iorequest}]
 public interface IORequest {
+
 	public String getId();
 
 	public void setParameter(String name, Payload payload);
+	
 }
 \end{lstlisting}
 
@@ -212,6 +234,7 @@ Full examples of actual implementations, complete with XML descriptor snippets
 
 
 \section{Encoding and decoding information}
+\label{sec:components.mapper}
 
 \subsection{The Message and Mapper interfaces}
 
