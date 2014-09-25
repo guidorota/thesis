@@ -73,7 +73,7 @@ public interface ChannelFactory {
 \end{lstlisting}
 
 \begin{figure}[h!]
-\includegraphics[width=\textwidth]{imgs/channel_factory.eps}
+\includegraphics[width=\textwidth]{imgs/channel_factory.pdf}
 \caption{Class diagram of the Channel layer}
 \end{figure}
 
@@ -82,7 +82,7 @@ Each \texttt{ChannelFactory} is tied to a specific communication technology; the
 The \texttt{acceptedChannelDescriptorClass()} method can be used to dynamically discover which \texttt{ChannelDescriptor} type is supported by a specific \texttt{ChannelFactory}. This method is the fulcrum of the \texttt{Channel} plugin system, as it allows the Middleware to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
 
 \begin{figure}[h!]
-\includegraphics[width=\textwidth]{imgs/channel_creation_process.eps}
+\includegraphics[width=\textwidth]{imgs/channel_creation_process.pdf}
 \caption{The Channel creation process}
 \label{fig:channel.creation}
 {

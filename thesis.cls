@@ -7,8 +7,9 @@
 \DeclareOption{11pt}{\def\@@ptsize{11pt}}
 \DeclareOption{12pt}{\def\@@ptsize{12pt}}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
+
 \ProcessOptions\relax
-\LoadClass[a4paper,twoside,\@@ptsize]{book}
+\LoadClass[a4paper,\@@ptsize]{book}
 
 
 
