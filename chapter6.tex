@@ -124,9 +124,11 @@ public interface IORequest {
 
 A single device connected to the PerLa Middleware is usually managed using several \texttt{IORequestBuilder}s, any one of which is responsible for controlling a single aspect of the interaction with the endpoint. The main advantage brought by this templating mechanism is that \texttt{Channel}-related configuration settings are only specified once, hence the same \texttt{IORequest} structure can be reused multiple times to transport different payload information.
 
-REST APIs are an excellent use case for the concepts introduced in this section, as every operation on a RESTful resource can be easily abstracted using an appropriately configured \texttt{HTTPIORequestBuilder} object.
+REST APIs are an excellent use case to demonstrate the concepts introduced in this section, as every operation on a RESTful resource can be easily abstracted using an appropriately configured request builder object. HTTP protocol information (base URL, HTTP method, header information, \ldots) is specified one single time only, i.e., while creating the \texttt{IORequestBuilder} for the REST endpoint. Once this step is done, the API can be invoked several times just by building a new \texttt{IORequest} from the template in the request builder. Payload information may be added as needed.
 
-Protocol information, like base URL, HTTP method, and header information, are only specified once while creating the request builder. Once this step is done, the API endpoint can be invoked several times just by building an IORequest with the \texttt{HTTPIORequestBuilder}. Payload information may be added as needed (e.g. to create a new object).
+
+
+Payload parameter information is stored inside the request builder
 
 In later sections we will see how this ties together with the other parts of the middleware (submit script instruction)
 
