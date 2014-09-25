@@ -36,7 +36,7 @@ The emphasis on asynchronous execution is underscored by the absence of blocking
 
 Creation of new \texttt{Channel}s is performed by means of the  \texttt{ChannelFactory} interface, a reification of the Factory design pattern that allows polymorphic instantiation of object classes.
 
-By using the Factory instantiation model, the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the Middleware to dynamically adapt in response to environment changes, and to support extension through the addition of new user-defined \texttt{Channel}s (for further information regarding the Factory pattern and its uses inside the PerLa Middleware, refer to section~\ref{sec:newmiddleware.factory}).
+By using the Factory instantiation model, the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the Middleware to dynamically adapt in response to environment changes, and to support extension through the addition of new user-defined \texttt{Channel}s. For further information regarding the Factory pattern and its uses inside the PerLa Middleware, refer to section~\ref{sec:newmiddleware.factory}.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The ChannelFactory interface,label={lst:channelFactory}]
@@ -57,7 +57,7 @@ All data required to create a new \texttt{Channel} must be stored inside a \text
 \caption{Class diagram of the Channel layer}
 \end{figure}
 
-Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas the hypothetical \texttt{SerialChannelFactory} would parse \texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to provide a suitable \texttt{ChannelDescriptor} object will cause the \texttt{createChannel()} method to throw an \texttt{InvalidDeviceDescriptorException}.
+Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas the hypothetical \texttt{SerialChannelFactory} would consume \texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to provide a suitable \texttt{ChannelDescriptor} object will cause the \texttt{createChannel()} method to throw an \texttt{InvalidDeviceDescriptorException}.
 
 The \texttt{ChannelDescriptor} type supported by a \texttt{ChannelFactory} can be queried with the \texttt{acceptedChannelDescriptorClass()} method. This dynamic discovery mechanism is the fulcrum of the plugin system, as it allows the Middleware to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
 
@@ -69,8 +69,8 @@ The \texttt{ChannelDescriptor} type supported by a \texttt{ChannelFactory} can b
 \begin{footnotesize}
 \begin{enumerate}
   \item JAXB binds the XML Device Descriptor to an apropriate \texttt{ChannelDescriptor} object using namespace information
-  \item A suitable \texttt{ChannelFactory} is selected using the \texttt{acceptedChannelDescriptorClass()} method
-  \item The information contained in the \texttt{SerialChannelDescriptor} to create a new \texttt{SerialChannel}
+  \item A suitable \texttt{ChannelFactory} is selected at runtime using the \texttt{acceptedChannelDescriptorClass()} method
+  \item The information contained in the \texttt{SerialChannelDescriptor} is used to create a new \texttt{SerialChannel}
 \end{enumerate}
 \end{footnotesize}
 }
@@ -78,13 +78,30 @@ The \texttt{ChannelDescriptor} type supported by a \texttt{ChannelFactory} can b
 
 \texttt{ChannelDescriptor} objects are automatically instantiated by the Middleware using the information contained in the Device Descriptor XML files. This binding process is automatically performed by the JAXB library, which is also responsible for instantiating the correct \texttt{ChannelDescriptor} class using XML Namespace information. Figure~\ref{fig:channel.creation} provides a visual example of this technique, and ties it together with the other operations described in this section.
 
-It is important to note that a single JVM instance running the PerLa Middleware may host several \texttt{Channel} objects of the same type, at the same time. This behaviour is fostered by the new \texttt{ChannelFactory} architecture, and is considered idiomatic design; several devices can use the same communication technology, and the \texttt{ChannelFactory} may determine that it's best to create an individual \texttt{Channel} for each of them. Hence, it would not be uncommon to implement the hypothetical \texttt{SerialChannelFactory} introduced in the previous paragraph so that every serial port is handled by a different \texttt{SerialChannel} instance.
+It is important to note that a single JVM instance running the PerLa Middleware may host several \texttt{Channel} objects of the same type, at the same time. Several devices can use the same communication technology, and the \texttt{ChannelFactory} may determine that it's best to create an individual \texttt{Channel} for each one of them. This behaviour is fostered by the new \texttt{ChannelFactory} architecture, and is considered idiomatic design; hence, it would not be uncommon to implement the hypothetical \texttt{SerialChannelFactory} introduced in the previous paragraphs so that every serial port is handled by a different \texttt{SerialChannel} instance.
+
 
 \subsection{IORequest management}
 
-IORequest is the object that allows users to specify which operation has to be performed by a channel.
+\texttt{IORequest} is the base object interface employed to interact with a device connected to the Middleware. It contains two types of information: payload data to be transferred, and \texttt{Channel}-dependent parameters needed for a correct communication with the endpoint device.
 
-Since different channels are built over different communication technologies, each channel comes with its particular IOReqeust imlementation (HTTPIORequest, SerialIORequest)
+Since different communication technologies require different parameters to provide end-to-end connectivity, every \texttt{Channel} is bundled with one or more custom \texttt{IORequest} classes. Following up on previous examples, at least one \texttt{SerialIORequest} should be made available with the fictitious \texttt{SerialChannel} implementation.
+
+As shown in listing~\ref{lst:iorequest}, payload data can be set by means of the generic \texttt{setParameter()} method. \texttt{Payload} parameters are addressed by name, and a single \texttt{IORequest} implementation may support several at once. The exact set of \texttt{Payload}s accepted by a specific \texttt{IORequest} class depends on the design of the associated \texttt{Channel}. For example, the \texttt{HTTPChannel} implementation provided with the Middleware supports two: `entity' payloads (e.g., a JSON or XML message sent as request body) and `query' payloads (usually an URL-encoded string).
+
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=H,caption=The IORequest interface,label={lst:iorequest}]
+public interface IORequest {
+	public String getId();
+
+	public void setParameter(String name, Payload payload);
+}
+\end{lstlisting}
+
+\texttt{IORequest}s are disposable objects; they are created, configured, submitted to a \texttt{Channel} and garbage collected by the JVM once the communication is over. Creation is performed by means of a templating interface dubbed \texttt{IORequestBuilder}. 
+
+iorequestbuilder parameterized with default values, then used to create new, identical iorequest objects that only need to be populated with the actual payload that has to be sent to the endpoint node
+
 
 IORequestBuilder is a class for constructing new IORequest following a pattern given in the XML Device Descriptor. This is necessary since a single request may have to be used several times during the lifecycle of a device (e.g., query multiple times the same server, starting and stopping a sampling operation based on current active user queries.
 
