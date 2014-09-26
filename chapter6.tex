@@ -188,40 +188,12 @@ Class diagram of the Middleware components involved in the management of \texttt
 }
 \end{figure}
 
+
 \subsection{Handling asynchronous I/O operations}
 
-The outcome of an I/O operation are collected through the \texttt{IOHandler} passed as parameter to the \texttt{submit()} method. 
+As mentioned in previous sections, communication with a device connected to the PerLa Middleware is achieved by means of the \texttt{Channel.submit()} method. Invocations to \texttt{submit()} are non-blocking; control flow is immediately returned to the caller, thus allowing other computations to be performed while the requested I/O operation is being processed. 
 
-\texttt{submit()} requires the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
-
-The execution of an ongoing I/O operations can be monitored and altered using the \texttt{IOTask} object returned 
-
-
-
-
-
-
-Every user-initiated interaction with a \texttt{Channel} begins with the creation of an appropriate \texttt{IORequest}, an object that contains all parameters required to characterize the I/O operation being started. Different \texttt{Channel}s require different \texttt{IORequest}s, since the parameters needed for starting an I/O operation depend upon the technical characteristics of the I/O operation itself.
-
-Since the specific contents of an \texttt{IORequest} object vary with the type of , the middleware does not provide a universal implementation for the \texttt{IORequest} object, 
-
-
-A class of \texttt{IORequest} objects is tipically designed to be used with a specific \texttt{Channel} implementation, as its contents strictly depend on the gamut of operations supported by the \texttt{Channel} by which it is supposed to be executed 
-
-The specific contents of an this object depend on the type of operations supported by the \texttt{Channel} that will perform
-
-Different communication tasks require different parameters to be performed successfully: an appropriate URL is needed 
-
-It is clear, even from this short lists of examples, that different IORequest objects
-
-As such, a class of \texttt{IORequest} objects is typically...
-
- A class of \texttt{IORequest} objects is tipically designed to be used with a specific \texttt{Channel} implementation, as its contents strictly depend on the gamut of operations supported by the \texttt{Channel} by which it is supposed to be executed (e.g., \texttt{HTTPIORequests} can only be processed by an \texttt{HTTPChannel}). For this reason, the middleware does not provide a default implementation is provided for the \texttt{IORequest} interface. A set of guidelines for the implementation and management of \texttt{IORequest} objects will follow in the next sections of this chapter.
-
-\texttt{IORequest} objects can be submitted to a \texttt{Channel} by means of the \texttt{submit()} method. As can be seen in listing~\ref{lst:channel}, this method is a direct implementation of the asynchronous invocation paradigm introduced in section~\ref{sec:newmiddleware.async}. Calls to \texttt{submit()} are non-blocking and require the caller to specify an \texttt{IOHandler} callback object, through which data and errors will be notified once the requested operation is complete.
-
-The status of an ongoing operation can be queried and modified with the \texttt{IOTask} object, which is returned upon submitting a new request.
-
+As can be seen in listing~\ref{lst:channel}, \texttt{submit()} requires two parameters: an \texttt{IORequest} and an \texttt{IOHandler}. The former specifies which I/O operation is to be performed, while the latter allows the caller to be notified of its completion. For this reason, \texttt{IOHandler} can be regarded as the nexus of the asynchronous invocation model, as it allows the process that initiating an I/O operation to collect results and errors generated during its processing.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The IOHandler interface,label={lst:iohandler}]
@@ -231,6 +203,15 @@ public interface IOHandler {
 	public void error(IORequest request, Throwable cause);
 }
 \end{lstlisting}
+
+The \texttt{IOHandler} interface, available in listing~\ref{lst:iohandler}, is composed of a \texttt{complete()} method and an \texttt{error} method; they are invoked by the \texttt{Channel} when the processing of an I/O operation completes or fails respectively. It is important to note that both these methods always carry context information, in the form of the \texttt{IORequest} object which was used to start the asynchronous communication.
+
+\texttt{complete()}  
+
+
+The execution of an ongoing I/O operations can be monitored and altered using the \texttt{IOTask} object returned 
+
+
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The IOTask interface,label={lst:iotask}]
@@ -247,24 +228,14 @@ public interface IOTask {
 
 
 
+setAsyncIOHandler, how does it work and why do we need it
 
 
-
-
-There is no limit on the number of channels used by an FPC. Complex behaviours can be implemented using different channels
-
-Interface description: methods, IORequest, IOHandler IOTask and Payload.
-ByteArrayPayload description
 
 The new Channel structure is monolithic, in that it contains all network layers required for the communication. This is in contrast with the previous middleware architecture, where communication layers where diveded between the legacy Channel implementation and the FPC. This new structure allows better reuse of off-the-shelf libraries.
 
-ChannelFactory interface, methods and generic ChannelDescriptor structure
-
 Basic XML 
 
-IORequestBuilder and IORequestBuilderFactory
-
-setAsyncIOHandler, how does it work and why do we need it
 
 \subsection{Implementations: HTTPChannel and SimulatorChannel}
 \label{sec:channel.implementations}
