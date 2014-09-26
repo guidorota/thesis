@@ -7,11 +7,12 @@
 \DeclareOption{11pt}{\def\@@ptsize{11pt}}
 \DeclareOption{12pt}{\def\@@ptsize{12pt}}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
-
 \ProcessOptions\relax
 \LoadClass[a4paper,\@@ptsize]{book}
 
-
+\newenvironment{figurenote}
+{ \sffamily \rule{\textwidth}{0.5pt} \begin{footnotesize} }
+{ \end{footnotesize} \rule{\textwidth}{0.5pt} \normalfont }
 
 \usepackage[utf8]{inputenc}
 \usepackage[pctex32]{graphicx}

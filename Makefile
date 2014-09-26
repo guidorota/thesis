@@ -39,17 +39,13 @@ endef
 
 $(TRG)	: %.pdf : %.tex $(DEP) $(PDFPICS) $(BIBFILE)
 	  @$(run-latex)
+	  open $@
 
 clean	:
 	  -rm -f $(TRG) $(PSF) $(PDF) *.aux *.bbl *.blg *.log *.out *.dvi *.toc
 
-.PHONY	: all show clean ps pdf showps
+.PHONY	: all clean
 
-view:
-	acroread $(PDF)
-
-osx:
-	open $(PDF)
 
 ######################################################################
 # Define rules for PDF source files.
