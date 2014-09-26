@@ -1,0 +1,1 @@
+-	Correct the class diagram of the Channel layer so that relation arrows are set to the interfaces, and not the implementations
