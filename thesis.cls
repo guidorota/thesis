@@ -11,9 +11,10 @@
 \LoadClass[a4paper,\@@ptsize]{book}
 
 \newenvironment{figurenote}
-{ \sffamily \rule{\textwidth}{0.5pt} \begin{footnotesize} }
-{ \end{footnotesize} \rule{\textwidth}{0.5pt} \normalfont }
+{ \begin{sffamily} \rule{\textwidth}{0.5pt} \begin{footnotesize} }
+{ \end{footnotesize} \rule{\textwidth}{0.5pt} \end{sffamily} }
 
+\usepackage[scaled]{helvet}
 \usepackage[utf8]{inputenc}
 \usepackage[pctex32]{graphicx}
 \usepackage{setspace}
