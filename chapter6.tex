@@ -193,7 +193,9 @@ Class diagram of the Middleware components involved in the management of \texttt
 
 As mentioned in previous sections, communication with a device connected to the PerLa Middleware is achieved by means of the \texttt{Channel.submit()} method. Invocations to \texttt{submit()} are non-blocking; control flow is immediately returned to the caller, thus allowing other computations to be performed while the requested I/O operation is being processed. 
 
-As can be seen in listing~\ref{lst:channel}, \texttt{submit()} requires two parameters: an \texttt{IORequest} and an \texttt{IOHandler}. The former specifies which I/O operation is to be performed, while the latter allows the caller to be notified of its completion. For this reason, \texttt{IOHandler} can be regarded as the nexus of the asynchronous invocation model, as it allows the process that initiating an I/O operation to collect results and errors generated during its processing.
+As can be seen in listing~\ref{lst:channel}, \texttt{submit()} requires two parameters: an \texttt{IORequest} and an \texttt{IOHandler}. The former specifies which I/O operation is to be performed, while the latter allows the caller to be notified of its completion.
+
+The \texttt{IOHandler} interface is composed of a \texttt{complete()} method and an \texttt{error()} method, which are invoked by the \texttt{Channel} when the processing of an I/O operation completes or fails respectively. It is important to note that both these methods always carry context information in the form of an \texttt{IORequest}, which is guaranteed to be the same exact object submitted to the \texttt{Channel} when starting the I/O operation whose completion is being notified. For this reason, \texttt{IOHandler} can be considered the nexus of the asynchronous invocation model, as it connects \texttt{IORequest} objects with the outcome of the corresponding I/O operation performed by the \texttt{Channel}.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The IOHandler interface,label={lst:iohandler}]
@@ -204,9 +206,14 @@ public interface IOHandler {
 }
 \end{lstlisting}
 
-The \texttt{IOHandler} interface, available in listing~\ref{lst:iohandler}, is composed of a \texttt{complete()} method and an \texttt{error} method; they are invoked by the \texttt{Channel} when the processing of an I/O operation completes or fails respectively. It is important to note that both these methods always carry context information, in the form of the \texttt{IORequest} object which was used to start the asynchronous communication.
+Semantically, an invocation to the \texttt{complete()} method is always associated with the successful termination of an I/O operation. As shown in listing~\ref{lst:iohandler}, an optional \texttt{Payload} object containing all data generated during the communication with the endpoint device may be present; an empty \texttt{Optional} indicates that the I/O operation completed without errors, but no data was received.
 
-\texttt{complete()}  
+Conversely, an invocation to the \texttt{error()} method indicates that an I/O operation was aborted before completion. The cause of failure is always notified with the \texttt{cause} parameter.
+
+
+happens-before relationship
+
+Async invocation does not mean that the caller does not have any control on the I/O operation. Explain the IOTask interface
 
 
 The execution of an ongoing I/O operations can be monitored and altered using the \texttt{IOTask} object returned 
