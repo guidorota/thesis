@@ -94,7 +94,6 @@ This figure illustrates the \texttt{Channel} creation process executed by the Mi
   \item A suitable \texttt{ChannelFactory} is selected at runtime using the \texttt{acceptedChannelDescriptorClass()} method
   \item The information contained in the \texttt{SerialChannelDescriptor} is used to create a new \texttt{SerialChannel}
 \end{enumerate}
-\vspace{-1em}
 \end{figurenote}
 }
 \end{figure}
@@ -127,6 +126,30 @@ As shown in listing~\ref{lst:iorequest}, payload data can be set in an \texttt{I
 
 A single device connected to the PerLa Middleware is generally managed using several \texttt{IORequestBuilder}s, any one of which is responsible for creating requests that control a single aspect of the interaction with the endpoint. The main advantage brought by this templating mechanism is that \texttt{Channel}-related configuration settings are only specified once, hence the same \texttt{IORequest} structure can be reused multiple times to transport different payload information.
 
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=!hbt,caption=The IORequestBuilder interface,label={lst:iorequestbuilder}]
+public interface IORequestBuilder {
+
+	public String getRequestId();
+
+	public IORequest create();
+
+	public abstract List<IORequestParameter> getParameterList();
+
+	public static class IORequestParameter {
+
+		public String getName() {
+			return name;
+		}
+
+		public boolean isMandatory() {
+			return mandatory;
+		}
+
+	}
+}
+\end{lstlisting}
+
 REST APIs are an excellent use case to demonstrate the aforementioned concept, as every operation on a RESTful resource can be easily abstracted using an appropriately configured request builder. By using \texttt{HTTPIORequestBuilder} objects, HTTP protocol information (base URL, method, header information, \ldots) are specified one single time only for every REST endpoint. Once this step is done, the API can be invoked just by building new \texttt{IORequest}s and submitting them to a \texttt{HTTPChannel}.
 
 Besides \texttt{IORequest} creation, the \texttt{IORequestBuilder} interface can be used to dynamically discover all \texttt{Payload} parameters supported by an \texttt{IORequest}. This functionality, exposed through the \texttt{getParameterList()} method, is a crucial component of the Middleware Plugin System, as it allows \texttt{Script} instructions to determine whether an \texttt{IORequest} was correctly populated with all the necessary \texttt{Payload} parameters or not. This concept will be the subject of further analysis in section~\ref{sec:components.script}.
@@ -146,7 +169,6 @@ This figure illustrates the autonomous creation of \texttt{IORequest} objects. S
   \item The \texttt{IORequestBuilder} is used to create new \texttt{IORequest} copies using the internal template
   \item The newly created \texttt{IORequest} objects can be populated with \texttt{Payload} parameters as needed
 \end{enumerate}
-\vspace{-1em}
 \end{figurenote}
 }
 \end{figure}
@@ -155,6 +177,16 @@ This figure illustrates the autonomous creation of \texttt{IORequest} objects. S
 
 Creation of a new \texttt{IORequestBuilder} object proceeds as follows: The template for creating new \texttt{IORequest} objects is loaded from an XML Device Descriptor, bound to an appropriate \texttt{IORequestDescriptor}, and processed by the \texttt{IORequestBuilderFactory} to create the corresponding \texttt{IORequestBuilder}. Figure~\ref{fig:iorequest.creation} provides a comprehensive overview on this process and on the management of \texttt{IORequest} objects.
 
+\begin{figure}[!hbt]
+\includegraphics[width=\textwidth]{imgs/iorequest.pdf}
+\caption{The extended IORequest class diagram}
+\label{fig:iorequest.class}
+{
+\begin{figurenote}
+Class diagram of the Middleware components involved in the management of \texttt{IORequest} objects; it contains a concrete example based on the \texttt{HTTPChannel}. For additional information about the \texttt{IORequestParameter} object consult listing~\ref{lst:iorequestbuilder}.
+\end{figurenote}
+}
+\end{figure}
 
 \subsection{Handling asynchronous I/O operations}
 

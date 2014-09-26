@@ -12,7 +12,7 @@
 
 \newenvironment{figurenote}
 { \begin{sffamily} \rule{\textwidth}{0.5pt} \begin{footnotesize} }
-{ \end{footnotesize} \rule{\textwidth}{0.5pt} \end{sffamily} }
+{ \par \vspace{-1em} \end{footnotesize} \rule{\textwidth}{0.5pt} \end{sffamily}}
 
 \usepackage[scaled]{helvet}
 \usepackage[utf8]{inputenc}
