@@ -2,7 +2,9 @@
 
 \section{Communicating with Channels}
 
-\texttt{Channel} is an interface for performing I/O operations. It represents the principal abstraction used by the middleware to communicate with hardware devices and external software services.
+\texttt{Channel} is an interface for performing I/O operations. It represents
+the principal abstraction used by the middleware to communicate with hardware
+devices and external software services.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,caption=The Channel interface,label={lst:channel}]
@@ -23,13 +25,33 @@ public interface Channel {
 }
 \end{lstlisting}
 
-The \texttt{Channel} interface is not tied to any specific technology or communication stack; as a result of this design choice, a wide variety of data management tasks, including but not limited to, networking, file handling, and automatic data generation can be implemented as \texttt{Channel}s.
+The \texttt{Channel} interface is not tied to any specific technology or
+communication stack; as a result of this design choice, a wide variety of data
+management tasks, including but not limited to, networking, file handling, and
+automatic data generation can be implemented as \texttt{Channel}s.
 
-The current middleware architecture encourages the creation of several highly specialized \texttt{Channel}s, which are usually developed around third-party communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing support for HTTP communications, is an excellent example of the advantages of this design strategy. Implemented as a simple wrapper around Apache's HTTP Components toolkit, its development only required a basic understanding of the HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client (see section~\ref{sec:channel.implementations} for additional details).
+The current middleware architecture encourages the creation of several highly
+specialized \texttt{Channel}s, which are usually developed around third-party
+communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing
+support for HTTP communications, is an excellent example of the advantages of
+this design strategy. Implemented as a simple wrapper around Apache's HTTP
+Components toolkit, its development only required a basic understanding of the
+HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client
+(see section~\ref{sec:channel.implementations} for additional details).
 
-Upon instantiation, \texttt{Channel}s are open and ready to be used. They may be optionally closed to relinquish unused resources by invoking the \texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened, and every subsequent attempt to perform an I/O operation will fail causing a \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel} can be probed through its \texttt{isClosed()} method.
+Upon instantiation, \texttt{Channel}s are open and ready to be used. They may
+be optionally closed to relinquish unused resources by invoking the
+\texttt{close()} method. Once closed, a \texttt{Channel} cannot be re-opened,
+and every subsequent attempt to perform an I/O operation will fail causing a
+\texttt{ChannelException} to be thrown. The current state of a \texttt{Channel}
+can be probed through its \texttt{isClosed()} method.
 
-Bytes sent or received with a \texttt{Channel} are encapsulated within a \texttt{Payload}, an object whose interface (listing~\ref{lst:payload}) allows \texttt{Channel}s and other data manipulation components to handle different data types regardless of the particular data representation chosen by the Middleware. \texttt{Payload}s will be the subject of further discussion in section~\ref{sec:components.mapper}
+Bytes sent or received with a \texttt{Channel} are encapsulated within a
+\texttt{Payload}, an object whose interface (listing~\ref{lst:payload}) allows
+\texttt{Channel}s and other data manipulation components to handle different
+data types regardless of the particular data representation chosen by the
+Middleware. \texttt{Payload}s will be the subject of further discussion in
+section~\ref{sec:components.mapper}
 
 \lstset{language=Java}
 \begin{lstlisting}[float,caption=The Payload interface,label={lst:payload}]
@@ -46,19 +68,39 @@ public interface Payload {
 }
 \end{lstlisting}
 
-All user-initiated I/O operations begin with an invocation of the \texttt{Channel.submit()} method. As can be seen in listing~\ref{lst:channel}, \texttt{submit()} is a direct implementation of the asynchronous interaction paradigm introduced in section~\ref{sec:newmiddleware.async}. The emphasis on asynchronous execution is underscored by the absence of blocking operations in the \texttt{Channel} interface. This aspect is of paramount importance for the entire Middleware design, as implementing a truly asynchronous system would prove impossible if such feature were not provided by its core data access layer.
+All user-initiated I/O operations begin with an invocation of the
+\texttt{Channel.submit()} method. As can be seen in listing~\ref{lst:channel},
+\texttt{submit()} is a direct implementation of the asynchronous interaction
+paradigm introduced in section~\ref{sec:newmiddleware.async}. The emphasis on
+asynchronous execution is underscored by the absence of blocking operations in
+the \texttt{Channel} interface. This aspect is of paramount importance for the
+entire Middleware design, as implementing a truly asynchronous system would
+prove impossible if such feature were not provided by its core data access
+layer.
 
 
 \section{Instantiating new Channels}
 
-Creation of new \texttt{Channel}s is performed by means of the  \texttt{ChannelFactory} interface, a reification of the Factory design pattern that allows polymorphic instantiation of object classes.
+Creation of new \texttt{Channel}s is performed by means of the
+\texttt{ChannelFactory} interface, a reification of the Factory design pattern
+that allows polymorphic instantiation of object classes.
 
-By using the Factory instantiation model, the choice of a particular \texttt{Channel} implementation can be postponed from compile time to run time. This technique allows the Middleware to dynamically adapt in response to environment changes, and to support extension through the addition of new user-defined \texttt{Channel}s. For further information regarding the Factory pattern and its uses inside the PerLa Middleware, refer to section~\ref{sec:newmiddleware.factory}.
+By using the Factory instantiation model, the choice of a particular
+\texttt{Channel} implementation can be postponed from compile time to run time.
+This technique allows the Middleware to dynamically adapt in response to
+environment changes, and to support extension through the addition of new
+user-defined \texttt{Channel}s. For further information regarding the Factory
+pattern and its uses inside the PerLa Middleware, refer to
+section~\ref{sec:newmiddleware.factory}.
 
-All the information required to create a new \texttt{Channel} is stored inside a \texttt{ChannelDescriptor}. As shown in listing~\ref{lst:channelFactory}, this configuration object is the only parameter required to correctly invoke the \texttt{createChannel()} method.
+All the information required to create a new \texttt{Channel} is stored inside
+a \texttt{ChannelDescriptor}. As shown in listing~\ref{lst:channelFactory},
+this configuration object is the only parameter required to correctly invoke
+the \texttt{createChannel()} method.
 
 \lstset{language=Java}
-\begin{lstlisting}[float,caption=The ChannelFactory interface,label={lst:channelFactory}]
+\begin{lstlisting}[float,caption=The ChannelFactory
+interface,label={lst:channelFactory}]
 public interface ChannelFactory {
 
 	public Class<? extends ChannelDescriptor>
@@ -75,9 +117,21 @@ public interface ChannelFactory {
 \caption{Class diagram of the Channel layer}
 \end{figure}
 
-Each \texttt{ChannelFactory} is tied to a specific communication technology; therefore, it can only accept a single class of \texttt{ChannelDescriptor} objects. For example, the \texttt{HTTPChannelFactory} parses \texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas an hypothetical \texttt{SerialChannelFactory} would consume \texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to provide a suitable \texttt{ChannelDescriptor} object will cause the \texttt{createChannel()} method to throw an \texttt{InvalidDeviceDescriptorException}.
+Each \texttt{ChannelFactory} is tied to a specific communication technology;
+therefore, it can only accept a single class of \texttt{ChannelDescriptor}
+objects. For example, the \texttt{HTTPChannelFactory} parses
+\texttt{HTTPChannelDescriptor}s and creates \texttt{HTTPChannel}s, whereas an
+hypothetical \texttt{SerialChannelFactory} would consume
+\texttt{SerialChannelDescriptor}s to create \texttt{SerialChannel}s. Failure to
+provide a suitable \texttt{ChannelDescriptor} object will cause the
+\texttt{createChannel()} method to throw an
+\texttt{InvalidDeviceDescriptorException}.
 
-The \texttt{acceptedChannelDescriptorClass()} method can be used to dynamically discover which \texttt{ChannelDescriptor} type is supported by a specific \texttt{ChannelFactory}. This method is the fulcrum of the \texttt{Channel} Plugin System, as it allows the Middleware to invoke the most appropriate \texttt{ChannelFactory} using only information available at runtime.
+The \texttt{acceptedChannelDescriptorClass()} method can be used to dynamically
+discover which \texttt{ChannelDescriptor} type is supported by a specific
+\texttt{ChannelFactory}. This method is the fulcrum of the \texttt{Channel}
+Plugin System, as it allows the Middleware to invoke the most appropriate
+\texttt{ChannelFactory} using only information available at runtime.
 
 \begin{figure}[!hbt]
 \includegraphics[width=\textwidth]{imgs/channel_creation_process.pdf}
@@ -85,28 +139,48 @@ The \texttt{acceptedChannelDescriptorClass()} method can be used to dynamically 
 \label{fig:channel.creation}
 {
 \begin{figurenote}
-This figure illustrates the \texttt{Channel} creation process executed by the Middleware upon reception of a new Device Descriptor.
-\begin{enumerate}
+This figure illustrates the \texttt{Channel} creation process executed by the
+Middleware upon reception of a new Device Descriptor.  \begin{enumerate}
   \itemsep0em
-  \item JAXB binds the XML Device Descriptor to an apropriate \texttt{ChannelDescriptor} object using namespace information
-  \item A suitable \texttt{ChannelFactory} is selected at runtime using the \texttt{acceptedChannelDescriptorClass()} method
-  \item The information contained in the \texttt{SerialChannelDescriptor} is used to create a new \texttt{SerialChannel}
-\end{enumerate}
+  \item JAXB binds the XML Device Descriptor to an apropriate
+\texttt{ChannelDescriptor} object using namespace information \item A suitable
+\texttt{ChannelFactory} is selected at runtime using the
+\texttt{acceptedChannelDescriptorClass()} method
+  \item The information contained in the \texttt{SerialChannelDescriptor} is
+used to create a new \texttt{SerialChannel} \end{enumerate}
 \end{figurenote}
 }
 \end{figure}
 
-\texttt{ChannelDescriptor} objects are automatically instantiated by the Middleware using the information contained in the Device Descriptor XML files. This binding process is performed by the JAXB library, which is also responsible for instantiating the correct \texttt{ChannelDescriptor} class using XML Namespace information. Figure~\ref{fig:channel.creation} illustrates this technique, and ties it together with the other operations described in this section.
+\texttt{ChannelDescriptor} objects are automatically instantiated by the
+Middleware using the information contained in the Device Descriptor XML files.
+This binding process is performed by the JAXB library, which is also
+responsible for instantiating the correct \texttt{ChannelDescriptor} class
+using XML Namespace information. Figure~\ref{fig:channel.creation} illustrates
+this technique, and ties it together with the other operations described in
+this section.
 
-It is important to note that a single JVM instance running the PerLa Middleware may host several \texttt{Channel} objects of the same type, at the same time. Several devices can use the same communication technology, and the \texttt{ChannelFactory} may determine that it's best to create an individual \texttt{Channel} for each one of them. This behaviour is fostered by the new \texttt{ChannelFactory} architecture, and is considered idiomatic design; hence, it would not be uncommon to implement the hypothetical \texttt{SerialChannelFactory} introduced in the previous paragraphs so that every serial port is handled by a different \texttt{SerialChannel} instance.
+It is important to note that a single JVM instance running the PerLa Middleware
+may host several \texttt{Channel} objects of the same type, at the same time.
+Several devices can use the same communication technology, and the
+\texttt{ChannelFactory} may determine that it's best to create an individual
+\texttt{Channel} for each one of them. This behaviour is fostered by the new
+\texttt{ChannelFactory} architecture, and is considered idiomatic design;
+hence, it would not be uncommon to implement the hypothetical
+\texttt{SerialChannelFactory} introduced in the previous paragraphs so that
+every serial port is handled by a different \texttt{SerialChannel} instance.
 
 
 \subsection{IORequest management}
 
-\texttt{IORequest} is the base object interface employed to interact with a device connected to the Middleware. It contains two types of information: the payload to be transferred, and \texttt{Channel}-dependent data needed for a correct communication with the endpoint device.
+\texttt{IORequest} is the base object interface employed to interact with a
+device connected to the Middleware. It contains two types of information: the
+payload to be transferred, and \texttt{Channel}-dependent data needed for a
+correct communication with the endpoint device.
 
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=!hbt,caption=The IORequest interface,label={lst:iorequest}]
+\begin{lstlisting}[float,floatplacement=!hbt,caption=The IORequest
+interface,label={lst:iorequest}]
 public interface IORequest {
 
 	public String getId();
@@ -116,16 +190,44 @@ public interface IORequest {
 }
 \end{lstlisting}
 
-Since different communication technologies require different configuration settings to establish end-to-end connectivity, every \texttt{Channel} is bundled with one or more custom \texttt{IORequest} classes. Following up on previous examples, the \texttt{HTTPChannel} package contains a \texttt{HTTPIORequest} object, whereas the fictitious \texttt{SerialChannel} would be supplied with a \texttt{SerialIORequest} class of request objects.
+Since different communication technologies require different configuration
+settings to establish end-to-end connectivity, every \texttt{Channel} is
+bundled with one or more custom \texttt{IORequest} classes. Following up on
+previous examples, the \texttt{HTTPChannel} package contains a
+\texttt{HTTPIORequest} object, whereas the fictitious \texttt{SerialChannel}
+would be supplied with a \texttt{SerialIORequest} class of request objects.
 
-As shown in listing~\ref{lst:iorequest}, payload data can be set in an \texttt{IORequest} by means of the \texttt{setParameter()} method. \texttt{Payload}s are addressed by name, and a single \texttt{IORequest} implementation may support several at once. The exact set of \texttt{Payload} parameters accepted by an \texttt{IORequest} class depends on the design of the associated \texttt{Channel}; for example, the \texttt{HTTPChannel} implementation provided with the Middleware supports three: an `entity' payload (request body), a `query' payload (an URL-encoded string), and a `path' payload (a path component used to identify a single resource accessible from the base URL).
+As shown in listing~\ref{lst:iorequest}, payload data can be set in an
+\texttt{IORequest} by means of the \texttt{setParameter()} method.
+\texttt{Payload}s are addressed by name, and a single \texttt{IORequest}
+implementation may support several at once. The exact set of \texttt{Payload}
+parameters accepted by an \texttt{IORequest} class depends on the design of the
+associated \texttt{Channel}; for example, the \texttt{HTTPChannel}
+implementation provided with the Middleware supports three: an `entity' payload
+(request body), a `query' payload (an URL-encoded string), and a `path' payload
+(a path component used to identify a single resource accessible from the base
+URL).
 
-\texttt{IORequest}s are disposable objects; they are created, submitted to a \texttt{Channel}, and garbage collected once the communication is over. Creation is performed by means of a factory interface dubbed \texttt{IORequestBuilder}, which allows the Middleware to build new copies of an \texttt{IORequest} from a fixed template. It is important to note that request objects built using this technique do not contain any \texttt{Payload} parameter; these are to be added manually before subbmitting the \texttt{IORequest} to a \texttt{Channel}.
+\texttt{IORequest}s are disposable objects; they are created, submitted to a
+\texttt{Channel}, and garbage collected once the communication is over.
+Creation is performed by means of a factory interface dubbed
+\texttt{IORequestBuilder}, which allows the Middleware to build new copies of
+an \texttt{IORequest} from a fixed template. It is important to note that
+request objects built using this technique do not contain any \texttt{Payload}
+parameter; these are to be added manually before subbmitting the
+\texttt{IORequest} to a \texttt{Channel}.
 
-A single device connected to the PerLa Middleware is generally managed using several \texttt{IORequestBuilder}s, any one of which is responsible for creating requests that control a single aspect of the interaction with the endpoint. The main advantage brought by this templating mechanism is that \texttt{Channel}-related configuration settings are only specified once, hence the same \texttt{IORequest} structure can be reused multiple times to transport different payload information.
+A single device connected to the PerLa Middleware is generally managed using
+several \texttt{IORequestBuilder}s, any one of which is responsible for
+creating requests that control a single aspect of the interaction with the
+endpoint. The main advantage brought by this templating mechanism is that
+\texttt{Channel}-related configuration settings are only specified once, hence
+the same \texttt{IORequest} structure can be reused multiple times to transport
+different payload information.
 
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=!hbt,caption=The IORequestBuilder interface,label={lst:iorequestbuilder}]
+\begin{lstlisting}[float,floatplacement=!hbt,caption=The IORequestBuilder
+interface,label={lst:iorequestbuilder}]
 public interface IORequestBuilder {
 
 	public String getRequestId();
@@ -148,9 +250,22 @@ public interface IORequestBuilder {
 }
 \end{lstlisting}
 
-REST APIs are an excellent use case to demonstrate the aforementioned concept, as every operation on a RESTful resource can be easily abstracted using an appropriately configured request builder. By using \texttt{HTTPIORequestBuilder} objects, HTTP protocol information (base URL, method, header information, \ldots) are specified one single time only for every REST endpoint. Once this step is done, the API can be invoked just by building new \texttt{IORequest}s and submitting them to a \texttt{HTTPChannel}.
+REST APIs are an excellent use case to demonstrate the aforementioned concept,
+as every operation on a RESTful resource can be easily abstracted using an
+appropriately configured request builder. By using
+\texttt{HTTPIORequestBuilder} objects, HTTP protocol information (base URL,
+method, header information, \ldots) are specified one single time only for
+every REST endpoint. Once this step is done, the API can be invoked just by
+building new \texttt{IORequest}s and submitting them to a \texttt{HTTPChannel}.
 
-Besides \texttt{IORequest} creation, the \texttt{IORequestBuilder} interface can be used to dynamically discover all \texttt{Payload} parameters supported by an \texttt{IORequest}. This functionality, exposed through the \texttt{getParameterList()} method, is a crucial component of the Middleware Plugin System, as it allows \texttt{Script} instructions to determine whether an \texttt{IORequest} was correctly populated with all the necessary \texttt{Payload} parameters or not. This concept will be the subject of further analysis in section~\ref{sec:components.script}.
+Besides \texttt{IORequest} creation, the \texttt{IORequestBuilder} interface
+can be used to dynamically discover all \texttt{Payload} parameters supported
+by an \texttt{IORequest}. This functionality, exposed through the
+\texttt{getParameterList()} method, is a crucial component of the Middleware
+Plugin System, as it allows \texttt{Script} instructions to determine whether
+an \texttt{IORequest} was correctly populated with all the necessary
+\texttt{Payload} parameters or not. This concept will be the subject of further
+analysis in section~\ref{sec:components.script}.
 
 \begin{figure}[!hbt]
 \includegraphics[width=\textwidth]{imgs/iorequest_creation_process.pdf}
@@ -158,37 +273,73 @@ Besides \texttt{IORequest} creation, the \texttt{IORequestBuilder} interface can
 \label{fig:iorequest.creation}
 {
 \begin{figurenote}
-This figure illustrates the autonomous creation of \texttt{IORequest} objects. Steps 1 to 3 are performed only once after receiving the Device Descriptor, whereas steps 4 and 5 are repeated every time the REST API is to be invoked.
+This figure illustrates the autonomous creation of \texttt{IORequest} objects.
+Steps 1 to 3 are performed only once after receiving the Device Descriptor,
+whereas steps 4 and 5 are repeated every time the REST API is to be invoked.
 \begin{enumerate}
   \itemsep0em
-  \item JAXB binds the XML Device Descriptor to an apropriate \texttt{IORequestDescriptor} object using namespace information
-  \item A suitable \texttt{IORequestBuilderFactory} is selected at runtime using the \texttt{acceptedIORequestDescriptorClass()} method
-  \item The information contained in the \texttt{IORequestDescriptor} is used to create a new \texttt{IORequestBuilder}
-  \item The \texttt{IORequestBuilder} is used to create new \texttt{IORequest} copies using the internal template
-  \item The newly created \texttt{IORequest} objects can be populated with \texttt{Payload} parameters as needed
-\end{enumerate}
+  \item JAXB binds the XML Device Descriptor to an apropriate
+\texttt{IORequestDescriptor} object using namespace information \item A
+suitable \texttt{IORequestBuilderFactory} is selected at runtime using the
+\texttt{acceptedIORequestDescriptorClass()} method
+  \item The information contained in the \texttt{IORequestDescriptor} is used
+to create a new \texttt{IORequestBuilder} \item The \texttt{IORequestBuilder}
+is used to create new \texttt{IORequest} copies using the internal template
+  \item The newly created \texttt{IORequest} objects can be populated with
+\texttt{Payload} parameters as needed \end{enumerate}
 \end{figurenote}
 }
 \end{figure}
 
-\texttt{IORequestBuilder}s are created by means of an \texttt{IORequestBuilderFactory}, an object that implements the now familiar Factory design pattern. Similarly to what already seen in the previous section, every \texttt{IORequestBuilderFactory} implements an \texttt{acceptedIORequestDescriptorClass()} method, which can be used to dynamically determine if a factory object can parse a specific type of \texttt{IORequestDescriptor}.   It should come as no surprise that every \texttt{IORequestBuilder} class is provided with complementary \texttt{IORequestBuilderFactory} and \texttt{IORequestDescriptor} implementations.
+\texttt{IORequestBuilder}s are created by means of an
+\texttt{IORequestBuilderFactory}, an object that implements the now familiar
+Factory design pattern. Similarly to what already seen in the previous section,
+every \texttt{IORequestBuilderFactory} implements an
+\texttt{acceptedIORequestDescriptorClass()} method, which can be used to
+dynamically determine if a factory object can parse a specific type of
+\texttt{IORequestDescriptor}.   It should come as no surprise that every
+\texttt{IORequestBuilder} class is provided with complementary
+\texttt{IORequestBuilderFactory} and \texttt{IORequestDescriptor}
+implementations.
 
-Creation of a new \texttt{IORequestBuilder} object proceeds as follows: The template for creating new \texttt{IORequest} objects is loaded from an XML Device Descriptor, bound to an appropriate \texttt{IORequestDescriptor}, and processed by the \texttt{IORequestBuilderFactory} to create the corresponding \texttt{IORequestBuilder}. Figure~\ref{fig:iorequest.creation} provides a comprehensive overview on this process and on the management of \texttt{IORequest} objects.
+Creation of a new \texttt{IORequestBuilder} object proceeds as follows: The
+template for creating new \texttt{IORequest} objects is loaded from an XML
+Device Descriptor, bound to an appropriate \texttt{IORequestDescriptor}, and
+processed by the \texttt{IORequestBuilderFactory} to create the corresponding
+\texttt{IORequestBuilder}. Figure~\ref{fig:iorequest.creation} provides a
+comprehensive overview on this process and on the management of
+\texttt{IORequest} objects.
 
 \begin{figure}[!hbt]
 \includegraphics[width=\textwidth]{imgs/iorequest.pdf}
-\caption{The extended IORequest class diagram. For additional information about the IORequestParameter object consult listing 1.5.}
-\label{fig:iorequest.class}
+\caption{The extended IORequest class diagram. For additional information about
+the IORequestParameter object consult listing 1.5.} \label{fig:iorequest.class}
 \end{figure}
 
 
 \subsection{Handling asynchronous I/O operations}
 
-As mentioned in previous sections, communication with a device connected to the PerLa Middleware is achieved by means of the \texttt{Channel.submit()} method. Invocations of \texttt{submit()} are non-blocking; control flow is immediately returned to the caller, thus allowing other computations to be performed while the requested I/O operation is being processed.
+As mentioned in previous sections, communication with a device connected to the
+PerLa Middleware is achieved by means of the \texttt{Channel.submit()} method.
+Invocations of \texttt{submit()} are non-blocking; control flow is immediately
+returned to the caller, thus allowing other computations to be performed while
+the requested I/O operation is being processed.
 
-As can be seen in listing~\ref{lst:channel}, \texttt{submit()} requires two parameters: an \texttt{IORequest} and an \texttt{IOHandler} callback interface. The former specifies which I/O operation is to be performed, while the latter allows the caller to be asynchronously notified of its completion.
+As can be seen in listing~\ref{lst:channel}, \texttt{submit()} requires two
+parameters: an \texttt{IORequest} and an \texttt{IOHandler} callback interface.
+The former specifies which I/O operation is to be performed, while the latter
+allows the caller to be asynchronously notified of its completion.
 
-The \texttt{IOHandler} interface is composed of a \texttt{complete()} method and an \texttt{error()} method, which are invoked by the \texttt{Channel} when the processing of an I/O operation completes or fails respectively. It is important to note that both these methods always carry context information in the form of an \texttt{IORequest}, which is guaranteed to be the same exact object submitted to the \texttt{Channel} when starting the I/O operation whose completion is being notified. For this reason, \texttt{IOHandler} can be considered the nexus of the asynchronous invocation model, as it connects \texttt{IORequest} objects with the outcome of the corresponding I/O operation performed by the \texttt{Channel}.
+The \texttt{IOHandler} interface is composed of a \texttt{complete()} method
+and an \texttt{error()} method, which are invoked by the \texttt{Channel} when
+the processing of an I/O operation completes or fails respectively. It is
+important to note that both these methods always carry context information in
+the form of an \texttt{IORequest}, which is guaranteed to be the same exact
+object submitted to the \texttt{Channel} when starting the I/O operation whose
+completion is being notified. For this reason, \texttt{IOHandler} can be
+considered the nexus of the asynchronous invocation model, as it connects
+\texttt{IORequest} objects with the outcome of the corresponding I/O operation
+performed by the \texttt{Channel}.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The IOHandler interface,label={lst:iohandler}]
@@ -199,14 +350,35 @@ public interface IOHandler {
 }
 \end{lstlisting}
 
-Semantically, an invocation of the \texttt{complete()} method is always associated with the successful termination of an I/O operation. As shown in listing~\ref{lst:iohandler}, this method includes an optional \texttt{Payload} object that contains all data received from the endpoint device. A call to \texttt{complete()} with an empty \texttt{Payload} indicates that the I/O operation was completed without errors, but no data was received. Conversely, an invocation of the \texttt{error()} method indicates that the I/O operation was aborted before completion. In this case the cause of failure is always notified through the \texttt{cause} parameter.
+Semantically, an invocation of the \texttt{complete()} method is always
+associated with the successful termination of an I/O operation. As shown in
+listing~\ref{lst:iohandler}, this method includes an optional \texttt{Payload}
+object that contains all data received from the endpoint device. A call to
+\texttt{complete()} with an empty \texttt{Payload} indicates that the I/O
+operation was completed without errors, but no data was received. Conversely,
+an invocation of the \texttt{error()} method indicates that the I/O operation
+was aborted before completion. In this case the cause of failure is always
+notified through the \texttt{cause} parameter.
 
-From the point of view the Java memory model, the \texttt{Channel.submit()} creates a happens-before relationship with \texttt{IOHandler.complete()} and \texttt{IOHandler.error()}, viz. the effects generated by the code that led to the \texttt{submit()} invocation are visible from inside the code executed in the \texttt{complete()} and \texttt{error()} callback methods.
+From the point of view the Java memory model, the \texttt{Channel.submit()}
+creates a happens-before relationship with \texttt{IOHandler.complete()} and
+\texttt{IOHandler.error()}, viz. the effects generated by the code that led to
+the \texttt{submit()} invocation are visible from inside the code executed in
+the \texttt{complete()} and \texttt{error()} callback methods.
 
-Asynchrous execution does not imply loss of control; ongoing I/O operations can be monitored or cancelled by means of the \texttt{IOTask} object acquired upon submitting an \texttt{IORequest}. Listing~\ref{lst:iotask} shows all methods of the \texttt{IOTask} interface; method names are self explanatory, and the reader should be able to deduce their purpose just by analyzing the method signature. The only nuance that is worth mentioning is that \texttt{isCancelled()} always implies \texttt{isDone()} (i.e., all cancelled I/O operations are also complete), while the opposite does not hold (i.e., not all complete I/O operations were cancelled).
+Asynchrous execution does not imply loss of control; ongoing I/O operations can
+be monitored or cancelled by means of the \texttt{IOTask} object acquired upon
+submitting an \texttt{IORequest}. Listing~\ref{lst:iotask} shows all methods of
+the \texttt{IOTask} interface; method names are self explanatory, and the
+reader should be able to deduce their purpose just by analyzing the method
+signature. The only nuance that is worth mentioning is that
+\texttt{isCancelled()} always implies \texttt{isDone()} (i.e., all cancelled
+I/O operations are also complete), while the opposite does not hold (i.e., not
+all complete I/O operations were cancelled).
 
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=!hbt,caption=The IOTask interface,label={lst:iotask}]
+\begin{lstlisting}[float,floatplacement=!hbt,caption=The IOTask
+interface,label={lst:iotask}]
 public interface IOTask {
 	public void cancel();
 	
@@ -218,11 +390,20 @@ public interface IOTask {
 }
 \end{lstlisting}
 
-The \texttt{Channel} interface is also designed to manage completely asynchronous I/O operations, namely communication efforts spontaneously initiated by the remote device. This communication model is popular among WSNs, and it is often employed to handle periodic streams of data or events happening at irregular intervals. Such I/O operations can be handled through a catch-all \texttt{IOHandler} set with the \texttt{setAsyncIOHandler()} (listing~\ref{lst:channel}). Since the communication is not initiated by the Middleware, the \texttt{complete()} and \texttt{error()} callback methods will be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
+The \texttt{Channel} interface is also designed to manage completely
+asynchronous I/O operations, namely communication efforts spontaneously
+initiated by the remote device. This communication model is popular among WSNs,
+and it is often employed to handle periodic streams of data or events happening
+at irregular intervals. Such I/O operations can be handled through a catch-all
+\texttt{IOHandler} set with the \texttt{setAsyncIOHandler()}
+(listing~\ref{lst:channel}). Since the communication is not initiated by the
+Middleware, the \texttt{complete()} and \texttt{error()} callback methods will
+be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
 
 \begin{figure}[!hbt]
 \includegraphics[width=\textwidth]{imgs/async_channel_sequence.pdf}
-\caption{Sequence diagram of an asynchronous I/O operation. Note that the user process and the I/O operation are executed in parallel.}
+\caption{Sequence diagram of an asynchronous I/O operation. Note that the user
+process and the I/O operation are executed in parallel.}
 \label{fig:channel.async}
 \end{figure}
 
