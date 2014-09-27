@@ -342,7 +342,8 @@ considered the nexus of the asynchronous invocation model, as it connects
 performed by the \texttt{Channel}.
 
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=H,caption=The IOHandler interface,label={lst:iohandler}]
+\begin{lstlisting}[float,floatplacement=H,caption=The IOHandler
+interface,label={lst:iohandler}]
 public interface IOHandler {
 	public void complete(IORequest request, Optional<Payload> result);
 	
@@ -417,6 +418,18 @@ Full examples of actual implementations, complete with XML descriptor snippets
 
 \section{Encoding and decoding information}
 \label{sec:components.mapper}
+
+Difference between unstructured collections of bytes and a Message.
+Message structures field types and accessor methods to retrieve and set field
+data.
+
+Managing messages with the Mapper: create new message, discover message
+fields at runtime, marshal and unmarshal operations
+
+Creating new messages: the MapperFactory interface and the relationship with
+the XML
+
+Using the validate() method to manage multiple message types
 
 \subsection{The Message and Mapper interfaces}
 
