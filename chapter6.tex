@@ -177,13 +177,8 @@ Creation of a new \texttt{IORequestBuilder} object proceeds as follows: The temp
 
 \begin{figure}[!hbt]
 \includegraphics[width=\textwidth]{imgs/iorequest.pdf}
-\caption{The extended IORequest class diagram}
+\caption{The extended IORequest class diagram. For additional information about the IORequestParameter object consult listing 1.5.}
 \label{fig:iorequest.class}
-{
-\begin{figurenote}
-Class diagram of the Middleware components involved in the management of \texttt{IORequest} objects; it contains a concrete example based on the \texttt{HTTPChannel}. For additional information about the \texttt{IORequestParameter} object consult listing~\ref{lst:iorequestbuilder}.
-\end{figurenote}
-}
 \end{figure}
 
 
@@ -224,6 +219,13 @@ public interface IOTask {
 \end{lstlisting}
 
 The \texttt{Channel} interface is also designed to manage completely asynchronous I/O operations, namely communication efforts spontaneously initiated by the remote device. This communication model is popular among WSNs, and it is often employed to handle periodic streams of data or events happening at irregular intervals. Such I/O operations can be handled through a catch-all \texttt{IOHandler} set with the \texttt{setAsyncIOHandler()} (listing~\ref{lst:channel}). Since the communication is not initiated by the Middleware, the \texttt{complete()} and \texttt{error()} callback methods will be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
+
+\begin{figure}[!hbt]
+\includegraphics[width=\textwidth]{imgs/async_channel_sequence.pdf}
+\caption{Sequence diagram of an asynchronous I/O operation. Note that the user process and the I/O operation are executed in parallel.}
+\label{fig:channel.async}
+\end{figure}
+
 
 
 \subsection{Implementations: HTTPChannel and SimulatorChannel}
