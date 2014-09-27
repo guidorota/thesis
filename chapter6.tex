@@ -351,6 +351,20 @@ public interface IOHandler {
 }
 \end{lstlisting}
 
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=!hbt,caption=The IOTask
+interface,label={lst:iotask}]
+public interface IOTask {
+	public void cancel();
+	
+	public IORequest getRequest();
+	
+	public boolean isCancelled();
+	
+	public boolean isDone();
+}
+\end{lstlisting}
+
 Semantically, an invocation of the \texttt{complete()} method is always
 associated with the successful termination of an I/O operation. As shown in
 listing~\ref{lst:iohandler}, this method includes an optional \texttt{Payload}
@@ -377,19 +391,12 @@ signature. The only nuance that is worth mentioning is that
 I/O operations are also complete), while the opposite does not hold (i.e., not
 all complete I/O operations were cancelled).
 
-\lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=!hbt,caption=The IOTask
-interface,label={lst:iotask}]
-public interface IOTask {
-	public void cancel();
-	
-	public IORequest getRequest();
-	
-	public boolean isCancelled();
-	
-	public boolean isDone();
-}
-\end{lstlisting}
+\begin{figure}[!hbt]
+\includegraphics[width=\textwidth]{imgs/async_channel_sequence.pdf}
+\caption{Sequence diagram of an asynchronous I/O operation. Note that the user
+process and the I/O operation are executed in parallel.}
+\label{fig:channel.async}
+\end{figure}
 
 The \texttt{Channel} interface is also designed to manage completely
 asynchronous I/O operations, namely communication efforts spontaneously
@@ -400,14 +407,6 @@ at irregular intervals. Such I/O operations can be handled through a catch-all
 (listing~\ref{lst:channel}). Since the communication is not initiated by the
 Middleware, the \texttt{complete()} and \texttt{error()} callback methods will
 be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
-
-\begin{figure}[!hbt]
-\includegraphics[width=\textwidth]{imgs/async_channel_sequence.pdf}
-\caption{Sequence diagram of an asynchronous I/O operation. Note that the user
-process and the I/O operation are executed in parallel.}
-\label{fig:channel.async}
-\end{figure}
-
 
 
 \subsection{Implementations: HTTPChannel and SimulatorChannel}
