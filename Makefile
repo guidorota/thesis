@@ -14,7 +14,7 @@ SRC	:= $(shell egrep -l '^[^%]*\\begin\{document\}' *.tex)
 BIBFILE := $(shell perl -ne '($$_)=/^[^%]*\\bibliography\{(.*?)\}/;@_=split /,/;foreach $$b (@_) {print "$$b.bib "}' $(SRC))
 
 PDFPICS := $(shell perl -ne '@foo=/^[^%]*\\(includegraphics)(\[.*?\])?\{(.*?)\}/g;if (defined($$foo[2])) { if ($$foo[2] =~ /.pdf$$/) { print "$$foo[2] "; } else { print "$$foo[2].pdf "; }}' *.tex)
-DEP	= *.tex
+DEP	= *.tex *.cls
 
 TRG	= $(SRC:%.tex=%.pdf)
 

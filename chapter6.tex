@@ -46,11 +46,11 @@ and every subsequent attempt to perform an I/O operation will fail causing a
 \texttt{ChannelException} to be thrown. The current state of a \texttt{Channel}
 can be probed through its \texttt{isClosed()} method.
 
-Bytes sent or received with a \texttt{Channel} are encapsulated within a
-\texttt{Payload}, an object whose interface (listing~\ref{lst:payload}) allows
-\texttt{Channel}s and other data manipulation components to handle different
-data types regardless of the particular data representation chosen by the
-Middleware. \texttt{Payload}s will be the subject of further discussion in
+Bytes sent or received with a \texttt{Channel} are encapsulated in a
+\texttt{Payload} object. As shown in listing~\ref{lst:payload}, the
+\texttt{Payload} interface allows all Middleware components to handle different
+data types with a common set of methods, regardless of their individual
+encoding.  \texttt{Payload}s will be the subject of further discussion in
 section~\ref{sec:components.mapper}
 
 \lstset{language=Java}
@@ -81,11 +81,11 @@ layer.
 
 \section{Instantiating new Channels}
 
-Creation of new \texttt{Channel}s is performed by means of the
-\texttt{ChannelFactory} interface, a reification of the Factory design pattern
-that allows polymorphic instantiation of object classes.
+\texttt{Channel}s are created by means of the \texttt{ChannelFactory}
+interface, a reification of the Factory design pattern that allows polymorphic
+instantiation of new object classes.
 
-By using the Factory instantiation model, the choice of a particular
+By using a Factory instantiation model, the choice of a particular
 \texttt{Channel} implementation can be postponed from compile time to run time.
 This technique allows the Middleware to dynamically adapt in response to
 environment changes, and to support extension through the addition of new
@@ -386,7 +386,7 @@ be monitored or cancelled by means of the \texttt{IOTask} object acquired upon
 submitting an \texttt{IORequest}. Listing~\ref{lst:iotask} shows all methods of
 the \texttt{IOTask} interface; method names are self explanatory, and the
 reader should be able to deduce their purpose just by analyzing the method
-signature. The only nuance that is worth mentioning is that
+signature. The only nuance worth mentioning is that
 \texttt{isCancelled()} always implies \texttt{isDone()} (i.e., all cancelled
 I/O operations are also complete), while the opposite does not hold (i.e., not
 all complete I/O operations were cancelled).
@@ -401,7 +401,7 @@ process and the I/O operation are executed in parallel.}
 The \texttt{Channel} interface is also designed to manage completely
 asynchronous I/O operations, namely communication efforts spontaneously
 initiated by the remote device. This communication model is popular among WSNs,
-and it is often employed to handle periodic streams of data or events happening
+and it is often employed to handle periodic data streams or events happening
 at irregular intervals. Such I/O operations can be handled through a catch-all
 \texttt{IOHandler} set with the \texttt{setAsyncIOHandler()}
 (listing~\ref{lst:channel}). Since the communication is not initiated by the
