@@ -295,39 +295,18 @@ is used to create new \texttt{IORequest} copies using the internal template
 
 \texttt{IORequestBuilder}s are created by means of an
 \texttt{IORequestBuilderFactory}, an object that implements the now familiar
-Factory design pattern. Creation proceeds as follows: the template for creating
-new \texttt{IORequest} objects is loaded from an XML Device Descriptor, bound
-to an appropriate \texttt{IORequestDescriptor}, and processed by the
+Factory design pattern. Creation proceeds as follows: the request template is
+loaded from an XML Device Descriptor, bound to an appropriate
+\texttt{IORequestDescriptor}, and processed by the
 \texttt{IORequestBuilderFactory} to create the corresponding
-\texttt{IORequestBuilder}. 
-
-Similarly to what already seen in the previous section,
-every \texttt{IORequestBuilderFactory} implements an
+\texttt{IORequestBuilder}. Similarly to what already seen in the previous
+section, every \texttt{IORequestBuilderFactory} implements an
 \texttt{acceptedIORequestDescriptorClass()} method, which can be used to
 dynamically determine if a factory object can parse a specific type of
 \texttt{IORequestDescriptor}. It should come as no surprise that every
 \texttt{IORequestBuilder} class is provided with complementary
 \texttt{IORequestBuilderFactory} and \texttt{IORequestDescriptor}
 implementations.
-
-\texttt{IORequestBuilder}s are created by means of an
-\texttt{IORequestBuilderFactory}, an object that implements the now familiar
-Factory design pattern. Similarly to what already seen in the previous section,
-every \texttt{IORequestBuilderFactory} implements an
-\texttt{acceptedIORequestDescriptorClass()} method, which can be used to
-dynamically determine if a factory object can parse a specific type of
-\texttt{IORequestDescriptor}. It should come as no surprise that every
-\texttt{IORequestBuilder} class is provided with complementary
-\texttt{IORequestBuilderFactory} and \texttt{IORequestDescriptor}
-implementations.
-
-Creation of a new \texttt{IORequestBuilder} object proceeds as follows: The
-template for creating new \texttt{IORequest} objects is loaded from an XML
-Device Descriptor, bound to an appropriate \texttt{IORequestDescriptor}, and
-processed by the \texttt{IORequestBuilderFactory} to create the corresponding
-\texttt{IORequestBuilder}. Figure~\ref{fig:iorequest.creation} provides a
-comprehensive overview on this process and on the management of
-\texttt{IORequest} objects.
 
 \begin{figure}[!hbt]
 \includegraphics[width=\textwidth]{imgs/iorequest.pdf}
@@ -345,20 +324,19 @@ returned to the caller, thus allowing other computations to be performed while
 the requested I/O operation is being processed.
 
 As can be seen in listing~\ref{lst:channel}, \texttt{submit()} requires two
-parameters: an \texttt{IORequest} and an \texttt{IOHandler} callback interface.
+parameters: an \texttt{IORequest} and an \texttt{IOHandler} callback object.
 The former specifies which I/O operation is to be performed, while the latter
 allows the caller to be asynchronously notified of its completion.
 
-The \texttt{IOHandler} interface is composed of a \texttt{complete()} method
-and an \texttt{error()} method, which are invoked by the \texttt{Channel} when
-the processing of an I/O operation completes or fails respectively. It is
-important to note that both these methods always carry context information in
-the form of an \texttt{IORequest}, which is guaranteed to be the same exact
-object submitted to the \texttt{Channel} when starting the I/O operation whose
-completion is being notified. For this reason, \texttt{IOHandler} can be
-considered the nexus of the asynchronous invocation model, as it connects
-\texttt{IORequest} objects with the outcome of the corresponding I/O operation
-performed by the \texttt{Channel}.
+The \texttt{IOHandler} interface is composed of two methods, namely
+\texttt{complete()} and \texttt{error()}, which are invoked when processing of
+an I/O operation comes to an end. It is important to note that both these
+methods always carry context information in the form of an \texttt{IORequest},
+which is guaranteed to be the same exact object used for starting the I/O
+operation whose completion is being notified. For this reason,
+\texttt{IOHandler} can be considered the nexus of the asynchronous invocation
+model, as it connects \texttt{IORequest} objects with the outcome of the
+corresponding I/O operation performed by the \texttt{Channel}.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=H,caption=The IOHandler
@@ -387,7 +365,7 @@ public interface IOTask {
 Semantically, an invocation of the \texttt{complete()} method is always
 associated with the successful termination of an I/O operation. As shown in
 listing~\ref{lst:iohandler}, this method includes an optional \texttt{Payload}
-object that contains all data received from the endpoint device. A call to
+object, that contains all data received from the endpoint device. A call to
 \texttt{complete()} with an empty \texttt{Payload} indicates that the I/O
 operation was completed without errors, but no data was received. Conversely,
 an invocation of the \texttt{error()} method indicates that the I/O operation
@@ -396,15 +374,15 @@ notified through the \texttt{cause} parameter.
 
 From the point of view the Java memory model, the \texttt{Channel.submit()}
 creates a happens-before relationship with \texttt{IOHandler.complete()} and
-\texttt{IOHandler.error()}, viz. the effects generated by the code that led to
-the \texttt{submit()} invocation are visible from inside the code executed in
-the \texttt{complete()} and \texttt{error()} callback methods.
+\texttt{IOHandler.error()}, viz. any side effect generated by the code that led
+to the \texttt{submit()} invocation is guaranteed to be visible in the
+\texttt{complete()} and \texttt{error()} callback methods.
 
 Asynchrous execution does not imply loss of control; ongoing I/O operations can
 be monitored or cancelled by means of the \texttt{IOTask} object acquired upon
 submitting an \texttt{IORequest}. Listing~\ref{lst:iotask} shows all methods of
 the \texttt{IOTask} interface; method names are self explanatory, and the
-reader should be able to deduce their purpose just by analyzing the method
+reader should be able to deduce their purpose just by analyzing their 
 signature. The only nuance worth mentioning is that
 \texttt{isCancelled()} always implies \texttt{isDone()} (i.e., all cancelled
 I/O operations are also complete), while the opposite does not hold (i.e., not
@@ -420,9 +398,9 @@ process and the I/O operation are executed in parallel.}
 The \texttt{Channel} interface is also designed to manage completely
 asynchronous I/O operations, namely communication efforts spontaneously
 initiated by the remote device. This communication model is popular among WSNs,
-and it is often employed to handle periodic data streams or events happening
+as it is often employed to handle periodic data streams or events happening
 at irregular intervals. Such I/O operations can be handled through a catch-all
-\texttt{IOHandler} set with the \texttt{setAsyncIOHandler()}
+\texttt{IOHandler} set with the \texttt{setAsyncIOHandler()} method
 (listing~\ref{lst:channel}). Since the communication is not initiated by the
 Middleware, the \texttt{complete()} and \texttt{error()} callback methods will
 be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
