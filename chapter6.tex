@@ -497,7 +497,7 @@ particular type of \texttt{Message} that is to be stored in the field.
 
 The \textbf{qualifier} attribute is employed to specify additional properties
 of the field.  The PerLa Middleware currently supports three qualifiers, namely
-SIMPLE, LIST and STATIC :
+SIMPLE, LIST and STATIC:
 \begin{itemize}
   \item \textbf{SIMPLE}: a normal field. Its value can be set and retrieved
   using the \texttt{setField()} and \texttt{getField()} methods respectively.
@@ -516,7 +516,13 @@ SIMPLE, LIST and STATIC :
 
 \subsection{From Payload to Message: the Mapper interface}
 
+\texttt{Message} objects are a convenience introduced for simplifying data
+management operations in the PerLa Middleware. They provide structured access
+to information, a familiar set of primitive data types, and a selection of
+tools for combining basic items into complex data structures. 
 
+
+\subsection{Declaring new Message types}
 
 
 Character encoding may depends on the message, not the single field
