@@ -416,59 +416,42 @@ Full examples of actual implementations, complete with XML descriptor snippets
 \section{Encoding and decoding information}
 \label{sec:components.mapper}
 
-\texttt{Payload} is a container for raw byte sequences. Despite its semplicity,
-this object represents the foundation of the entire Middleware, as it is the
-vessel that conveys all information streaming through the \texttt{Channel}
-interface. \texttt{Payload} objects contain no structural information
+\texttt{Payload} is a container for raw sequences of bytes. Despite its
+semplicity, this class forms the foundation of the entire PerLa Middleware, as
+it is the vessel that conveys all information passing through the
+\texttt{Channel} interface.
+
+The data encapsulated in a \texttt{Payload} object is accessed with byte
+granularity. This level of abstraction is ideal for the implemention of an I/O
+access layer, whose sole concern is the transmission of information between two
+endpoints, but is not well suited to other forms of data management.
+Information is usually organized following a well defined structure, whose
+characteristics cannot be leveraged with the \texttt{Payload} interface; when
+data can only be read byte after byte, even the simplest arithmetic expression
+may become unwieldy and unnecessarily complex to perform.
+
+The \texttt{Message} interface provides an additional level of abstraction that
+allows us to overcome the aforementioned limitations. A \texttt{Message} is a
+structured container of information; data can be accessed by field name, and
+each field is 
+
+Leveraging this requires an additional level of abstraction in the middleware
+
+Whenas at this level
+of abstraction even basic arithmetic may can become unwieldy and unnecessarily
+complex.
+
+different granularity
+
+ but can easily become unwieldy as  
+
+require an higher level of abstraction, more suitable to the elaboration of
+data content
 
 The message-agnostic design of the \texttt{Payload}
 
-\texttt{Payload} is a container for raw data with an interface that only offers a
-basic set of methods for handling unstructured sequence of bytes. Despite its
-semplicity, the \texttt{Payload} object is the foundation of the entire
-data management infrastructure of the Middleware, as it is the vessel in which
-all information transiting over a \texttt{Channel} is stored.
-
 In the PerLa Middleware, data is exchanged by means of the \texttt{Payload}
 interface. 
-
-\texttt{Payload} is the most elementary data structure available in the PerLa
-Middleware. It offers a conveninent vay of storing and handling an unstructured
-sequence of bytes, and is therefore used as the Its interface offers a
-convenient set of methods for handling unstructured sequences of bytes. As
-explained in the previous sections of this chapter, \texttt{Payload}s are the
-foundation of the \texttt{Channel} interface, as it 
-
-As explained in previous sections of this chapter, data exchanged through the
-\texttt{Channel} interface is encapsulated in \texttt{Payload} objects.
-\texttt{Payload} offers a convenient set of methods for handling unstructured
-sequences of bytes
-
-However, their shortcomings appear evident
-
-The previous section introduced the concept of \texttt{Payload}. 
-
-As explained in the previous sections of this chapter, the \texttt{Payload}
-object is one of the elementary data structure used by the \texttt{Channel}
-interface.
-
-Data passing through a Channel has to be stored inside an interface
-
-The \texttt{Payload} object offers a convenient set of methods for handling
-sequences of bytes. As explained in the previous section, they are one of the
-elementary data structures on which the \texttt{Channel} interface is founded.
-\texttt{Payload}s can only provide a structure-agnostic view on data, since the
-information contained in them is only accessible as a series of consecutive
-bytes; while this approach is well suited to the design of an I/O library, 
-
-The \texttt{Payload} class offers a convenient set of methods for storing
-sequences of bytes.
-
-As explained in the previous sections of this chapter, I/O operations are
-performed by means of th
- \texttt{Channel}s
-allow the PerLa middleware to exchange data between a remote device or service
-by means of the \texttt{Payload} object.
 
 information agnostic
 
