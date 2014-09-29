@@ -80,7 +80,7 @@ prove impossible if such feature were not provided by its core data access
 layer.
 
 
-\section{Instantiating new Channels}
+\subsection{Instantiating new Channels}
 
 \texttt{Channel}s are created by means of the \texttt{ChannelFactory}
 interface, a reification of the Factory design pattern that allows polymorphic
@@ -413,7 +413,7 @@ be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
 Full examples of actual implementations, complete with XML descriptor snippets
 
 
-\section{Encoding and decoding information}
+\section{Handling data}
 \label{sec:components.mapper}
 
 \texttt{Payload} is a container for raw sequences of bytes. Despite its
@@ -432,7 +432,7 @@ become unwieldy and unnecessarily complex to be performed. To overcome these
 limitations, an additional level of abstraction is required.
 
 
-\subsection{The Message interfaces}
+\subsection{The Message interface}
 
 \texttt{Message}s are structured data containers that enclose a group of
 individual items called fields. The chief advantage that this data structure
@@ -508,11 +508,16 @@ SIMPLE, LIST and STATIC :
   \item \textbf{STATIC}: a field whose value is statically set during
   declaration.  Any attempt to modify a statically-qualified field with either
   the \texttt{setField()} or the \texttt{appendElement()} methods will cause an
-  exception to be thrown. It is important to note that the static field
-  values are set on a per-type basis; this means that all \texttt{Message}s of
-  the same type will share the same field values for each static field (if
-  any). 
+  exception to be thrown. It is important to note that static field values are
+  set on a per-type basis; this means that all \texttt{Message}s of the same
+  type will share the same field values for each static field (if any). 
 \end{itemize}
+
+
+\subsection{From Payload to Message: the Mapper interface}
+
+
+
 
 Character encoding may depends on the message, not the single field
 
