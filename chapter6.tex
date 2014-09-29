@@ -1,6 +1,7 @@
 \chapter{In-depth component description}
 
 \section{Communicating with Channels}
+\label{sec:channel}
 
 \texttt{Channel} is an interface for performing I/O operations. It represents
 the principal abstraction used by the middleware to communicate with hardware
@@ -415,9 +416,65 @@ Full examples of actual implementations, complete with XML descriptor snippets
 \section{Encoding and decoding information}
 \label{sec:components.mapper}
 
+\texttt{Payload} is a container for raw byte sequences. Despite its semplicity,
+this object represents the foundation of the entire Middleware, as it is the
+vessel that encapsulates all information exchanged through the \texttt{Channel}
+interface.
+
+\texttt{Payload} is a container for raw data with an interface that only offers a
+basic set of methods for handling unstructured sequence of bytes. Despite its
+semplicity, the \texttt{Payload} object is the foundation of the entire
+data management infrastructure of the Middleware, as it is the vessel in which
+all information transiting over a \texttt{Channel} is stored.
+
+In the PerLa Middleware, data is exchanged by means of the \texttt{Payload}
+interface. 
+
+\texttt{Payload} is the most elementary data structure available in the PerLa
+Middleware. It offers a conveninent vay of storing and handling an unstructured
+sequence of bytes, and is therefore used as the Its interface offers a
+convenient set of methods for handling unstructured sequences of bytes. As
+explained in the previous sections of this chapter, \texttt{Payload}s are the
+foundation of the \texttt{Channel} interface, as it 
+
+As explained in previous sections of this chapter, data exchanged through the
+\texttt{Channel} interface is encapsulated in \texttt{Payload} objects.
+\texttt{Payload} offers a convenient set of methods for handling unstructured
+sequences of bytes
+
+However, their shortcomings appear evident
+
+The previous section introduced the concept of \texttt{Payload}. 
+
+As explained in the previous sections of this chapter, the \texttt{Payload}
+object is one of the elementary data structure used by the \texttt{Channel}
+interface.
+
+Data passing through a Channel has to be stored inside an interface
+
+The \texttt{Payload} object offers a convenient set of methods for handling
+sequences of bytes. As explained in the previous section, they are one of the
+elementary data structures on which the \texttt{Channel} interface is founded.
+\texttt{Payload}s can only provide a structure-agnostic view on data, since the
+information contained in them is only accessible as a series of consecutive
+bytes; while this approach is well suited to the design of an I/O library, 
+
+The \texttt{Payload} class offers a convenient set of methods for storing
+sequences of bytes.
+
+As explained in the previous sections of this chapter, I/O operations are
+performed by means of th
+ \texttt{Channel}s
+allow the PerLa middleware to exchange data between a remote device or service
+by means of the \texttt{Payload} object.
+
+information agnostic
+
+A set of bytes is usually encoded from a message
+
 Difference between unstructured collections of bytes and a Message.
 Message structures field types and accessor methods to retrieve and set field
-data.
+data. Working with composite fields and vector fields (append)
 
 Managing messages with the Mapper: create new message, discover message
 fields at runtime, marshal and unmarshal operations
