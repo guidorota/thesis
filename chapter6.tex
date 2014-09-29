@@ -434,37 +434,22 @@ limitations, an additional level of abstraction is required.
 
 \subsection{The Message and Mapper interfaces}
 
-A \texttt{Message} is a structured data container that encloses a specific set
-of individual objects called fields. 
+A \texttt{Message} is a structured data container that encloses a group of
+individual items called fields. The fields set of a \texttt{Message} is
+unequivically defined by its data type property. The chief advantage that this
+data structure has over the \texttt{Payload} interfac
 
-\texttt{Messages} are strongly typed, viz. their field set is unequivocally
-determined by their data type property
+Fields are addressable by field name
 
-\texttt{Messages} are
-identified by a specific data type, a property that determines unequivocally
-the characteristics of each field of the \texttt{Message}.
-
-
-can be
-accessed by field, and each field is identified by a specific data type.
-
-Leveraging this requires an additional level of abstraction in the middleware
-
-Whenas at this level
-of abstraction even basic arithmetic may can become unwieldy and unnecessarily
-complex.
-
-different granularity
-
- but can easily become unwieldy as  
-
-require an higher level of abstraction, more suitable to the elaboration of
-data content
-
-The message-agnostic design of the \texttt{Payload}
-
-In the PerLa Middleware, data is exchanged by means of the \texttt{Payload}
-interface. 
+Every field is associated with three attributes:
+\begin{itemize}
+  \item \textbf{Field name}, used to address the value of a specific
+  field of the \texttt{Message};
+  \item \textbf{Data type}, which determines the possibile values of the field
+  and the operations that may be performed on it;
+  \item \textbf{Qualifier}, indicating if the field contains a STATIC value, a
+  SCALAR value or a LIST of elements. 
+\end{itemize}
 
 information agnostic
 

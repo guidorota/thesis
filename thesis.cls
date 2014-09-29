@@ -25,6 +25,8 @@
 \usepackage{caption}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{enumitem}
+\setlist{nosep}
 
 \definecolor{code_comment}{RGB}{65,126,96}
 \definecolor{code_keyword}{RGB}{126,8,84}
