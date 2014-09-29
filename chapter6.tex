@@ -418,8 +418,10 @@ Full examples of actual implementations, complete with XML descriptor snippets
 
 \texttt{Payload} is a container for raw byte sequences. Despite its semplicity,
 this object represents the foundation of the entire Middleware, as it is the
-vessel that encapsulates all information exchanged through the \texttt{Channel}
-interface.
+vessel that conveys all information streaming through the \texttt{Channel}
+interface. \texttt{Payload} objects contain no structural information
+
+The message-agnostic design of the \texttt{Payload}
 
 \texttt{Payload} is a container for raw data with an interface that only offers a
 basic set of methods for handling unstructured sequence of bytes. Despite its
