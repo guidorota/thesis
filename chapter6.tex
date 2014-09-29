@@ -421,19 +421,32 @@ semplicity, this class forms the foundation of the entire PerLa Middleware, as
 it is the vessel that conveys all information passing through the
 \texttt{Channel} interface.
 
-The data encapsulated in a \texttt{Payload} object is accessed with byte
-granularity. This level of abstraction is ideal for the implemention of an I/O
-access layer, whose sole concern is the transmission of information between two
-endpoints, but is not well suited to other forms of data management.
-Information is usually organized following a well defined structure, whose
-characteristics cannot be leveraged with the \texttt{Payload} interface; when
-data can only be read byte after byte, even the simplest arithmetic expression
-may become unwieldy and unnecessarily complex to perform.
+The data encapsulated in a \texttt{Payload} object is accessed one byte at a
+time. This granularity level is ideal for the implemention of an I/O access
+layer, whose sole concern is the transmission of information between two
+endpoints, but is not suited to other forms of data management. Information is
+usually organized following a well defined structure, whose characteristics
+cannot be leveraged with the \texttt{Payload} interface alone; when data can
+only be read byte after byte, even the simplest arithmetic expression may
+become unwieldy and unnecessarily complex to perform. To overcome these
+limitations, an additional level of abstraction is required.
 
-The \texttt{Message} interface provides an additional level of abstraction that
-allows us to overcome the aforementioned limitations. A \texttt{Message} is a
-structured container of information; data can be accessed by field name, and
-each field is 
+
+\subsection{The Message and Mapper interfaces}
+
+A \texttt{Message} is a structured data container that encloses a specific set
+of individual objects called fields. 
+
+\texttt{Messages} are strongly typed, viz. their field set is unequivocally
+determined by their data type property
+
+\texttt{Messages} are
+identified by a specific data type, a property that determines unequivocally
+the characteristics of each field of the \texttt{Message}.
+
+
+can be
+accessed by field, and each field is identified by a specific data type.
 
 Leveraging this requires an additional level of abstraction in the middleware
 
@@ -469,7 +482,7 @@ the XML
 
 Using the validate() method to manage multiple message types
 
-\subsection{The Message and Mapper interfaces}
+
 
 \subsection{Handling composite data structures}
 
