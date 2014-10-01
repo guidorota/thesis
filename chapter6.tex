@@ -521,24 +521,63 @@ management operations in the PerLa Middleware. They provide structured access
 to information, a familiar set of primitive data types, and a selection of
 tools for combining basic values into complex data structures. In spite of
 these advantages, the \texttt{Message} interface is a high level abstraction
-that cannot be employed where a \texttt{Payload} is expected, as it doesn't
-provide any method for accessing its contents as a simple sequence of bytes;
-therefore, \texttt{Message}s can't be used directly to perform any kind of I/O
-operation.
+that cannot be employed where a \texttt{Payload} is expected, since it doesn't
+provide any method for accessing its contents as a simple sequence of bytes.
+As a consequence, \texttt{Message}s can't be directly used to perform any kind
+of I/O operation.
 
 This structural gap is bridged by the \texttt{Mapper}, an interface whose
 primary function consists in converting \texttt{Payload} objects into
-\texttt{Message}s and vice-versa. This process is defined as
+\texttt{Message}s and vice-versa. The conversion process is designated as
 \textit{marshalling} when a structured \texttt{Message} is encoded into a
 \texttt{Payload}, and \textit{unmarshalling} when a byte sequence enclosed in a
-\texttt{Payload} is decoded into a \texttt{Message} object. The additional
-level of decoupling provided by the \texttt{Mapper} interface is a fundamental
-design feature that is exploited to provide support for different data formats.
+\texttt{Payload} is decoded into a \texttt{Message} object.
 
-Data transmitted between the Middleware and an endpoint device may be
-structured using a plethora of formats, like JSON and XML (REST APIs), C-like
-data structures (low-power or embedded devices), serialized Java classes (Java
-RMI APIs) or proprietary data encoding mechanism.
+Every \texttt{Mapper} implementation is designed to support a specific data
+format. The \texttt{JSONMapper}, for example, converts JSON-formatted
+byte streams into \texttt{Message}s and vice versa, whereas the
+\texttt{URLEncodedMapper} converts URL-encoded HTTP entities only. The
+additional decoupling provided by the \texttt{Mapper} interface builds over the
+pluggable \texttt{Channel} design, thus allowing \texttt{Mapper}s and
+\texttt{Channel}s to be selected independently of each other. This separation
+of concerns allows the same \texttt{Channel} to be used with multiple
+\texttt{Mapper}s in order to distribute information using different data
+formats.
+
+
+
+The \texttt{Mapper} interface is one of the extension points available to the
+final users, hence allowing the final user to implement and 
+
+Moreover, the \texttt{Mapper} interface is an defined as an extension
+point of the Middleware; As will be
+shown later in this section, the \texttt{Mapper} interface is another extension
+points of the PerLa Middleware, as additional \texttt{Mapper} implementations
+can be added to the core \texttt{Middleware} to expand
+
+
+Different \texttt{Mapper} implementations may be provided to support 
+
+The additional level of decoupling provided by the \texttt{Mapper} interface is
+used to 
+
+Prior to transmission, \texttt{Message}s are marshalled into a suitable
+\texttt{Payload}
+
+The PerLa Middleware exploits this additional level of decoupling to support
+all provide support for different data formats. the different data formats found in a Pervasive System.
+
+
+
+Data exchanged between the
+Middleware and an endpoint device may be structured using a plethora of
+formats, like JSON and XML (REST APIs), C-like data structures (low-power or
+embedded node), serialized Java classes (Java RMI APIs), proprietary data
+encoding mechanism, and many more. The \texttt{Mapper} interface allows 
+
+This
+diversity is a characteristic trait of Pervasive Network environments, and the
+\texttt{Mapper} interface is the component 
 
 not only support different formats, but different formats coexist in a
 pervasive network
