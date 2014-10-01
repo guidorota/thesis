@@ -581,72 +581,20 @@ can utilize to expand the core functionalities of the PerLa Middleware. New
 
 Different \texttt{Mapper} implementations may be provided to support 
 
-The additional level of decoupling provided by the \texttt{Mapper} interface is
-used to 
-
-Prior to transmission, \texttt{Message}s are marshalled into a suitable
-\texttt{Payload}
-
-The PerLa Middleware exploits this additional level of decoupling to support
-all provide support for different data formats. the different data formats found in a Pervasive System.
-
-
-
-Data exchanged between the
-Middleware and an endpoint device may be structured using a plethora of
-formats, like JSON and XML (REST APIs), C-like data structures (low-power or
-embedded node), serialized Java classes (Java RMI APIs), proprietary data
-encoding mechanism, and many more. The \texttt{Mapper} interface allows 
-
-This
-diversity is a characteristic trait of Pervasive Network environments, and the
-\texttt{Mapper} interface is the component 
-
-not only support different formats, but different formats coexist in a
-pervasive network
-
-a single mapper would effectively limit the class of devices with which the PerLa
-middleware is able to manage
-
-
-
-
-The \texttt{Mapper}
-interface thus introduces an additional level of indirection that is
-fundamental for the management of different data encoding schemes.
-
-The additional level of decoupling introduced with the \texttt{Mapper}
-interface is fundamental design feature that Data transmitted between the middleware and
-an endpoint device may be organized using different 
-
-The additional level of decoupling introduced with the \texttt{Mapper}
-interface is a fundamental design choice that allows the PerLa Middleware to
-support different encoding schemes. Data transmitted between the middleware and
-an endpoint device may be organized using different 
-
-this allows the same channel to be used for transmitting data encoding usind
-different techniques
-
-decoupling
-
-The gap between \texttt{Payload}s and \texttt{Message}s is bridged with the
-\texttt{Mapper} interface. \texttt{Mapper}s 
-
-
-which is still
-required to perform any kind of I/O operation. The \texttt{Mapper} interface is required to bridge this
-gap.
-
-The \texttt{Message} interface is however a high level abstraction that cannot
-be employed as a direct substitute for a \texttt{Payload} object, which is still
-required to perform any kind of I/O operation. The \texttt{Mapper} interface is required to bridge this
-gap.
-
-Mappers are responsible for instatiating, marshalling and unmarshalling
-messages
-
 \subsection{Declaring new Message types}
 
+There is a 1-to-1 relationship between message types and mappers.
+
+Creation of new mappers through the factory mechanism
+
+The messagedescriptor is used to define the data format and the various fields
+that compose the message. Moreover, the same Mapper object can be used to query
+the structure of a specific Message type
+
+Not all formats support all features available to messages. For example, the
+URLEncoded mapper cannot create nested fields, as there is no such concept in a
+URLEncoded data structure. Maybe it's worth moving the example section into
+this one.
 
 Character encoding may depends on the message, not the single field
 
