@@ -31,7 +31,7 @@ communication stack; as a result of this design choice, a wide variety of data
 management tasks, including but not limited to, networking, file handling, and
 automatic data generation can be implemented as \texttt{Channel}s.
 
-The current middleware architecture encourages the creation of several highly
+The current Middleware architecture encourages the creation of several highly
 specialized \texttt{Channel}s, which are usually developed around third-party
 communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing
 support for HTTP communications, is an excellent example of the advantages of
@@ -423,6 +423,15 @@ it is the vessel that conveys all information passing through the
 
 The data encapsulated in a \texttt{Payload} object is accessed one byte at a
 time. This granularity level is ideal for the implemention of an I/O access
+layer, whose sole concern consists in the transmission of information between
+two endpoints, but is not suited to other forms of information management.
+Handling data by the byte is unwieldy and unnecessarily complex, as it prevents
+final users from leveraging the underlying structural characteristics of the
+information to be processed. To overcome the limits imposed by the
+\texttt{Payload} interface, an additional level of abstraction is required.
+
+The data encapsulated in a \texttt{Payload} object is accessed one byte at a
+time. This granularity level is ideal for the implemention of an I/O access
 layer, whose sole concern is the transmission of information between two
 endpoints, but is not suited to other forms of data management. Information is
 usually organized following a well defined structure, whose characteristics
@@ -469,10 +478,10 @@ can be queried through the \texttt{getType()} method. This property
 unequivocally identifies the set of fields contained in a \texttt{Message} in
 terms of field \textbf{name}, field \textbf{type} and field \textbf{qualifier}.
 
-The field \textbf{name} is a textual string that uniquely identifies a specific
-data item in the scope of a single \texttt{Message}. This attribute can be used
-to address a particular field in order to change or retrieve its value through
-the \texttt{setField()} and \texttt{getField()} methods.
+The field \textbf{name} is a textual string that uniquely identifies one
+specific data item in the scope of a single \texttt{Message}. This attribute
+can be used to address a particular field in order to change or retrieve its
+value through the \texttt{setField()} and \texttt{getField()} methods.
 
 The \textbf{type} attribute defines the set of legal values that can be stored
 in a field, together with the operations that can be performed on those values.
@@ -499,8 +508,8 @@ The \textbf{qualifier} attribute is employed to specify additional properties
 of the field.  The PerLa Middleware currently supports three qualifiers, namely
 SIMPLE, LIST and STATIC:
 \begin{itemize}
-  \item \textbf{SIMPLE}: a normal field. Its value can be set and retrieved
-  using the \texttt{setField()} and \texttt{getField()} methods respectively.
+  \item \textbf{SIMPLE}: a normal field whose value can be set and retrieved
+  using the \texttt{setField()} and \texttt{getField()}.
   \item \textbf{LIST}: a field that can hold multiple elements of the same
   type. The content of the entire list are collected by invoking the
   conventional \texttt{getField()} method, whereas new list elements can be
@@ -531,7 +540,30 @@ primary function consists in converting \texttt{Payload} objects into
 \texttt{Message}s and vice-versa. The conversion process is designated as
 \textit{marshalling} when a structured \texttt{Message} is encoded into a
 \texttt{Payload}, and \textit{unmarshalling} when a byte sequence enclosed in a
-\texttt{Payload} is decoded into a \texttt{Message} object.
+\texttt{Payload} is decoded into a \texttt{Message} object. These two
+operations are performed through the \texttt{marshal()} and
+\texttt{unmarshal()} methods respectively (see listing~\ref{lst:mapper}).
+
+
+\lstset{language=Java}
+\begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper
+interface,label={lst:mapper}]
+public interface Mapper {
+
+    public String getMessageId();
+
+    public FieldDescriptor getFieldDescriptor(String name);
+
+    public Collection<FieldDescriptor> getFieldDescriptors();
+
+    public FpcMessage createMessage();
+
+    public FpcMessage unmarshal(Payload payload);
+
+    public Payload marshal(FpcMessage message);
+
+}
+\end{lstlisting}
 
 Every \texttt{Mapper} implementation is designed to support a specific data
 format. The \texttt{JSONMapper}, for example, converts JSON-formatted
@@ -552,15 +584,8 @@ formats, as shown in figure~\ref{fig:mapper_channel}.
     \label{fig:mapper_channel}
 \end{figure}
 
-The \texttt{Mapper} interface is one of the extension points available to the
-final users, hence allowing the final user to implement and 
-
-Moreover, the \texttt{Mapper} interface is an defined as an extension
-point of the Middleware; As will be
-shown later in this section, the \texttt{Mapper} interface is another extension
-points of the PerLa Middleware, as additional \texttt{Mapper} implementations
-can be added to the core \texttt{Middleware} to expand
-
+The \texttt{Mapper} interface is one of the extension points that final users
+can utilize to expand the core functionalities of the PerLa Middleware. 
 
 Different \texttt{Mapper} implementations may be provided to support 
 
