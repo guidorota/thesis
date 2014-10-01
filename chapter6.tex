@@ -541,7 +541,7 @@ operations are performed through the \texttt{marshal()} and
 interface,label={lst:mapper}]
 public interface Mapper {
 
-    public String getMessageId();
+    public String getMessageType();
 
     public FieldDescriptor getFieldDescriptor(String name);
 
@@ -563,7 +563,7 @@ URL-encoded HTTP entities. The additional decoupling provided by the
 \texttt{Mapper} interface builds over the pluggable \texttt{Channel} design,
 thus allowing \texttt{Mapper}s and \texttt{Channel}s to be selected
 independently of each other. This separation of concerns allows the same
-\texttt{Channel} to be used with multiple \texttt{Mapper}s in order to
+\texttt{Channel} to be used in conjunction with multiple \texttt{Mapper}s to
 distribute information using different data formats, as shown in
 figure~\ref{fig:mapper_channel}.
 
@@ -576,7 +576,8 @@ figure~\ref{fig:mapper_channel}.
 \end{figure}
 
 The \texttt{Mapper} interface is one of the extension points that final users
-can utilize to expand the core functionalities of the PerLa Middleware. 
+can utilize to expand the core functionalities of the PerLa Middleware. New
+\texttt{Mapper} implementation can be added to support new data formats or 
 
 Different \texttt{Mapper} implementations may be provided to support 
 
