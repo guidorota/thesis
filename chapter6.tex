@@ -557,15 +557,15 @@ public interface Mapper {
 \end{lstlisting}
 
 Every \texttt{Mapper} implementation is designed to support a specific data
-format. The \texttt{JSONMapper}, for example, converts JSON-formatted
-byte streams into \texttt{Message}s and vice versa, whereas the
-\texttt{URLEncodedMapper} converts URL-encoded HTTP entities only. The
-additional decoupling provided by the \texttt{Mapper} interface builds over the
-pluggable \texttt{Channel} design, thus allowing \texttt{Mapper}s and
-\texttt{Channel}s to be selected independently of each other. This separation
-of concerns allows the same \texttt{Channel} to be used with multiple
-\texttt{Mapper}s in order to distribute information using different data
-formats, as shown in figure~\ref{fig:mapper_channel}.
+format. The \texttt{JSONMapper}, for example, handles JSON-formatted byte
+streams, whereas the \texttt{URLEncodedMapper} specializes in the conversion of
+URL-encoded HTTP entities. The additional decoupling provided by the
+\texttt{Mapper} interface builds over the pluggable \texttt{Channel} design,
+thus allowing \texttt{Mapper}s and \texttt{Channel}s to be selected
+independently of each other. This separation of concerns allows the same
+\texttt{Channel} to be used with multiple \texttt{Mapper}s in order to
+distribute information using different data formats, as shown in
+figure~\ref{fig:mapper_channel}.
 
 \begin{figure}[h!]
     \centering
