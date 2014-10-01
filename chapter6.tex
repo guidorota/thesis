@@ -424,21 +424,12 @@ it is the vessel that conveys all information passing through the
 The data encapsulated in a \texttt{Payload} object is accessed one byte at a
 time. This granularity level is ideal for the implemention of an I/O access
 layer, whose sole concern consists in the transmission of information between
-two endpoints, but is not suited to other forms of information management.
-Handling data by the byte is unwieldy and unnecessarily complex, as it prevents
-final users from leveraging the underlying structural characteristics of the
-information to be processed. To overcome the limits imposed by the
-\texttt{Payload} interface, an additional level of abstraction is required.
-
-The data encapsulated in a \texttt{Payload} object is accessed one byte at a
-time. This granularity level is ideal for the implemention of an I/O access
-layer, whose sole concern is the transmission of information between two
-endpoints, but is not suited to other forms of data management. Information is
-usually organized following a well defined structure, whose characteristics
-cannot be leveraged with the \texttt{Payload} interface alone; when data can
-only be read byte after byte, even the simplest arithmetic expression may
-become unwieldy and unnecessarily complex to be performed. To overcome these
-limitations, an additional level of abstraction is required.
+two endpoints, but is not suited to other forms of data management. Processing
+the information contained in a \texttt{Payload} can be unwieldy and
+unnecessarily complex; the byte-oriented interface doesn't provide any facility
+for leveraging the underlying structure of the enclosed data, and even a simple
+action like retrieving a particular value in a complex data structure can
+easily become a daunting task.
 
 
 \subsection{The Message interface}
@@ -479,9 +470,9 @@ unequivocally identifies the set of fields contained in a \texttt{Message} in
 terms of field \textbf{name}, field \textbf{type} and field \textbf{qualifier}.
 
 The field \textbf{name} is a textual string that uniquely identifies one
-specific data item in the scope of a single \texttt{Message}. This attribute
-can be used to address a particular field in order to change or retrieve its
-value through the \texttt{setField()} and \texttt{getField()} methods.
+specific data item in the scope of a single \texttt{Message}. It can be used to
+retrieve or set the value of a field through the \texttt{getField()} and
+\texttt{setField()} methods respectively.
 
 The \textbf{type} attribute defines the set of legal values that can be stored
 in a field, together with the operations that can be performed on those values.
@@ -489,7 +480,7 @@ It is worth mentioning that field type information is used to statically verify
 the type safety of nearly all data management operations performed on a
 \texttt{Message} (consult section~\ref{sec:components.script} for additional
 information). The following primitive data types are currently supported by the
-middleware:
+Middleware:
 \begin{itemize}
   \item \textbf{INTEGER}: a 32 bit signed two's complement integral data type
   \item \textbf{FLOAT}: a single-precision 32 bit IEEE 745 floating point
@@ -498,22 +489,22 @@ middleware:
   \item \textbf{TIMESTAMP}: a date with timezone, currently implemented using
   Java's \textbf{ZonedDateTime} class.
   \item \textbf{ID}: a unique label that identifies a single node registered
-  with the PerLa Middleware. The current implementation uses a 32 bit integer. 
+  in the PerLa Middleware. The current implementation uses a 32 bit integer. 
 \end{itemize}
 Besides the six primitive data types presented above, a field can also hold a
 nested \texttt{Message}. In this case, the type attribute must be set to the
 particular type of \texttt{Message} that is to be stored in the field. 
 
-The \textbf{qualifier} attribute is employed to specify additional properties
-of the field.  The PerLa Middleware currently supports three qualifiers, namely
-SIMPLE, LIST and STATIC:
+The \textbf{qualifier} attribute is employed to define additional field
+properties. It can be set to one of the following values:
 \begin{itemize}
   \item \textbf{SIMPLE}: a normal field whose value can be set and retrieved
-  using the \texttt{setField()} and \texttt{getField()}.
+  using the \texttt{setField()} and \texttt{getField()} methods.
   \item \textbf{LIST}: a field that can hold multiple elements of the same
-  type. The content of the entire list are collected by invoking the
-  conventional \texttt{getField()} method, whereas new list elements can be
-  added through the \texttt{appendElement()} method.
+  type. New values can be added with the \texttt{appendElement()} method, while
+  the entire list is retrieved through the conventional \texttt{getField()}
+  method. List-qualified fields preserve the order of insertion of the
+  individual elements.
   \item \textbf{STATIC}: a field whose value is statically set during
   declaration.  Any attempt to modify a statically-qualified field with either
   the \texttt{setField()} or the \texttt{appendElement()} methods will cause an
