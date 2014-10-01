@@ -542,9 +542,15 @@ pluggable \texttt{Channel} design, thus allowing \texttt{Mapper}s and
 \texttt{Channel}s to be selected independently of each other. This separation
 of concerns allows the same \texttt{Channel} to be used with multiple
 \texttt{Mapper}s in order to distribute information using different data
-formats.
+formats, as shown in figure~\ref{fig:mapper_channel}.
 
-
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.8]{imgs/mapper_channel.pdf}
+    \caption{Using a single \texttt{Channel} to transmit data marshalled with
+    different \texttt{Mapper}s}
+    \label{fig:mapper_channel}
+\end{figure}
 
 The \texttt{Mapper} interface is one of the extension points available to the
 final users, hence allowing the final user to implement and 
