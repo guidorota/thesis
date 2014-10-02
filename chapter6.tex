@@ -432,7 +432,7 @@ action like retrieving a particular value in a complex data structure can
 easily become a daunting task.
 
 
-\subsection{The Message interface}
+\subsection{The Message and Mapper interfaces}
 
 \texttt{Message}s are structured data containers that enclose a group of
 individual items called fields. The chief advantage that this data structure
@@ -479,27 +479,26 @@ in a field, together with the operations that can be performed on those values.
 It is worth mentioning that field type information is used to statically verify
 the type safety of nearly all data management operations performed on a
 \texttt{Message} (consult section~\ref{sec:components.script} for additional
-information). The following primitive data types are currently supported by the
-Middleware:
+information). The PerLa Middleware currently supports six primitive types:
 \begin{itemize}
   \item \textbf{INTEGER}: a 32 bit signed two's complement integral data type
   \item \textbf{FLOAT}: a single-precision 32 bit IEEE 745 floating point
   \item \textbf{BOOLEAN}: a data type with only two values, true or false
   \item \textbf{STRING}: a string of characters with UTF-16 encoding
   \item \textbf{TIMESTAMP}: a date with timezone, currently implemented using
-  Java's \textbf{ZonedDateTime} class.
+  Java's \texttt{ZonedDateTime} class.
   \item \textbf{ID}: a unique label that identifies a single node registered
   in the PerLa Middleware. The current implementation uses a 32 bit integer. 
 \end{itemize}
-Besides the six primitive data types presented above, a field can also hold a
-nested \texttt{Message}. In this case, the type attribute must be set to the
+Besides the data types presented above, a field can also hold a nested
+\texttt{Message}. In this case, the type attribute must be set to the
 particular type of \texttt{Message} that is to be stored in the field. 
 
 The \textbf{qualifier} attribute is employed to define additional field
 properties. It can be set to one of the following values:
 \begin{itemize}
-  \item \textbf{SIMPLE}: a normal field whose value can be set and retrieved
-  using the \texttt{setField()} and \texttt{getField()} methods.
+  \item \textbf{SIMPLE}: a normal field whose value can be altered and
+  retrieved using the \texttt{setField()} and \texttt{getField()} methods.
   \item \textbf{LIST}: a field that can hold multiple elements of the same
   type. New values can be added with the \texttt{appendElement()} method, while
   the entire list is retrieved through the conventional \texttt{getField()}
@@ -513,9 +512,6 @@ properties. It can be set to one of the following values:
   type will share the same field values for each static field (if any). 
 \end{itemize}
 
-
-\subsection{From Payload to Message: the Mapper interface}
-
 \texttt{Message} objects are a convenience introduced for simplifying data
 management operations in the PerLa Middleware. They provide structured access
 to information, a familiar set of primitive data types, and a selection of
@@ -523,18 +519,8 @@ tools for combining basic values into complex data structures. In spite of
 these advantages, the \texttt{Message} interface is a high level abstraction
 that cannot be employed where a \texttt{Payload} is expected, since it doesn't
 provide any method for accessing its contents as a simple sequence of bytes.
-As a consequence, \texttt{Message}s can't be directly used to perform any kind
-of I/O operation.
-
-This structural gap is bridged by the \texttt{Mapper}, an interface whose
-primary function consists in converting \texttt{Payload} objects into
-\texttt{Message}s and vice-versa. The conversion process is designated as
-\textit{marshalling} when a structured \texttt{Message} is encoded into a
-\texttt{Payload}, and \textit{unmarshalling} when a byte sequence enclosed in a
-\texttt{Payload} is decoded into a \texttt{Message} object. These two
-operations are performed through the \texttt{marshal()} and
-\texttt{unmarshal()} methods respectively (see listing~\ref{lst:mapper}).
-
+As a consequence, \texttt{Message}s can't be used directly in any kind of I/O
+operation.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper
@@ -556,16 +542,14 @@ public interface Mapper {
 }
 \end{lstlisting}
 
-Every \texttt{Mapper} implementation is designed to support a specific data
-format. The \texttt{JSONMapper}, for example, handles JSON-formatted byte
-streams, whereas the \texttt{URLEncodedMapper} specializes in the conversion of
-URL-encoded HTTP entities. The additional decoupling provided by the
-\texttt{Mapper} interface builds over the pluggable \texttt{Channel} design,
-thus allowing \texttt{Mapper}s and \texttt{Channel}s to be selected
-independently of each other. This separation of concerns allows the same
-\texttt{Channel} to be used in conjunction with multiple \texttt{Mapper}s to
-distribute information using different data formats, as shown in
-figure~\ref{fig:mapper_channel}.
+This structural gap is bridged by the \texttt{Mapper}, an interface whose
+primary function consists in converting \texttt{Payload} objects into
+\texttt{Message}s and vice-versa. The conversion process is designated as
+\textbf{marshalling} when a structured \texttt{Message} is encoded into a
+\texttt{Payload}, and \textbf{unmarshalling} when a byte sequence enclosed in a
+\texttt{Payload} is decoded into a \texttt{Message} object. These two
+operations are performed through the \texttt{marshal()} and
+\texttt{unmarshal()} methods respectively (see listing~\ref{lst:mapper}).
 
 \begin{figure}[h!]
     \centering
@@ -575,13 +559,98 @@ figure~\ref{fig:mapper_channel}.
     \label{fig:mapper_channel}
 \end{figure}
 
+Every \texttt{Mapper} class is designed to support a single data format. 
+\texttt{JSONMapper} instances, for example, handle JSON-formatted byte
+streams, whereas the \texttt{URLEncodedMapper}s specialize in the conversion of
+URL-encoded HTTP entities. The additional decoupling provided by the
+\texttt{Mapper} interface builds over the pluggable \texttt{Channel} design,
+thus allowing \texttt{Mapper}s and \texttt{Channel}s to be selected
+independently of each other (see figure~\ref{fig:mapper_channel}).
+
+As shown in listing~\ref{lst:mapper}, the \texttt{Mapper} interface goes well
+beyond what is strictly necessary for marshalling and unmarshalling data, as it
+provides a series of functionalities that are crucial for managing the entire
+lifecycle of a \texttt{Message} object. Each \texttt{Mapper} created in the
+PerLa Middleware is in fact committed to the administration of a specific
+\texttt{Message} type, whose identifier can be retrieved via the
+\texttt{getMessageType()} method.
+
+As exemplified in figure~\ref{fig:mapper.messages}, multiple instances of the
+same \texttt{Mapper} class are present in a single PerLa installation, each one
+of which is responsible for the management of a different type of
+\texttt{Message}. 
+
+Creation of a new \texttt{Message} with a specific data type is performed by
+invoking the \texttt{createMessage()} method on the \texttt{Mapper} 
+
+Figure~\ref{fig:mapper.messages} shows a common usage scenario. A single 
+
+A typical installation of the PerLa Middlware
+will then include several instances of the same \texttt{Mapper} class, any one
+of which is responsible for the management of a single type of \texttt{Message}
+
+The \texttt{Mapper} is a fundamental component for the management of
+\texttt{Message} data types, and as shown in listing~\ref{lst:mapper} it method
+set goes well beyond what is strictly necessary for marshalling and
+unmarshalling data. Its methods provide a series of functionalities that are
+crucial for the .. Each \texttt{Mapper} object created in the PerLa Middleware
+is committed to the management of a specific \texttt{Message} type, whose name
+can be queried through the \texttt{getMessageType()} method. A typical
+installation of the PerLa Middlware will then include several instances of the
+same \texttt{Mapper} class, any one of which is responsible for the management
+of a single type of \texttt{Message}
+
+Each \texttt{Mapper} object created in the PerLa Middleware is committed to the
+management of a specific \texttt{Message} type. Due to this , whose name can be queried
+through the \texttt{getMessageType()} method. A typical installation of the
+PerLa Middlware will then include several instances of the same \texttt{Mapper}
+class, any one of which is responsible for the management of a single type of
+\texttt{Message}
+
+
+
+
+\subsection{Managing Message types}
+
+New \texttt{Message} types are declared by means of a factory
+
+The functionalities provided by the \texttt{Mapper} interface go well beyond
+what is strictly necessary for marshalling and unmarshalling data. 
+
+The \texttt{Mapper} interface 
+
+
+
+
+
+
+
+Moreover, every \texttt{Mapper} instance is responsible for handling one single
+\texttt{Message} type, whose name can be retrieved through the
+\texttt{getMessageType()} method. As shown in listing~\ref{lst:mapper}, the
+methods available this interface exceed the simple marshalling and
+unmarshalling the
+\texttt{Mapper} interface is provided with additional methods whose
+
+\texttt{Mapper} objects are tailored to handle a single \texttt{Message} type,
+whose name can be queried through the \texttt{getMessageType()} method
+(listing~\ref{lst:mapper}).
+This feature is highlighted in listing~\ref{lst:mapper}, where the an aditional
+list of fields can be seen 
+
 The \texttt{Mapper} interface is one of the extension points that final users
 can utilize to expand the core functionalities of the PerLa Middleware. New
 \texttt{Mapper} implementation can be added to support new data formats or 
 
-Different \texttt{Mapper} implementations may be provided to support 
 
-\subsection{Declaring new Message types}
+
+
+
+
+
+
+
+\texttt{Mapper}s are not only responsible marshalling and unmarshalling data. 
 
 There is a 1-to-1 relationship between message types and mappers.
 
