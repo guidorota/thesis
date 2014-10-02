@@ -464,10 +464,10 @@ public interface Message {
 }
 \end{lstlisting}
 
-The specific structure of a \texttt{Message} is defined by its data type, which
-can be queried through the \texttt{getType()} method. This property
-unequivocally identifies the set of fields contained in a \texttt{Message} in
-terms of field \textbf{name}, field \textbf{type} and field \textbf{qualifier}.
+The specific structure of a \texttt{Message} is defined by its type, which can
+be queried through the \texttt{getType()} method. This property unequivocally
+identifies the set of fields contained in a \texttt{Message} in terms of field
+\textbf{name}, field \textbf{type} and field \textbf{qualifier}.
 
 The field \textbf{name} is a textual string that uniquely identifies one
 specific data item in the scope of a single \texttt{Message}. It can be used to
@@ -515,12 +515,8 @@ properties. It can be set to one of the following values:
 
 \subsection{Working with Messages: the Mapper interface}
 
-Every \texttt{Message} type available in the PerLa Middleware is managed using
-a \texttt{Mapper}, a Middleware component that can be used to create
-
-The \texttt{Mapper} component is responsible for the management of the entire
-lifecycle of \texttt{Message} objects. Its interface, shown in
-listing~\ref{lst:mapper}
+\texttt{Mapper}s are Middleware components committed to the management of a
+single \texttt{Message} type. They provide an ample set of methods that 
 
 
 \texttt{Message} objects are a convenience introduced for simplifying data
