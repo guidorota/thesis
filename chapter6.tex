@@ -516,41 +516,12 @@ properties. It can be set to one of the following values:
 \subsection{Working with Messages: the Mapper interface}
 
 The \texttt{Mapper} is a Middleware component committed to the management of a
-single type of \texttt{Message} object. Its interface, available in
+single type of \texttt{Message}. Its interface, available in
 listing~\ref{lst:mapper}, provides a series of functionalities that are crucial
 for governing the entire lifecycle of a \texttt{Message} object. Multiple
-\texttt{Mapper} instances are usually required to interact with a single
-device, as even the simplest I/O protocol may need several \texttt{Message}s
-with different structure to be exchanged between two communicating endpoints.
-
-The type of \texttt{Message} managed by a \texttt{Mapper} can be queried by
-means of the \texttt{getMessageType()} method. This is the first method that is
-commonly invoked when interacting with \texttt{Message} objects or information
-in general, as it allows the Middleware to select the most appropriate tool for
-handling the data at hand.
-
-Once a \texttt{Mapper} is selected, new \texttt{Message} instances can be
-created through the \texttt{createMessage()} method. Every \textt{Message}
-instantiated using this technique will inherit the data type managed by the
-\textt{Mapper} from which it was created. This one-to-one relationship between
-\texttt{Mapper}s and \texttt{Message} types is further epitomized by the
-\texttt{getFieldDescriptors()} method, which returns a complete description of
-the fields included in a specific \texttt{Message} type.
-
-The \texttt{getFieldDescriptors()} method fullfills a pivotal role in the
-Middleware type safety mechanism; every
-operation can be 
-
-
-\texttt{Message} objects are a convenience introduced for simplifying data
-management operations in the PerLa Middleware. They provide structured access
-to information, a familiar set of primitive data types, and a selection of
-tools for combining basic values into complex data structures. In spite of
-these advantages, the \texttt{Message} interface is a high level abstraction
-that cannot be employed where a \texttt{Payload} is expected, since it doesn't
-provide any method for accessing its contents as a simple sequence of bytes.
-As a consequence, \texttt{Message}s can't be used directly in any kind of I/O
-operation.
+\texttt{Mapper} instances may be needed to interact with a single device, since
+even the simplest I/O protocols usually requires the use of several
+\texttt{Message} structures for exchanging data between two endpoints.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper
@@ -571,6 +542,35 @@ public interface Mapper {
 
 }
 \end{lstlisting}
+
+The type of \texttt{Message} managed by a \texttt{Mapper} can be queried by
+means of the \texttt{getMessageType()} method. This is usually the first method
+to be invoked when interacting with \texttt{Message} objects or raw data in
+general, as it allows the Middleware to select the most appropriate tool for
+handling the information at hand.
+
+Once a \texttt{Mapper} is selected, new \texttt{Message} instances can be
+created through the \texttt{createMessage()} method. Every \texttt{Message}
+instantiated using this technique acquires the data type of its parent
+\texttt{Mapper}. This one-to-one relationship between \texttt{Mapper}s and
+\texttt{Message} types is further epitomized by the
+\texttt{getFieldDescriptors()} method, which returns a complete description of
+the fields included in a specific \texttt{Message} type.
+
+The \texttt{getFieldDescriptors()} method holds a pivotal role in the
+implementation of the type safety mechanisms available in the Middleware, as
+the possibility to query the type of every field in a \texttt{Message} can be
+used to check wether a specific operation can be performed safely or not.
+
+As explained in the previous section, \texttt{Message} objects are a
+convenience introduced for simplifying data management operations in the PerLa
+Middleware. They provide structured access to information, a familiar set of
+primitive data types, and a selection of tools for combining basic values into
+complex data structures. In spite of these advantages, the \texttt{Message}
+interface is a high level abstraction that cannot be employed where a
+\texttt{Payload} is expected, since it doesn't provide any method for accessing
+its contents as a simple sequence of bytes.  As a consequence,
+\texttt{Message}s can't be used directly in any kind of I/O operation.
 
 This structural gap is bridged by the \texttt{Mapper}, a Middleware component
 that can be used to convert \texttt{Message}s into \texttt{Payload}s
