@@ -518,10 +518,7 @@ properties. It can be set to one of the following values:
 The \texttt{Mapper} is a Middleware component committed to the management of a
 single type of \texttt{Message}. Its interface, available in
 listing~\ref{lst:mapper}, provides a series of functionalities that are crucial
-for governing the entire lifecycle of a \texttt{Message} object. Multiple
-\texttt{Mapper} instances may be needed to interact with a single device, since
-even the simplest I/O protocol usually requires several \texttt{Message}
-structures for exchanging data between two endpoints.
+for governing the entire lifecycle of a \texttt{Message} object. 
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper
@@ -544,15 +541,35 @@ public interface Mapper {
 \end{lstlisting}
 
 The type of \texttt{Message} managed by a \texttt{Mapper} can be queried by
-means of the \texttt{getMessageType()} method. This is usually the first method
-to be invoked when interacting with \texttt{Message} objects or raw data in
-general, as it allows the Middleware to select the most appropriate component
-for handling the information at hand.
+means of the \texttt{getMessageType()} method. This method can be used to
+distinguish between the multiple \texttt{Mapper} instances that may be needed
+to interact with a single device, since even the simplest I/O protocol usually
+requires several \texttt{Message} structures for exchanging data between two
+endpoints. 
+
+As even the simplest I/O protocol usually
+requires several \texttt{Message} structures for exchanging data between two
+endpoints, the Middleware
+
+
+This is generally the first method to be
+invoked when interacting with \texttt{Message} objects or raw data in general,
+as it is used by the Middleware to select the most appropriate component for
+handling the information at hand.
+
+Multiple \texttt{Mapper} instances may be needed to interact with a single
+device, since even the simplest I/O protocol usually requires several
+\texttt{Message} structures for exchanging data between two endpoints. The type
+of \texttt{Message} managed by a \texttt{Mapper} can be queried by means of the
+\texttt{getMessageType()} method. This is generally the first method to be
+invoked when interacting with \texttt{Message} objects or raw data in general,
+as it is used by the Middleware to select the most appropriate component for
+handling the information at hand.
 
 Once the desired \texttt{Mapper} is chosen, new \texttt{Message} instances can
 be created through the \texttt{createMessage()} method. Every \texttt{Message}
 instantiated using this technique acquires the data type of its parent
-\texttt{Mapper} along with its related field structure. The one-to-one
+\texttt{Mapper}, along with its related field structure. The one-to-one
 relationship between \texttt{Mapper}s and \texttt{Message} types is further
 epitomized by the \texttt{getFieldDescriptors()} method, which returns a
 complete description of every field included in a specific \texttt{Message}
@@ -571,13 +588,13 @@ where a \texttt{Payload} is expected, since its contents are not directly
 accessible as a simple sequence of bytes.  As a consequence, \texttt{Message}s
 can't be used in any kind of I/O operation.
 
-This structural gap is bridged via the \texttt{marshal()} and
-\texttt{unmarshal()} methods made available by the \texttt{Mapper} interface.
-As can be seen by analyzing their respective signatures, these two methods
-are used to convert a \texttt{Message} into a \texttt{Payload} and
-vice-versa. This additional functionality introduces another aspect of the
-\texttt{Mapper} interface, namely its ability to manage different formats of
-binary data.
+This structural gap is bridged by the \texttt{Mapper} interface via its
+\texttt{marshal()} and \texttt{unmarshal()} methods. As can be seen by
+analyzing their respective signatures, these two methods perform a conversion
+process that can be used to transform \texttt{Message} objects into a
+\texttt{Payload} and vice-versa. This additional functionality introduces
+another aspect of the \texttt{Mapper} interface, namely its ability to manage
+different formats of binary data.
 
 \begin{figure}[h!]
     \centering
@@ -603,6 +620,8 @@ the aforementioned pluggable \texttt{Channel} design, thus allowing
 \texttt{Mapper}s and \texttt{Channel}s to be selected independently of each
 other (see figure~\ref{fig:mapper_channel}).
 
+\subsection{Managing Message types}
+
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper Factory
 interface,label={lst:mapperFactory}]
@@ -618,52 +637,6 @@ public interface MapperFactory {
 }
 \end{lstlisting}
 
-New \texttt{Mapper} instances can be easily created through a factory component
-named \texttt{MapperFactory}.
-
-Creating a new mapper requires two information: the structure of the message
-and the conversion format.
-
-A single installation of the PerLa Middleware hosts a \texttt{Mapper} for every
-single \texttt{Message} type it supports 
-
-Multiple instances of the same \texttt{Mapper} class are present in a single
-PerLa installation, each one of which is responsible for the management of a
-different type of \texttt{Message}.
-
-Creation of a new \texttt{Message} with a specific data type is performed by
-invoking the \texttt{createMessage()} method on the \texttt{Mapper} 
-
-Figure~\ref{fig:mapper.messages} shows a common usage scenario. A single 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\subsection{Managing Message types}
-
 New \texttt{Message} types are declared by means of a factory
 
 The functionalities provided by the \texttt{Mapper} interface go well beyond
@@ -676,37 +649,6 @@ The \texttt{Mapper} interface
 
 
 
-
-Moreover, every \texttt{Mapper} instance is responsible for handling one single
-\texttt{Message} type, whose name can be retrieved through the
-\texttt{getMessageType()} method. As shown in listing~\ref{lst:mapper}, the
-methods available this interface exceed the simple marshalling and
-unmarshalling the
-\texttt{Mapper} interface is provided with additional methods whose
-
-\texttt{Mapper} objects are tailored to handle a single \texttt{Message} type,
-whose name can be queried through the \texttt{getMessageType()} method
-(listing~\ref{lst:mapper}).
-This feature is highlighted in listing~\ref{lst:mapper}, where the an aditional
-list of fields can be seen 
-
-The \texttt{Mapper} interface is one of the extension points that final users
-can utilize to expand the core functionalities of the PerLa Middleware. New
-\texttt{Mapper} implementation can be added to support new data formats or 
-
-
-
-
-
-
-
-
-
-\texttt{Mapper}s are not only responsible marshalling and unmarshalling data. 
-
-There is a 1-to-1 relationship between message types and mappers.
-
-Creation of new mappers through the factory mechanism
 
 The messagedescriptor is used to define the data format and the various fields
 that compose the message. Moreover, the same Mapper object can be used to query
