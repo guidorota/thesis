@@ -416,7 +416,7 @@ Full examples of actual implementations, complete with XML descriptor snippets
 \section{Handling data}
 \label{sec:components.mapper}
 
-\texttt{Payload} is a container for raw sequences of bytes. Despite its
+\texttt{Payload} is a container for raw sequences of bytes. In spite of its
 semplicity, this class forms the foundation of the entire PerLa Middleware, as
 it is the vessel that conveys all information passing through the
 \texttt{Channel} interface.
@@ -476,7 +476,7 @@ retrieve or set the value of a field through the \texttt{getField()} and
 
 The \textbf{type} attribute defines the set of legal values that can be stored
 in a field, together with the operations that can be performed on those values.
-It is worth mentioning that field type information is used to statically verify
+It is worth mentioning that this information is used to statically verify
 the type safety of nearly all data management operations performed on a
 \texttt{Message} (consult section~\ref{sec:components.script} for additional
 information). The PerLa Middleware currently supports six primitive types:
@@ -515,8 +515,27 @@ properties. It can be set to one of the following values:
 
 \subsection{Working with Messages: the Mapper interface}
 
-\texttt{Mapper}s are Middleware components committed to the management of a
-single \texttt{Message} type. They provide an ample set of methods that 
+The \texttt{Mapper} is a Middleware component committed to the management of a
+single type of \texttt{Message} object. Multiple \texttt{Mapper} instances are
+usually required to interact with a single device, as even the simplest I/O
+protocol may require several \texttt{Message}s to be exchanged between two
+communicating endpoints.
+
+The type of \texttt{Message} managed by a \texttt{Mapper} can be queried by
+means of the \texttt{getMessageType()} method. This is the first method that is
+commonly invoked when interacting with \texttt{Message} objects, as it allows
+the Middleware to select the appropriate tool to handle the data at
+hand.
+
+Once a \texttt{Mapper} is selected, new \texttt{Message} instances can be
+created through the \texttt{createMessage()} method. Every \textt{Message}
+instantiated using this technique will inherit the data type managed by the
+\textt{Mapper} from which it was created. This one-to-one relationship between
+\texttt{Mapper}s and \texttt{Message} types is further epitomized by the
+\texttt{getFieldDescriptors()} method, which returns a complete description of
+the fields included in a specific \texttt{Message} type.
+
+
 
 
 \texttt{Message} objects are a convenience introduced for simplifying data
