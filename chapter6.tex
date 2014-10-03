@@ -516,16 +516,18 @@ properties. It can be set to one of the following values:
 \subsection{Working with Messages: the Mapper interface}
 
 The \texttt{Mapper} is a Middleware component committed to the management of a
-single type of \texttt{Message} object. Multiple \texttt{Mapper} instances are
-usually required to interact with a single device, as even the simplest I/O
-protocol may require several \texttt{Message}s to be exchanged between two
-communicating endpoints.
+single type of \texttt{Message} object. Its interface, available in
+listing~\ref{lst:mapper}, provides a series of functionalities that are crucial
+for governing the entire lifecycle of a \texttt{Message} object. Multiple
+\texttt{Mapper} instances are usually required to interact with a single
+device, as even the simplest I/O protocol may need several \texttt{Message}s
+with different structure to be exchanged between two communicating endpoints.
 
 The type of \texttt{Message} managed by a \texttt{Mapper} can be queried by
 means of the \texttt{getMessageType()} method. This is the first method that is
-commonly invoked when interacting with \texttt{Message} objects, as it allows
-the Middleware to select the appropriate tool to handle the data at
-hand.
+commonly invoked when interacting with \texttt{Message} objects or information
+in general, as it allows the Middleware to select the most appropriate tool for
+handling the data at hand.
 
 Once a \texttt{Mapper} is selected, new \texttt{Message} instances can be
 created through the \texttt{createMessage()} method. Every \textt{Message}
@@ -535,7 +537,9 @@ instantiated using this technique will inherit the data type managed by the
 \texttt{getFieldDescriptors()} method, which returns a complete description of
 the fields included in a specific \texttt{Message} type.
 
-
+The \texttt{getFieldDescriptors()} method fullfills a pivotal role in the
+Middleware type safety mechanism; every
+operation can be 
 
 
 \texttt{Message} objects are a convenience introduced for simplifying data
