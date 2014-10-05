@@ -428,8 +428,8 @@ two endpoints, but is not suited to other forms of data management. Processing
 the information contained in a \texttt{Payload} can be unwieldy and
 unnecessarily complex; the byte-oriented interface doesn't provide any facility
 for leveraging the underlying structure of the enclosed data, and even a simple
-action like retrieving a particular value in a complex data structure can
-easily become a daunting task.
+action like retrieving a value in a complex data structure can easily become a
+daunting task.
 
 
 \subsection{The Message interface}
@@ -515,10 +515,15 @@ properties. It can be set to one of the following values:
 
 \subsection{Working with Messages: the Mapper interface}
 
-The \texttt{Mapper} is a Middleware component committed to the management of a
-single type of \texttt{Message}. Its interface, available in
-listing~\ref{lst:mapper}, provides a series of functionalities that are crucial
-for governing the entire lifecycle of a \texttt{Message} object. 
+\texttt{Message} objects are managed by the \texttt{Mapper} component. Its
+interface, available in listing~\ref{lst:mapper}, groups all the
+functionalities needed to handle a specific variety of structured information.
+The one-to-one relationship between \texttt{Mapper}s and data types is
+epitomized by the \texttt{getMessageType()} method, whose return value
+indicates which class of \texttt{Message} a particular \texttt{Mapper} can
+manage. This method is extensively employed by the Middleware to sift through a
+collection of \texttt{Mapper}s, in order to find one that is best suited for
+handling the information currently being processed.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper
@@ -540,43 +545,26 @@ public interface Mapper {
 }
 \end{lstlisting}
 
-The type of \texttt{Message} managed by a \texttt{Mapper} can be queried by
-means of the \texttt{getMessageType()} method. This method can be used to
-distinguish between the multiple \texttt{Mapper} instances that may be needed
-to interact with a single device, since even the simplest I/O protocol usually
-requires several \texttt{Message} structures for exchanging data between two
-endpoints. 
-
-As even the simplest I/O protocol usually
-requires several \texttt{Message} structures for exchanging data between two
-endpoints, the Middleware
-
-
-This is generally the first method to be
-invoked when interacting with \texttt{Message} objects or raw data in general,
-as it is used by the Middleware to select the most appropriate component for
-handling the information at hand.
-
-Multiple \texttt{Mapper} instances may be needed to interact with a single
-device, since even the simplest I/O protocol usually requires several
-\texttt{Message} structures for exchanging data between two endpoints. The type
-of \texttt{Message} managed by a \texttt{Mapper} can be queried by means of the
-\texttt{getMessageType()} method. This is generally the first method to be
-invoked when interacting with \texttt{Message} objects or raw data in general,
-as it is used by the Middleware to select the most appropriate component for
-handling the information at hand.
+The interaction with a \texttt{Mapper} usually begins with a call to the
+\texttt{createMessage()} method, whose execution results in the creation of an
+empty \texttt{Message} instance. Despite its unsuprising outcome, this method
+draws once again our attention to the close relationship between
+\texttt{Mapper}s and data types. Every \texttt{Mapper} instance is in fact
+committed to the management of a precise class of information, hence all
+\texttt{Message}s created with the \texttt{createMessage()} method will share
+the same data type property and, consequently, the same set of fields.
 
 Once the desired \texttt{Mapper} is chosen, new \texttt{Message} instances can
 be created through the \texttt{createMessage()} method. Every \texttt{Message}
 instantiated using this technique acquires the data type of its parent
 \texttt{Mapper}, along with its related field structure. The one-to-one
-relationship between \texttt{Mapper}s and \texttt{Message} types is further
-epitomized by the \texttt{getFieldDescriptors()} method, which returns a
-complete description of every field included in a specific \texttt{Message}
-type. This method holds a pivotal role in the implementation of the
-Middleware's type safety mechanism, where the possibility to introspect the
-internal structure of a \texttt{Message} object is heavily exploited for
-checking wether a specific operation can be safely performed or not.
+relationship between \texttt{Mapper}s and \texttt{Message} types is epitomized
+by the \texttt{getFieldDescriptors()} method, which returns a complete
+description of every field included in a specific \texttt{Message} type. This
+method holds a pivotal role in the implementation of the Middleware's type
+safety mechanism, where the possibility to introspect the internal structure of
+a \texttt{Message} object is heavily exploited for checking wether a specific
+operation can be safely performed or not.
 
 As explained in the introductory paragraphs of this section, \texttt{Message}
 objects are a convenience introduced for simplifying data management operations
@@ -588,13 +576,12 @@ where a \texttt{Payload} is expected, since its contents are not directly
 accessible as a simple sequence of bytes.  As a consequence, \texttt{Message}s
 can't be used in any kind of I/O operation.
 
-This structural gap is bridged by the \texttt{Mapper} interface via its
-\texttt{marshal()} and \texttt{unmarshal()} methods. As can be seen by
-analyzing their respective signatures, these two methods perform a conversion
-process that can be used to transform \texttt{Message} objects into a
-\texttt{Payload} and vice-versa. This additional functionality introduces
-another aspect of the \texttt{Mapper} interface, namely its ability to manage
-different formats of binary data.
+This structural gap is bridged by the \texttt{marshal()} and
+\texttt{unmarshal()} methods. As can be seen by analyzing their respective
+signatures, these two methods can be used to convert \texttt{Message} objects
+into a \texttt{Payload} and vice-versa. This additional functionality
+introduces another aspect of the \texttt{Mapper} interface, namely its ability
+to manage different formats of binary data.
 
 \begin{figure}[h!]
     \centering
@@ -619,6 +606,25 @@ The additional decoupling provided by the \texttt{Mapper} interface builds over
 the aforementioned pluggable \texttt{Channel} design, thus allowing
 \texttt{Mapper}s and \texttt{Channel}s to be selected independently of each
 other (see figure~\ref{fig:mapper_channel}).
+
+
+
+
+
+
+
+
+Multiple \texttt{Mapper} instances may be needed to interact with a single
+device, since even the simplest I/O protocol usually requires several
+\texttt{Message} structures for exchanging data between two endpoints.
+
+
+
+
+
+
+
+
 
 \subsection{Managing Message types}
 
