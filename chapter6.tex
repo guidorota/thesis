@@ -597,7 +597,7 @@ coalesce the marshalling/unmarshalling mechanism, and the more general
 \texttt{getFieldDescriptors()}), under the same interface. The specific
 methodology for creating \texttt{Mapper} objects, and for defining their
 distinctive data format and \texttt{Message} type, will be subject of
-additional discussion in the next section.
+additional discussion in the remainder of this chapter.
 
 \begin{figure}[h!]
     \centering
@@ -608,18 +608,17 @@ additional discussion in the next section.
 \end{figure}
 
 Before this section comes to an end, it is worth putting into context the role
-occupied by the \texttt{Mapper} interface, relatively to the \texttt{Channel}
+occupied by the \texttt{Mapper} in the PerLa Middleware, relatively to the
+previously described I/O layer. The additional decoupling provided by the
+\texttt{Mapper} builds over the pluggable \texttt{Channel} interface, thus
+allowing the payload format to be selected independently of the I/O technology.
+This is an important characteristic of the Middleware design, as even the
+simplest communication protocol usually requires several \texttt{Message}
+structures, viz. several \texttt{Mapper}s, for exchanging data between two
+endpoints.
 
-The additional decoupling provided by the \texttt{Mapper} interface builds over
-the pluggable \texttt{Channel} design described in the previous section, thus
-allowing \texttt{Mapper}s and \texttt{Channel}s to be selected independently of
-each other (see figure~\ref{fig:mapper_channel}). This is an important
-characteristic of the Middleware design, as even the simplest I/O protocol
-usually requires several \texttt{Message} structures for exchanging data
-between two endpoints.
 
-
-\subsection{Managing Message types}
+\subsection{Creating Mappers and defining Message structures}
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper Factory
