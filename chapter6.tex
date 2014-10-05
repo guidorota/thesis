@@ -552,9 +552,9 @@ draws once again our attention to the close relationship between
 \texttt{Mapper}s and data types. Every \texttt{Mapper} instance is in fact
 committed to the management of a precise class of information, hence all
 \texttt{Message}s created with the \texttt{createMessage()} method will share
-the same type property and, consequently, the same set of fields. The
-interdependence between a \texttt{Mapper} and its assigned data type is
-accentuated even further by the \texttt{getFieldDescriptor()} and
+the same data type property, and, consequently, the same set of fields. The
+interdependence between a \texttt{Mapper} and its assigned type is accentuated
+even further by the \texttt{getFieldDescriptor()} and
 \texttt{getFieldDescriptors()} methods, which can be used to analyze the
 internal field structure characterizing all \texttt{Message} objects that the
 \texttt{Mapper} creates. This introspective capability is extensively exploited
@@ -570,13 +570,34 @@ familiar set of primitive data types, and a selection of tools for combining
 basic values into complex data structures. In spite of these advantages, the
 \texttt{Message} interface is a high level abstraction that cannot be employed
 where a \texttt{Payload} is expected, since its contents are not directly
-accessible as a simple sequence of bytes. As a consequence, \texttt{Message}s
+accessible as a simple sequence of bytes; as a consequence, \texttt{Message}s
 can't be used in any kind of I/O operation. This structural gap is bridged by
-the \texttt{marshal()} and \texttt{unmarshal()} methods. As can be seen by
-analyzing their respective signatures, these two methods can be used to convert
-\texttt{Message} objects into a \texttt{Payload} and vice-versa. This
-additional functionality introduces another aspect of the \texttt{Mapper}
-interface, namely its ability to manage different formats of binary data.
+the \texttt{marshal()} and \texttt{unmarshal()} methods of the \texttt{Mapper}
+interface. As can be seen by analyzing their respective signatures, these two
+methods can be used to convert \texttt{Message} objects into \texttt{Payload}s
+and vice-versa. This additional functionality brings to light yet another
+aspect of the \texttt{Mapper} layer, namely its ability to manage different
+representations of binary data.
+
+Every \texttt{Mapper} is in fact created to support a single data format;
+\texttt{JSONMapper} instances, for example, handle JSON-formatted byte streams,
+whereas \texttt{URLEncodedMapper}s specialize in the conversion of URL-encoded
+HTTP entities. The structure of the \texttt{Message}s created by a
+\texttt{Mapper} and the data format they can be marshalled unto are not
+orthogonal concerns, as the choice of a specific binary representation may
+prevent the use of some of the previously discussed field attributes. The
+URL-encoded format, for example, does not provide any support for nested data
+structures, as it is defined as a flat collection of key-value pairs; hence,
+the corresponding \texttt{URLEncodedMapper} class could never be used to create
+and manage \texttt{Message}s with nested fields. The close connection between a
+\texttt{Message} and its corresponding binary format manifests itself in the
+design of the \texttt{Mapper} component, specifically in the decision to
+coalesce the marshalling/unmarshalling mechanism, and the more general
+\texttt{Message} management methods (\texttt{createMessage()},
+\texttt{getFieldDescriptors()}), under the same interface. The specific
+methodology for creating \texttt{Mapper} objects, and for defining their
+distinctive data format and \texttt{Message} type, will be subject of
+additional discussion in the next section.
 
 \begin{figure}[h!]
     \centering
@@ -586,39 +607,16 @@ interface, namely its ability to manage different formats of binary data.
     \label{fig:mapper_channel}
 \end{figure}
 
-Every \texttt{Mapper} class is in fact designed to support a single data
-format. \texttt{JSONMapper} instances, for example, handle JSON-formatted byte
-streams, whereas \texttt{URLEncodedMapper}s specialize in the conversion of
-URL-encoded HTTP entities. The structure of the \texttt{Message}s created by a
-\texttt{Mapper} and the data format they can be marshalled unto are not
-orthogonal concerns, as the choice of a specific binary representation may
-prevent the use of some of the previously discussed field attributes. The
-URL-encoded format, for example, does not provide any support for nested data
-structure; hence, the corresponding \texttt{URLEncodedMapper} class is designed
-to disallow all \texttt{Message} types that contains non-primitive fields.
+Before this section comes to an end, it is worth putting into context the role
+occupied by the \texttt{Mapper} interface, relatively to the \texttt{Channel}
 
 The additional decoupling provided by the \texttt{Mapper} interface builds over
-the aforementioned pluggable \texttt{Channel} design, thus allowing
-\texttt{Mapper}s and \texttt{Channel}s to be selected independently of each
-other (see figure~\ref{fig:mapper_channel}).
-
-
-
-
-
-
-
-
-Multiple \texttt{Mapper} instances may be needed to interact with a single
-device, since even the simplest I/O protocol usually requires several
-\texttt{Message} structures for exchanging data between two endpoints.
-
-
-
-
-
-
-
+the pluggable \texttt{Channel} design described in the previous section, thus
+allowing \texttt{Mapper}s and \texttt{Channel}s to be selected independently of
+each other (see figure~\ref{fig:mapper_channel}). This is an important
+characteristic of the Middleware design, as even the simplest I/O protocol
+usually requires several \texttt{Message} structures for exchanging data
+between two endpoints.
 
 
 \subsection{Managing Message types}
