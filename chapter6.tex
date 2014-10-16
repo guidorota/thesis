@@ -666,29 +666,36 @@ whether nested \texttt{Message} fields are properly declared or not.
 The \texttt{MapperFactory} interface is an additional extension point available
 to PerLa users, and can be leveraged to introduce support for new binary
 formats and information encoding schemes. As a consequence, every installation
-of the Middleware will contain a wide variety of potentially custom
-\texttt{MapperFactory} implementations, each of which is dedicated to a single
-data format. Instances of the previously introduced JSON and URL-Encoded
-mappers, for example, are created by two distinct \texttt{MapperFactory}
-objects, namely \texttt{JSONMapperFactory} and
-\texttt{URLEncodedMapperFactory}. This design provides an improved separation
-of concerns with respect to the previous middleware architecture, since it
-ensures that every \texttt{MapperFactory} is responsible for managing the
-quirks of only a single data format.
+of the Middleware will contain a wide variety of \texttt{MapperFactory}
+implementations, each of which is dedicated to a single data format. Instances
+of the previously introduced JSON and URL-Encoded mappers, for example, are
+created by two distinct \texttt{MapperFactory} objects, namely
+\texttt{JSONMapperFactory} and \texttt{URLEncodedMapperFactory}. This design is
+a substantial improvement on the previous middleware architecture, as it
+ensures that every \texttt{MapperFactory} object is responsible for managing
+the quirks of only a single data format.
 
 Moreover, every \texttt{MapperFactory} implementation is bundled with a custom
-\texttt{MessageDescriptor} object, whose class is exposed by the aforementioned
-\texttt{acceptedMessageDescriptorClass()} method. The additional complexity
-deriving from this design choice is more than made up for in type safety and
-flexibility, as each different \texttt{MessageDescriptor} may be used to
-enforce restrictions or to allow greater freedom of expression while declaring
-new message types. The \texttt{URLEncodedMessageDescriptor} class, for example,
-cannot be used to declare a \texttt{Message} within another \texttt{Message},
-as its fields can only host primitive data types
-(listing~\ref{lst:urlencodedmessage}); \texttt{JSONMessageDescriptor}, on the
-other hand, doesn't impose such restriction, since the JSON data format allows
-the possibility of nesting one object into the other
-(listing~\ref{lst:jsonmessage}).
+\texttt{MessageDescriptor} object, whose class name is exposed by the
+aforementioned \texttt{acceptedMessageDescriptorClass()} method. The additional
+complexity deriving from this design choice is more than made up for in type
+safety and flexibility, as each different \texttt{MessageDescriptor} may be
+implemented to closely represent the idiosyncratic characteristics of its
+corresponding data format. A concrete example of this concept comes from the
+\texttt{URLEncodedMessageDescriptor} class, which prevents the creation of
+\texttt{Message}s that don't comply with the URL-encoded format by disallowing
+non-primitive fields. Having multiple \texttt{MessageDescriptor}s also means
+that different \texttt{Message}s are not forced to abide by the same set of
+rules; the limits imposed on URL-encoded messages are not universal, and in
+fact the \texttt{JSONMessageDescriptor} refrains from applying them. This
+design has an yet another advantage over a common descriptor format, namely the
+possibility of using a custom lexicon for each distinct
+\texttt{MessageDescriptor} class. Concepts specific to a single data format can
+be specified using the most appropriate terminology; JSON \texttt{Message}s are
+aptly named \texttt{object}s, whereas URL-encoded fields are dubbed
+\texttt{parameter}s. As can be seen in listings \ref{lst:jsonmessage} and
+\ref{lst:urlencodedmessage}, through this feature every \texttt{Message}
+declaration is idiomatic and reminiscent of the corresponding data format. 
 
 
 \lstset{language=XML}
@@ -744,16 +751,16 @@ the encoding format for dates and times},label={lst:urlencodedmessage}]
 
 The examples in listings \texttt{lst:urlencodedmessage} and
 \texttt{lst:jsonmessage} provide a great opportunity for delving a bit deeper
-into the technique employed to convert an XML fragment in a specific Java
-object. The namespace affixed to all elements of the descriptor is used by the
-\texttt{JAXB} library to identify which message descriptor class the current
-XML snippet has to be deserialized into. In our examples, \textit{js} stands
-for \texttt{JSONMessageDescriptor}, whereas \textit{ue} corresponds to
-\texttt{URLEncodedMessageDescriptor}. This deserialization method has an
-important advantage over a universal message descriptor textual format, that is
-the possibility of using a custom set of XML elements for each distinct
+into the process of mapping an XML fragment in a specific Java object. JAXB,
+the library that performs this conversion, uses XML namespaces to identify
+which message descriptor class the current XML snippet has to be deserialized
+into. Following our previous examples, the namespace \textit{js} maps to
+\texttt{JSONMessageDescriptor}, whereas \textit{ue} corresponds to
+\texttt{URLEncodedMessageDescriptor}. This design has an important
+advantage over a universal message descriptor textual format, that is the
+possibility of using a custom set of XML elements for each distinct
 \texttt{MessageDescriptor} class; concepts specific to a single data format can
-be specified through the most appropriate terminology, 
+be specified through the most appropriate terminology,  
 
 
 \subsection{Managing multiple message types}
