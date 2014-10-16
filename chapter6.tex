@@ -690,15 +690,6 @@ other hand, doesn't impose such restriction, since the JSON data format allows
 the possibility of nesting one object into the other
 (listing~\ref{lst:jsonmessage}).
 
-The examples in listings \texttt{lst:urlencodedmessage} and
-\texttt{lst:jsonmessage} provide a great opportunity for delving into the
-technique employed by the PerLa Middleware to map an XML fragment into a
-specific \texttt{MessageDescriptor} class. Each XML element is prefixed by an
-appropriate namespace identifier, which is used by the \texttt{JAXB} library to
-identify onto which descriptor class the current XML snippet has to be
-deserialized. In our examples, \textit{js} stands for
-\texttt{JSONMessageDescriptor}, whereas \textit{ue} corresponds to
-\texttt{URLEncodedMessageDescriptor}.
 
 \lstset{language=XML}
 \begin{lstlisting}[float,floatplacement=!hbt,caption={A compound JSON message
@@ -750,6 +741,19 @@ the encoding format for dates and times},label={lst:urlencodedmessage}]
 </ue:message>
 
 \end{lstlisting}
+
+The examples in listings \texttt{lst:urlencodedmessage} and
+\texttt{lst:jsonmessage} provide a great opportunity for delving a bit deeper
+into the technique employed to convert an XML fragment in a specific Java
+object. The namespace affixed to all elements of the descriptor is used by the
+\texttt{JAXB} library to identify which message descriptor class the current
+XML snippet has to be deserialized into. In our examples, \textit{js} stands
+for \texttt{JSONMessageDescriptor}, whereas \textit{ue} corresponds to
+\texttt{URLEncodedMessageDescriptor}. This deserialization method has an
+important advantage over a universal message descriptor textual format, that is
+the possibility of using a custom set of XML elements for each distinct
+\texttt{MessageDescriptor} class; concepts specific to a single data format can
+be specified through the most appropriate terminology, 
 
 
 \subsection{Managing multiple message types}
