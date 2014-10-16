@@ -658,56 +658,99 @@ Its design follows the same concepts explained in previous sections; the
 \texttt{MapperFactory}, while the \texttt{createMapper()} method consumes a
 \texttt{MessageDescriptor} to create a \texttt{Mapper}. However, differently
 from all the factory components described so far, the creation of a new object
-through a \texttt{MapperFactory} calls for two additional parameters other than
-the descriptor: a \texttt{ClassPool}, and a map of \texttt{Mapper}s. These
-extra items provide a reference to previously built \texttt{Mapper}s, and can
-be used to check whether nested \texttt{Message} fields were properly declared
-or not.
+calls for two additional parameters other than the descriptor itself: a
+\texttt{ClassPool}, and a map of \texttt{Mapper}s. These extra items provide a
+reference to previously built \texttt{Mapper}s, and can be used to check
+whether nested \texttt{Message} fields are properly declared or not.
 
 The \texttt{MapperFactory} interface is an additional extension point available
 to PerLa users, and can be leveraged to introduce support for new binary
 formats and information encoding schemes. As a consequence, every installation
-of the Middleware will contain a wide variety of \texttt{MapperFactory}
-implementations, each of which is dedicated to a single data format. JSON and
-URL-Encoded \texttt{Mapper}s are therefore created by two distinct
-\texttt{MapperFactory} objects, namely \texttt{JSONMapperFactory} and
-\texttt{URLEncodedMapperFactory}. Moreover, several 
+of the Middleware will contain a wide variety of potentially custom
+\texttt{MapperFactory} implementations, each of which is dedicated to a single
+data format. Instances of the previously introduced JSON and URL-Encoded
+mappers, for example, are created by two distinct \texttt{MapperFactory}
+objects, namely \texttt{JSONMapperFactory} and
+\texttt{URLEncodedMapperFactory}. This design provides an improved separation
+of concerns with respect to the previous middleware architecture, since it
+ensures that every \texttt{MapperFactory} is responsible for managing the
+quirks of only a single data format.
+
+Moreover, every \texttt{MapperFactory} implementation is bundled with a custom
+\texttt{MessageDescriptor} object, whose class is exposed by the aforementioned
+\texttt{acceptedMessageDescriptorClass()} method. The additional complexity
+deriving from this design choice is more than made up for in type safety and
+flexibility, as each different \texttt{MessageDescriptor} may be used to
+enforce restrictions or to allow greater freedom of expression while declaring
+new message types. The \texttt{URLEncodedMessageDescriptor} class, for example,
+cannot be used to declare a \texttt{Message} within another \texttt{Message},
+as its fields can only host primitive data types
+(listing~\ref{lst:urlencodedmessage}); \texttt{JSONMessageDescriptor}, on the
+other hand, doesn't impose such restriction, since the JSON data format allows
+the possibility of nesting one object into the other
+(listing~\ref{lst:jsonmessage}).
+
+The examples in listings \texttt{lst:urlencodedmessage} and
+\texttt{lst:jsonmessage} provide a great opportunity for delving into the
+technique employed by the PerLa Middleware to map an XML fragment into a
+specific \texttt{MessageDescriptor} class. Each XML element is prefixed by an
+appropriate namespace identifier, which is used by the \texttt{JAXB} library to
+identify onto which descriptor class the current XML snippet has to be
+deserialized. In our examples, \textit{js} stands for
+\texttt{JSONMessageDescriptor}, whereas \textit{ue} corresponds to
+\texttt{URLEncodedMessageDescriptor}.
+
+\lstset{language=XML}
+\begin{lstlisting}[float,floatplacement=!hbt,caption={A compound JSON message
+        declared using the JSONMessageDescriptor (XML notation). Note that the
+        data type of all fields inside \texttt{weather} message is a reference
+        to a previously declared \texttt{Message}.
+},label={lst:jsonmessage}]
+
+<js:object id="coord">
+    <js:value name="lon" type="string"/>
+    <js:value name="lat" type="string"/>
+</js:object>
+
+<js:object id="main">
+        <js:value name="temp" type="float"/>
+        <js:value name="pressure" type="float"/>
+        <js:value name="humidity" type="float"/>
+        <js:value name="temp_min" type="float"/>
+        <js:value name="temp_max" type="float"/>
+</js:object>
+
+<js:object id="wind">
+        <js:value name="speed" type="float"/>
+        <js:value name="deg" type="float"/>
+</js:object>
+
+<js:object id="weather">
+        <js:value name="coord" type="coord"/>
+        <js:value name="main" type="main"/>
+        <js:value name="wind" type="wind"/>
+</js:object>
+
+\end{lstlisting}
 
 
+\lstset{language=XML}
+\begin{lstlisting}[float,floatplacement=!hbt,caption={An URLEncoded message
+declaration. Thanks to the custom \texttt{URLEncodedMessageDescriptor}, trying
+to create a non-primitive field results in an exception. Note the custom
+\texttt{format} attribute on the timestamp field, which is employed to define
+the encoding format for dates and times},label={lst:urlencodedmessage}]
 
+<ue:message id="urlencoded_message">
+        <ue:parameter name="temperature" type="float"/>
+        <ue:parameter name="pressure" type="float"/>
+        <ue:parameter name="location" type="string"/>
+        <ue:parameter name="key" qualifier="static" type="integer" value="5"/>
+        <ue:parameter name="timestamp" type="timestamp" format="d MMM uuuu HH:mm"/>
+</ue:message>
 
+\end{lstlisting}
 
-The messagedescriptor is used to define the data format and the various fields
-that compose the message. Moreover, the same Mapper object can be used to query
-the structure of a specific Message type
-
-Not all formats support all features available to messages. For example, the
-URLEncoded mapper cannot create nested fields, as there is no such concept in a
-URLEncoded data structure. Maybe it's worth moving the example section into
-this one.
-
-Character encoding may depends on the message, not the single field
-
-information agnostic
-
-A set of bytes is usually encoded from a message
-
-Difference between unstructured collections of bytes and a Message.
-Message structures field types and accessor methods to retrieve and set field
-data. Working with composite fields and vector fields (append)
-
-Managing messages with the Mapper: create new message, discover message
-fields at runtime, marshal and unmarshal operations
-
-Creating new messages: the MapperFactory interface and the relationship with
-the XML
-
-
-Using the validate() method to manage multiple message types
-
-
-
-\subsection{Handling composite data structures}
 
 \subsection{Managing multiple message types}
 
