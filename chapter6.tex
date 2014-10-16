@@ -422,7 +422,7 @@ it is the vessel that conveys all information passing through the
 \texttt{Channel} interface.
 
 The data encapsulated in a \texttt{Payload} object is accessed one byte at a
-time. This granularity level is ideal for the implemention of an I/O access
+time; this granularity level is ideal for the implemention of an I/O access
 layer, whose sole concern consists in the transmission of information between
 two endpoints, but is not suited to other forms of data management. Processing
 the information contained in a \texttt{Payload} can be unwieldy and
@@ -480,36 +480,52 @@ It is worth mentioning that this information is used to statically verify
 the type safety of nearly all data management operations performed on a
 \texttt{Message} (consult section~\ref{sec:components.script} for additional
 information). The PerLa Middleware currently supports six primitive types:
+
 \begin{itemize}
+
   \item \textbf{INTEGER}: a 32 bit signed two's complement integral data type
+
   \item \textbf{FLOAT}: a single-precision 32 bit IEEE 745 floating point
+
   \item \textbf{BOOLEAN}: a type with only two values, true or false
+
   \item \textbf{STRING}: a string of characters with UTF-16 encoding
+
   \item \textbf{TIMESTAMP}: a date with timezone, currently implemented using
-  Java's \texttt{ZonedDateTime} class.
-  \item \textbf{ID}: a unique label that identifies a single node registered
-  in the PerLa Middleware. The current implementation uses a 32 bit integer. 
+      Java's \texttt{ZonedDateTime} class.
+
+  \item \textbf{ID}: a unique label that identifies a single node connected in
+      a PerLa managed network. The current implementation uses a 32 bit
+      integer. 
+
 \end{itemize}
+
 Besides the data types presented above, a field can be configured to hold a
 nested \texttt{Message} as well. In this case, the type attribute must be set
 to the particular type of \texttt{Message} that is to be stored in the field. 
 
 The \textbf{qualifier} attribute is employed to define additional field
 properties. It can be set to one of the following values:
+
 \begin{itemize}
+
   \item \textbf{SIMPLE}: a normal field whose value can be altered and
-  retrieved using the \texttt{setField()} and \texttt{getField()} methods.
+      retrieved using the \texttt{setField()} and \texttt{getField()} methods.
+
   \item \textbf{LIST}: a field that can hold multiple elements of the same
-  type. New values can be added with the \texttt{appendElement()} method, while
-  the entire list is retrieved through the conventional \texttt{getField()}
-  method. List-qualified fields preserve the order of insertion of the
-  individual elements.
-  \item \textbf{STATIC}: a field whose value is statically set during
-  declaration.  Any attempt to modify a statically-qualified field with either
-  the \texttt{setField()} or the \texttt{appendElement()} methods will cause an
-  exception to be thrown. It is important to note that static field values are
-  set on a per-type basis; this means that all \texttt{Message}s of the same
-  type will share the same field values for each static field (if any). 
+      type. New values can be added with the \texttt{appendElement()} method,
+      and the entire list can be retrieved through the conventional
+      \texttt{getField()} method. List-qualified fields preserve the order of
+      insertion of the individual elements.
+
+  \item \textbf{STATIC}: a field whose value is statically set when the
+      \texttt{Message} type is declared. Any attempt to modify a
+      statically-qualified field with either the \texttt{setField()} or the
+      \texttt{appendElement()} methods will cause an exception to be thrown. It
+      is important to note that static field values are set on a per-type
+      basis; this means that all \texttt{Message}s of the same type will share
+      the same field values for each static field (if any).
+      
 \end{itemize}
 
 
@@ -558,10 +574,8 @@ even further by the \texttt{getFieldDescriptor()} and
 \texttt{getFieldDescriptors()} methods, which can be used to analyze the
 internal field structure characterizing all \texttt{Message} objects that the
 \texttt{Mapper} creates. This introspective capability is extensively exploited
-by the type checking mechanism embedded in various \texttt{Script}
-instructions, where it is employed for checking wether a specific operation can
-be safely performed or not (see section~\ref{sec:components.script} for further
-details).
+in the Execution Engine to check whether a \texttt{Script} is type-safe or not
+(see section~\ref{sec:components.script} for further details).
 
 As explained in the introductory paragraphs of this section, \texttt{Message}
 objects are a convenience introduced for simplifying data management operations
@@ -575,9 +589,9 @@ can't be used in any kind of I/O operation. This structural gap is bridged by
 the \texttt{marshal()} and \texttt{unmarshal()} methods of the \texttt{Mapper}
 interface. As can be seen by analyzing their respective signatures, these two
 methods can be used to convert \texttt{Message} objects into \texttt{Payload}s
-and vice-versa. This additional functionality brings to light yet another
-aspect of the \texttt{Mapper} layer, namely its ability to manage different
-representations of binary data.
+and vice-versa. This additional \texttt{Mapper} functionality brings to light
+yet another aspect of the PerLa data management layer, namely its ability to
+work with different representations of binary data.
 
 Every \texttt{Mapper} is in fact created to support a single data format;
 \texttt{JSONMapper} instances, for example, handle JSON-formatted byte streams,
@@ -586,10 +600,10 @@ HTTP entities. The structure of the \texttt{Message}s created by a
 \texttt{Mapper} and the data format they can be marshalled unto are not
 orthogonal concerns, as the choice of a specific binary representation may
 prevent the use of some of the previously discussed field attributes. The
-URL-encoded format, for example, does not provide any support for nested data
-structures, as it is defined as a flat collection of key-value pairs; hence,
-the corresponding \texttt{URLEncodedMapper} class could never be used to create
-and manage \texttt{Message}s with nested fields. The close connection between a
+URL-encoded format, for example, is defined as a flat collection of key-value
+pairs, with no support for nested data structures; hence, the corresponding
+\texttt{URLEncodedMapper} class could never be used to create and manage
+\texttt{Message}s with nested fields. The close connection between a
 \texttt{Message} and its corresponding binary format manifests itself in the
 design of the \texttt{Mapper} component, specifically in the decision to
 coalesce the marshalling/unmarshalling mechanism, and the more general
@@ -608,7 +622,7 @@ additional discussion in the remainder of this chapter.
 \end{figure}
 
 Before this section comes to an end, it is worth putting into context the role
-occupied by the \texttt{Mapper} in the PerLa Middleware, relatively to the
+occupied by the \texttt{Mapper} inside the PerLa Middleware, relatively to the
 previously described I/O layer. The additional decoupling provided by the
 \texttt{Mapper} builds over the pluggable \texttt{Channel} interface, thus
 allowing the payload format to be selected independently of the I/O technology.
@@ -619,6 +633,9 @@ endpoints.
 
 
 \subsection{Creating Mappers and defining Message structures}
+
+New \texttt{Mapper} instances are created with the help of the
+\texttt{MapperFactory} component.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper Factory
