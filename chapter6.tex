@@ -634,8 +634,8 @@ endpoints.
 
 \subsection{Creating Mappers and defining Message structures}
 
-New \texttt{Mapper} instances are created with the help of the
-\texttt{MapperFactory} component.
+New \texttt{Mapper} objects are created by means of the \texttt{MapperFactory}
+interface.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper Factory
@@ -652,14 +652,26 @@ public interface MapperFactory {
 }
 \end{lstlisting}
 
-New \texttt{Message} types are declared by means of a factory
+Its design follows the same concepts explained in previous sections; the
+\texttt{acceptedMessageDescriptorClass()} method returns the type of
+\texttt{MessageDescriptor} objects that can be used with the
+\texttt{MapperFactory}, while the \texttt{createMapper()} method consumes a
+\texttt{MessageDescriptor} to create a \texttt{Mapper}. However, differently
+from all the factory components described so far, the creation of a new object
+through a \texttt{MapperFactory} calls for two additional parameters other than
+the descriptor: a \texttt{ClassPool}, and a map of \texttt{Mapper}s. These
+extra items provide a reference to previously built \texttt{Mapper}s, and can
+be used to check whether nested \texttt{Message} fields were properly declared
+or not.
 
-The functionalities provided by the \texttt{Mapper} interface go well beyond
-what is strictly necessary for marshalling and unmarshalling data. 
-
-The \texttt{Mapper} interface 
-
-
+The \texttt{MapperFactory} interface is an additional extension point available
+to PerLa users, and can be leveraged to introduce support for new binary
+formats and information encoding schemes. As a consequence, every installation
+of the Middleware will contain a wide variety of \texttt{MapperFactory}
+implementations, each of which is dedicated to a single data format. JSON and
+URL-Encoded \texttt{Mapper}s are therefore created by two distinct
+\texttt{MapperFactory} objects, namely \texttt{JSONMapperFactory} and
+\texttt{URLEncodedMapperFactory}. Moreover, several 
 
 
 
