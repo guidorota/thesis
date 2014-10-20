@@ -407,12 +407,6 @@ Middleware, the \texttt{complete()} and \texttt{error()} callback methods will
 be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
 
 
-\subsection{Implementations: HTTPChannel and SimulatorChannel}
-\label{sec:channel.implementations}
-
-Full examples of actual implementations, complete with XML descriptor snippets
-
-
 \section{Handling data}
 \label{sec:components.mapper}
 
@@ -469,17 +463,17 @@ be queried through the \texttt{getType()} method. This property unequivocally
 identifies the set of fields contained in a \texttt{Message} in terms of field
 \textbf{name}, field \textbf{type} and field \textbf{qualifier}.
 
-The field \textbf{name} is a textual string that uniquely identifies one
+The field \textbf{name} is a textual attribute that uniquely identifies one
 specific data item in the scope of a single \texttt{Message}. It can be used to
 retrieve or set the value of a field through the \texttt{getField()} and
 \texttt{setField()} methods respectively.
 
 The \textbf{type} attribute defines the set of legal values that can be stored
-in a field, together with the operations that can be performed on those values.
-It is worth mentioning that this information is used to statically verify
-the type safety of nearly all data management operations performed on a
-\texttt{Message} (consult section~\ref{sec:components.script} for additional
-information). The PerLa Middleware currently supports six primitive types:
+in a field, together with the operations that are allowed on those values. It
+is worth mentioning that this information is used to statically verify the type
+safety of nearly all data management operations performed on a \texttt{Message}
+(consult section~\ref{sec:components.script} for additional information). The
+PerLa Middleware currently supports six primitive types:
 
 \begin{itemize}
 
@@ -500,9 +494,9 @@ information). The PerLa Middleware currently supports six primitive types:
 
 \end{itemize}
 
-Besides the data types presented above, a field can be configured to hold a
-nested \texttt{Message} as well. In this case, the type attribute must be set
-to the particular type of \texttt{Message} that is to be stored in the field. 
+Besides the data types presented above, fields can also be configured to hold
+nested \texttt{Message}s. In this case, the type attribute must be set to the
+particular type of \texttt{Message} that is to be stored in the field. 
 
 The \textbf{qualifier} attribute is employed to define additional field
 properties. It can be set to one of the following values:
@@ -510,7 +504,8 @@ properties. It can be set to one of the following values:
 \begin{itemize}
 
   \item \textbf{SIMPLE}: a normal field whose value can be altered and
-      retrieved using the \texttt{setField()} and \texttt{getField()} methods.
+      retrieved using the \texttt{setField()} and \texttt{getField()} methods
+      respectively.
 
   \item \textbf{LIST}: a field that can hold multiple elements of the same
       type. New values can be added with the \texttt{appendElement()} method,
@@ -536,10 +531,10 @@ interface, available in listing~\ref{lst:mapper}, groups all the
 functionalities needed to handle a specific variety of structured information.
 The one-to-one relationship between \texttt{Mapper}s and data types is
 epitomized by the \texttt{getMessageType()} method, whose return value
-indicates which class of \texttt{Message} a particular \texttt{Mapper} can
-manage. This method is extensively employed by the Middleware to sift through a
-collection of \texttt{Mapper}s, in order to find one that is best suited for
-handling the information currently being processed.
+indicates which \texttt{Message} class is supported by a particular
+\texttt{Mapper}. This method is extensively employed by the Middleware to sift
+through a collection of \texttt{Mapper}s, in order to find one that is best
+suited for handling the information currently being processed.
 
 \lstset{language=Java}
 \begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper
@@ -585,7 +580,7 @@ basic values into complex data structures. In spite of these advantages, the
 \texttt{Message} interface is a high level abstraction that cannot be employed
 where a \texttt{Payload} is expected, since its contents are not directly
 accessible as a simple sequence of bytes; as a consequence, \texttt{Message}s
-can't be used in any kind of I/O operation. This structural gap is bridged by
+can't be used for any kind of I/O operation. This structural gap is bridged by
 the \texttt{marshal()} and \texttt{unmarshal()} methods of the \texttt{Mapper}
 interface. As can be seen by analyzing their respective signatures, these two
 methods can be used to convert \texttt{Message} objects into \texttt{Payload}s
@@ -622,14 +617,13 @@ additional discussion in the remainder of this chapter.
 \end{figure}
 
 Before this section comes to an end, it is worth putting into context the role
-occupied by the \texttt{Mapper} inside the PerLa Middleware, relatively to the
-previously described I/O layer. The additional decoupling provided by the
-\texttt{Mapper} builds over the pluggable \texttt{Channel} interface, thus
-allowing the payload format to be selected independently of the I/O technology.
-This is an important characteristic of the Middleware design, as even the
-simplest communication protocol usually requires several \texttt{Message}
-structures, viz. several \texttt{Mapper}s, for exchanging data between two
-endpoints.
+occupied by the \texttt{Mapper} inside the PerLa Middleware. The additional
+decoupling provided by the \texttt{Mapper} builds over the pluggable
+\texttt{Channel} interface, thus allowing the payload format to be selected
+independently of the I/O stack.  This is an important characteristic of the
+Middleware design, as even the simplest communication protocol usually requires
+several \texttt{Message} structures, viz. several \texttt{Mapper}s, for
+exchanging data between two endpoints.
 
 
 \subsection{Creating Mappers and defining Message structures}
@@ -657,9 +651,9 @@ Its design follows the same concepts explained in previous sections; the
 \texttt{MessageDescriptor} objects that can be used with the
 \texttt{MapperFactory}, while the \texttt{createMapper()} method consumes a
 \texttt{MessageDescriptor} to create a \texttt{Mapper}. However, differently
-from all the factory components described so far, the creation of a new object
+from all factory components described so far, the creation of a new object
 calls for two additional parameters other than the descriptor itself: a
-\texttt{ClassPool}, and a map of \texttt{Mapper}s. These extra items provide a
+\texttt{ClassPool}, and a map of \texttt{Mapper}s. These extra items contain a
 reference to previously built \texttt{Mapper}s, and can be used to check
 whether nested \texttt{Message} fields are properly declared or not.
 
@@ -687,16 +681,16 @@ corresponding data format. A concrete example of this concept comes from the
 non-primitive fields. Having multiple \texttt{MessageDescriptor}s also means
 that different \texttt{Message}s are not forced to abide by the same set of
 rules; the limits imposed on URL-encoded messages are not universal, and in
-fact the \texttt{JSONMessageDescriptor} refrains from applying them. This
-design has an yet another advantage over a common descriptor format, namely the
-possibility of using a custom lexicon for each distinct
-\texttt{MessageDescriptor} class. Concepts specific to a single data format can
-be specified using the most appropriate terminology; JSON \texttt{Message}s are
-aptly named \texttt{object}s, whereas URL-encoded fields are dubbed
-\texttt{parameter}s. As can be seen in listings \ref{lst:jsonmessage} and
-\ref{lst:urlencodedmessage}, through this feature every \texttt{Message}
-declaration is idiomatic and reminiscent of the corresponding data format. 
-
+fact the \texttt{JSONMessageDescriptor} refrains from applying them.
+Furthermore, \texttt{MessageDescriptor} objects can adopt a custom lexicon for
+expressing the PerLa-specific concepts of \textit{message}, \textit{field} and
+\textit{field type}. Take for example listings \ref{lst:jsonmessage} and
+\ref{lst:urlencodedmessage}. These two XML snippets show how the vocabulary
+employed in message declarations varies with the data format (field are dubbed
+\textit{member} in JSON, and \textit{parameter} in URL-Encoded strings). Using
+a terminology that best suits the actual data format makes \texttt{Message}
+declarations idiomatic, reminiscent of the corresponding real-world objects and
+therefore easier to use.
 
 \lstset{language=XML}
 \begin{lstlisting}[float,floatplacement=!hbt,caption={A compound JSON message
@@ -706,27 +700,27 @@ declaration is idiomatic and reminiscent of the corresponding data format.
 },label={lst:jsonmessage}]
 
 <js:object id="coord">
-    <js:value name="lon" type="string"/>
-    <js:value name="lat" type="string"/>
+    <js:member name="lon" type="string"/>
+    <js:member name="lat" type="string"/>
 </js:object>
 
 <js:object id="main">
-        <js:value name="temp" type="float"/>
-        <js:value name="pressure" type="float"/>
-        <js:value name="humidity" type="float"/>
-        <js:value name="temp_min" type="float"/>
-        <js:value name="temp_max" type="float"/>
+        <js:member name="temp" type="float"/>
+        <js:member name="pressure" type="float"/>
+        <js:member name="humidity" type="float"/>
+        <js:member name="temp_min" type="float"/>
+        <js:member name="temp_max" type="float"/>
 </js:object>
 
 <js:object id="wind">
-        <js:value name="speed" type="float"/>
-        <js:value name="deg" type="float"/>
+        <js:member name="speed" type="float"/>
+        <js:member name="deg" type="float"/>
 </js:object>
 
 <js:object id="weather">
-        <js:value name="coord" type="coord"/>
-        <js:value name="main" type="main"/>
-        <js:value name="wind" type="wind"/>
+        <js:member name="coord" type="coord"/>
+        <js:member name="main" type="main"/>
+        <js:member name="wind" type="wind"/>
 </js:object>
 
 \end{lstlisting}
@@ -749,24 +743,27 @@ the encoding format for dates and times},label={lst:urlencodedmessage}]
 
 \end{lstlisting}
 
-The examples in listings \texttt{lst:urlencodedmessage} and
-\texttt{lst:jsonmessage} provide a great opportunity for delving a bit deeper
-into the process of mapping an XML fragment in a specific Java object. JAXB,
-the library that performs this conversion, uses XML namespaces to identify
-which message descriptor class the current XML snippet has to be deserialized
-into. Following our previous examples, the namespace \textit{js} maps to
-\texttt{JSONMessageDescriptor}, whereas \textit{ue} corresponds to
-\texttt{URLEncodedMessageDescriptor}. This design has an important
-advantage over a universal message descriptor textual format, that is the
-possibility of using a custom set of XML elements for each distinct
-\texttt{MessageDescriptor} class; concepts specific to a single data format can
-be specified through the most appropriate terminology,  
-
 
 \subsection{Managing multiple message types}
 
-\subsection{Implementations: JSONMapper and URLEncodedMapper}
+It is not uncommon for a single device to communicate using multiple message
+formats; developers may choose to encapsulate different information inside
+different data structures, which the receiving end must correctly identify to
+decipher their contents. In such cases, every \texttt{Message} exchanged
+between the two endpoints is tagged with a data type value, i.e., a common
+field that advertises the type of information being transferred. This technique
+is widespread among firmware developers, since it can be easily implemented
+with most programming languages (C/C++ support it by design through
+\texttt{tagged unions}).
 
+The information currently hosted inside a tagged union is advertised by
+the \textit{union tag} field, which receivers can use to correctly interpret
+the information being transferred. 
+
+What's the problem: data arrives in bytes, and we need a way to map a
+particular stream of bytes in a message
+
+How do we solve it: by checking the static fields in a message
 
 \section{Data management: Scripts}
 \label{sec:components.script}
