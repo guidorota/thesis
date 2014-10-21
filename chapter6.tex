@@ -762,7 +762,7 @@ structures that can actually be received are considered when unmarshalling a
 byte stream; if under the current conditions a device only sends a subset of
 its available message types, then the Middleware can immediately rule out the
 unmatching ones. As it will be discussed later, a collection of expected data
-formats is automatically curated by the \texttt{FPC}, by cross-comparing
+formats is automatically curated by the \texttt{FPC} by cross-comparing
 information excerpted from the Device Descriptor with the current device
 status. It should be clear that this technique alone is not enough to cover all
 practical use cases, as it falls short as soon as a device starts sending two
@@ -771,14 +771,44 @@ for clues that will help it recognize how the bytes being received are
 structured. These clues take the form of \textit{static} fields. When faced
 with an ambiguous situation, the \texttt{FPC} will try unmarshal the bytes
 received into all expected data types. A congruency check will then be
-performed on the resulting \texttt{Message}: the data can be considered
+performed on the resulting \texttt{Message}s: the data can be considered
 correctly decoded only when all its static fields match the corresponding
-declaration. This methodology can be employed to implement a communication
-system based on tagged data structures, as explained in the previous paragraph.
+Device Descriptor declaration. This methodology can be employed to interact
+with sensor nodes that make use of tagged data structures. 
 
 
 \section{Data management: Scripts}
 \label{sec:components.script}
+
+\texttt{Channel}s, \texttt{Payload}s, \texttt{Mapper}s and \texttt{Message}s
+are the core components used by PerLa to exchange data with nodes of a
+Pervasive System. They provide the supporting infrastructure through which
+information can be serialized, transmitted and faithfully reconstructed at the
+receiving endpoint. Taken together, these components implement an adaptable
+transport layer, whose features can be tailored around each device connected to
+the Middleware. Combine a \texttt{HTTPChannel} with a \texttt{JSONMapper} to
+obtain a network stack for RESTful services; swap the data layer with an
+\texttt{XMLMapper} if the format changes; add a \texttt{ZigbeeChannel} and a
+\texttt{StructMapper} to communicate with low-powered devices in a mesh
+network. In spite of their capabilities, all these components are not enough to
+glean information from a Sensor Network. The interaction with a sensor node
+requires far more than a transport layer; in fact it can only occur when data
+transfer operations follow a strict set of rules, i.e., an \textit{application
+protocol}. \texttt{Channel}s, \texttt{Mapper}s and \texttt{Message}s provide no
+more than the basic building blocks needed for the interaction, but their use
+is to be tightly orchestrated before any purposeful exchange of information can
+take place.
+
+PerLa \texttt{Script}s, just referred as \texttt{Script}s in the remainder of
+this document, provide the kind of structural scaffolding required to organize
+a series of primitive data management operations into a self-contained,
+reuseable procedure. Their purpose in the PerLa Middleware is twofold: first,
+to issue commands to the devices of a Pervasive Systems; second, to act as an
+impedance matcher between the message-oriented environment of a sensor network
+and the record-oriented world of PerLa. While the former function has been
+thoroughly explained in the previous paragraph, the latter needs 
+
+PerLa script is a simple procedural programming language
 
 \subsection{From Messages to Records}
 
