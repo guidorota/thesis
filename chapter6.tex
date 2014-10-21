@@ -810,20 +810,28 @@ output of an \texttt{FPC}. The PerLa scripting language is one of the most
 distinctive features of the new Middleware design; a procedural programming
 tool that can be used to complement and enrich the declarative nature of the
 Device Descriptor. \texttt{Script}s improve the reusability of all existing and
-future Middleware components, as they can be used to adjust and adapt the
-output of a computation before it is used as the input of another.
+future Middleware components, as they can be used to adjust the output of a
+computation before it's used as the input of another one.
+
+An archetypal example of this concept is given in
+figure~\ref{fig:scriptUnrolling}. This \texttt{Script} solves a recurring
+impedance matching problem: a device that stores multiple samples into a common
+data structure and sends them with a single transmission to conserve battery
+power. The result of such aggregation can't be coerced into a sequence of
+records as-is, as more often than not it contains a mixture of both high
+frequency and low frequency information (and indeed it does in the current
+example). The PerLa scripting language can be used to unroll the high frequency
+content --- the single sensor readouts ---, complement it with the information
+that remains constant for all samples, and output the resulting records one by
+one; all without having to resort to a bespoken \texttt{Mapper} implementation,
+as it would prove necessary if the former Middleware were used instead.
+Moreover, this same script can be easily employed to solve similar data
+clustering problems with little to none modifications, as it doesn't depend
+on any particular \texttt{Channel}, \texttt{Mapper} or \texttt{Message}
+implementation.
 
 
-
-While
-the former function has already been explained in the previous paragraph, the
-latter needs a deeper 
-
-PerLa script is a simple procedural programming language
-
-\subsection{From Messages to Records}
-
-\subsection{Available instructions}
+\subsection{Script instructions}
 
 \subsection{Engine architecture and execution model}
 
