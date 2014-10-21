@@ -748,7 +748,7 @@ the encoding format for dates and times},label={lst:urlencodedmessage}]
 
 It is not uncommon for a single device to communicate using multiple message
 formats; developers may choose to encapsulate different information inside
-different data structures, which the receiving end must correctly identify to
+different data structures, which the receiver must correctly identify to
 decipher their contents. In such cases, every \texttt{Message} exchanged
 between the two endpoints is tagged with a data type value, i.e., a common
 field that advertises the type of information being transferred. This technique
@@ -756,14 +756,26 @@ is widespread among firmware developers, since it can be easily implemented
 with most programming languages (C/C++ support it by design through
 \texttt{tagged unions}).
 
-The information currently hosted inside a tagged union is advertised by
-the \textit{union tag} field, which receivers can use to correctly interpret
-the information being transferred. 
+The PerLa Middleware implements various techniques to cope with sensor nodes
+that communicate using multiple message formats. First of all, only the data
+structures that can actually be received are considered when unmarshalling a
+byte stream; if under the current conditions a device only sends a subset of
+its available message types, then the Middleware can immediately rule out the
+unmatching ones. As it will be discussed later, a collection of expected data
+formats is automatically curated by the \texttt{FPC}, by cross-comparing
+information excerpted from the Device Descriptor with the current device
+status. It should be clear that this technique alone is not enough to cover all
+practical use cases, as it falls short as soon as a device starts sending two
+or more message varieties concurrenty; in such scenarios, PerLa needs to search
+for clues that will help it recognize how the bytes being received are
+structured. These clues take the form of \textit{static} fields. When faced
+with an ambiguous situation, the \texttt{FPC} will try unmarshal the bytes
+received into all expected data types. A congruency check will then be
+performed on the resulting \texttt{Message}: the data can be considered
+correctly decoded only when all its static fields match the corresponding
+declaration. This methodology can be employed to implement a communication
+system based on tagged data structures, as explained in the previous paragraph.
 
-What's the problem: data arrives in bytes, and we need a way to map a
-particular stream of bytes in a message
-
-How do we solve it: by checking the static fields in a message
 
 \section{Data management: Scripts}
 \label{sec:components.script}
