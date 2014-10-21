@@ -800,13 +800,24 @@ is to be tightly orchestrated before any purposeful exchange of information can
 take place.
 
 PerLa \texttt{Script}s, just referred as \texttt{Script}s in the remainder of
-this document, provide the kind of structural scaffolding required to organize
-a series of primitive data management operations into a self-contained,
-reuseable procedure. Their purpose in the PerLa Middleware is twofold: first,
-to issue commands to the devices of a Pervasive Systems; second, to act as an
-impedance matcher between the message-oriented environment of a sensor network
-and the record-oriented world of PerLa. While the former function has been
-thoroughly explained in the previous paragraph, the latter needs 
+this document, implement the kind of structural scaffolding required to
+organize a series of primitive data management operations into a
+self-contained, reusable procedure. Their purpose in the PerLa Middleware is
+twofold: first, to issue commands that conform to the specific protocols used
+in a Pervasive Systems; second, to act as an impedance matcher between the
+structured information collected from a sensor network and the record-oriented
+output of an \texttt{FPC}. The PerLa scripting language is one of the most
+distinctive features of the new Middleware design; a procedural programming
+tool that can be used to complement and enrich the declarative nature of the
+Device Descriptor. \texttt{Script}s improve the reusability of all existing and
+future Middleware components, as they can be used to adjust and adapt the
+output of a computation before it is used as the input of another.
+
+
+
+While
+the former function has already been explained in the previous paragraph, the
+latter needs a deeper 
 
 PerLa script is a simple procedural programming language
 
