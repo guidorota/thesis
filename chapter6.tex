@@ -224,7 +224,7 @@ Besides \texttt{IORequest} creation, the \texttt{IORequestBuilder} interface
 can be used to dynamically discover which \texttt{Payload} parameters are
 supported by an \texttt{IORequest}. This functionality, exposed through the
 \texttt{getParameterList()} method, is a crucial component of the Middleware
-Plugin System, as it allows \texttt{Script} instructions to determine whether
+Plugin System, as it allows \textit{Script} instructions to determine whether
 an \texttt{IORequest} was populated with all the necessary \texttt{Payload}
 parameters or not. This concept will be the subject of further analysis in
 section~\ref{sec:components.script}.
@@ -569,7 +569,7 @@ even further by the \texttt{getFieldDescriptor()} and
 \texttt{getFieldDescriptors()} methods, which can be used to analyze the
 internal field structure characterizing all \texttt{Message} objects that the
 \texttt{Mapper} creates. This introspective capability is extensively exploited
-in the Execution Engine to check whether a \texttt{Script} is type-safe or not
+in the Execution Engine to check whether a \textit{Script} is type-safe or not
 (see section~\ref{sec:components.script} for further details).
 
 As explained in the introductory paragraphs of this section, \texttt{Message}
@@ -786,20 +786,20 @@ Pervasive System. They provide the supporting infrastructure through which
 information can be serialized, transmitted and faithfully reconstructed at the
 receiving endpoint. Taken together, these components implement an adaptable
 transport layer, whose features can be tailored around each device connected to
-the Middleware. Combine a \texttt{HTTPChannel} with a \texttt{JSONMapper} to
+the Middleware: combine a \texttt{HTTPChannel} with a \texttt{JSONMapper} to
 obtain a network stack for RESTful services; swap the data layer with an
 \texttt{XMLMapper} if the format changes; add a \texttt{ZigbeeChannel} and a
 \texttt{StructMapper} to communicate with low-powered devices in a mesh
-network. In spite of their capabilities, all these components are not enough to
-glean information from a Sensor Network. The interaction with a sensor node
-requires far more than a transport layer; in fact it can only occur when data
-transfer operations follow a strict set of rules, i.e., an \textit{application
-protocol}. \texttt{Channel}s, \texttt{Mapper}s and \texttt{Message}s provide no
-more than the basic building blocks needed for the interaction, but their use
-is to be tightly orchestrated before any purposeful exchange of information can
-take place.
+network. In spite of their individual capabilities, all these components are
+not enough to glean information from a Sensor Network. The interaction with a
+sensor node requires far more than a transport layer; in fact it can only occur
+when data transfer operations follow a strict set of rules, i.e., an
+\textit{application protocol}. \texttt{Channel}s, \texttt{Mapper}s and
+\texttt{Message}s provide no more than the basic building blocks needed for the
+interaction, but their use is to be tightly orchestrated before any purposeful
+exchange of information can take place.
 
-PerLa \texttt{Script}s, just referred as \texttt{Script}s in the remainder of
+PerLa \textit{Script}s, just referred as \textit{Script}s in the remainder of
 this document, implement the kind of structural scaffolding required to
 organize a series of primitive data management operations into a
 self-contained, reusable procedure. Their purpose in the PerLa Middleware is
@@ -809,29 +809,43 @@ structured information collected from a sensor network and the record-oriented
 output of an \texttt{FPC}. The PerLa scripting language is one of the most
 distinctive features of the new Middleware design; a procedural programming
 tool that can be used to complement and enrich the declarative nature of the
-Device Descriptor. \texttt{Script}s improve the reusability of all existing and
+Device Descriptor. \textit{Script}s improve the reusability of all existing and
 future Middleware components, as they can be used to adjust the output of a
 computation before it's used as the input of another one.
 
 An archetypal example of this concept is given in
-figure~\ref{fig:scriptUnrolling}. This \texttt{Script} solves a recurring
+figure~\ref{fig:scriptUnrolling}. This \textit{Script} solves a recurring
 impedance matching problem: a device that stores multiple samples into a common
-data structure and sends them with a single transmission to conserve battery
-power. The result of such aggregation can't be coerced into a sequence of
-records as-is, as more often than not it contains a mixture of both high
+data structure and sends them with a single transmission in order to conserve
+battery power. The result of such aggregation can't be coerced into a sequence
+of records as-is, as more often than not it contains a mixture of both high
 frequency and low frequency information (and indeed it does in the current
 example). The PerLa scripting language can be used to unroll the high frequency
-content --- the single sensor readouts ---, complement it with the information
-that remains constant for all samples, and output the resulting records one by
-one; all without having to resort to a bespoken \texttt{Mapper} implementation,
-as it would prove necessary if the former Middleware were used instead.
-Moreover, this same script can be easily employed to solve similar data
-clustering problems with little to none modifications, as it doesn't depend
-on any particular \texttt{Channel}, \texttt{Mapper} or \texttt{Message}
-implementation.
+content, complement it with the information that remains constant for all
+samples, and output the resulting records one by one; all without having to
+resort to a bespoken \texttt{Mapper} implementation, as it would prove
+necessary if the former Middleware were used instead. Moreover, this same
+script can be easily employed to handle similar aggregation patterns with
+little or none modifications, as it doesn't depend on any particular
+\texttt{Channel}, \texttt{Mapper} or \texttt{Message} implementation.
+
+PerLa \textit{Scripts} are also used to address minor compatibility problems
+that may arise when authoring new Device Descriptors; they can wrap an existing
+Middleware component and adapt its behaviour to handle an unforseen usage
+scenario, convert information between different units of measure, alter a
+\texttt{Message} before it is sent to the intended recipient or compute
+aggregations. It is important to note that \textit{Scripts} are slower than
+pure Java code; an excessive usage in data intensive, real-time applications
+should be carefully avoided, as it may negatively affect the performance of the
+entire Middleware. End users are therefore invited to thoroughly test and
+benchmark their Device Descriptors to eliminate any potential bottleneck.
 
 
-\subsection{Script instructions}
+\subsection{Script syntax and instructions}
+
+PerLa Script is a full-fledged imperative programming language composed of 4
+primitive instructions, 2 record-management instructions, flow control data
+structures and a powerful expression language.
 
 \subsection{Engine architecture and execution model}
 
