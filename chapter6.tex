@@ -841,11 +841,13 @@ entire Middleware. End users are therefore invited to thoroughly test and
 benchmark their Device Descriptors to eliminate any potential bottleneck.
 
 
-\subsection{Script syntax and instructions}
+\subsection{Anatomy of a PerLa Script}
 
-PerLa Script is a full-fledged imperative programming language composed of 4
-primitive instructions, 2 record-management instructions, flow control data
-structures and a powerful expression language.
+PerLa Script is a full-fledged imperative programming language composed of data
+management instructions, control flow statements and a powerful expression
+language. Procedures written in PerLa Script are processed by the
+\texttt{Script Engine}, a Middleware module that reads, interpret and executes
+Script instructions.
 
 \subsection{Engine architecture and execution model}
 
