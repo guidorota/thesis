@@ -849,16 +849,23 @@ composed of data management instructions, control flow statements and a
 powerful expression language. Procedures written in PerLa \texttt{Script} are
 processed by the \texttt{Script Engine}, a Middleware module that reads,
 interprets and executes script instructions. Instructions are currently
-specified using a proprietary XML syntax, specifically designed to allow the
-inclusion of PerLa \texttt{Scripts} directly in a Device Descriptor. Conflicts
-with potentially similar XML elements and tags are avoided through the
+specified using a proprietary XML syntax, specifically designed to allow PerLa
+\texttt{Scripts} to be directly embedded in a Device Descriptor. Conflicts with
+potentially similar XML elements and tags are avoided through the
 \texttt{http://perla.dei.org/device/instructions} namespace, commonly
-associated with the \texttt{<i:} prefix. Node developers are invited to
-maintain this convention, as the use of a different namespace prefix may create
-confusion among end users and future Device Descriptor mainteners. 
+associated with the \texttt{<i:} prefix. Node developers are invited to follow
+this convention, as the use of a different namespace prefix may create
+confusion among end users and future Device Descriptor maintainers. 
 
-\texttt{Script} instructions are composed of a \textit{name} and a list of
-\textit{parameters}.
+Every \texttt{Script} instruction is composed of a \textit{name}, a textual
+property that identifies a specific type of computation, and a list of
+\textit{parameters}. Parameters are name-value pairs that can be used to alter
+and customize the runtime behaviour of a specific script operation. With the
+exception of the \texttt{submit} instruction, whose unconventional syntax is
+described in the remainder of this section, parameters are defined using XML
+tags. PerLa \texttt{Scripts} currently support two different types of
+parameters: \textit{simple text} and \textit{expression}. Textual parameters
+are simple string values, whose  
 
 \subsection{Script Engine architecture and execution model}
 
