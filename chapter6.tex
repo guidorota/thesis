@@ -816,7 +816,7 @@ computation before it's used as the input of another one.
 An archetypal example of this concept is given in
 figure~\ref{fig:scriptUnrolling}. This \textit{Script} solves a recurring
 impedance matching problem: a device that stores multiple samples into a common
-data structure and sends them with a single transmission in order to conserve
+data structure, and sends them with a single transmission in order to conserve
 battery power. The result of such aggregation can't be coerced into a sequence
 of records as-is, as more often than not it contains a mixture of both high
 frequency and low frequency information (and indeed it does in the current
@@ -838,18 +838,29 @@ aggregations. It is important to note that \textit{Scripts} are slower than
 pure Java code; an excessive usage in data intensive, real-time applications
 should be carefully avoided, as it may negatively affect the performance of the
 entire Middleware. End users are therefore invited to thoroughly test and
-benchmark their Device Descriptors to eliminate any potential bottleneck.
+benchmark their Device Descriptors to eliminate any potential bottleneck before
+deployment.
 
 
 \subsection{Anatomy of a PerLa Script}
 
-PerLa Script is a full-fledged imperative programming language composed of data
-management instructions, control flow statements and a powerful expression
-language. Procedures written in PerLa Script are processed by the
-\texttt{Script Engine}, a Middleware module that reads, interpret and executes
-Script instructions.
+PerLa \texttt{Script} is a full-fledged imperative programming language
+composed of data management instructions, control flow statements and a
+powerful expression language. Procedures written in PerLa \texttt{Script} are
+processed by the \texttt{Script Engine}, a Middleware module that reads,
+interprets and executes script instructions. Instructions are currently
+specified using a proprietary XML syntax, specifically designed to allow the
+inclusion of PerLa \texttt{Scripts} directly in a Device Descriptor. Conflicts
+with potentially similar XML elements and tags are avoided through the
+\texttt{http://perla.dei.org/device/instructions} namespace, commonly
+associated with the \texttt{<i:} prefix. Node developers are invited to
+maintain this convention, as the use of a different namespace prefix may create
+confusion among end users and future Device Descriptor mainteners. 
 
-\subsection{Engine architecture and execution model}
+\texttt{Script} instructions are composed of a \textit{name} and a list of
+\textit{parameters}.
+
+\subsection{Script Engine architecture and execution model}
 
 \subsection{Script examples}
 
