@@ -813,8 +813,15 @@ Device Descriptor. \textit{Script}s improve the reusability of all existing and
 future Middleware components, as they can be used to adjust the output of a
 computation before it's used as the input of another one.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.8]{imgs/script_unrolling.pdf}
+    \caption{A script for unrolling the content of a JSON data structure}
+    \label{fig:script_unrolling}
+\end{figure}
+
 An archetypal example of this concept is given in
-figure~\ref{fig:scriptUnrolling}. This \textit{Script} solves a recurring
+figure~\ref{fig:script_unrolling}. This \textit{Script} solves a recurring
 impedance matching problem: a device that stores multiple samples into a common
 data structure, and sends them with a single transmission in order to conserve
 battery power. The result of such aggregation can't be coerced into a sequence
@@ -853,8 +860,8 @@ specified using a proprietary XML syntax, specifically designed to allow PerLa
 \texttt{Scripts} to be directly embedded in a Device Descriptor. Conflicts with
 potentially similar XML elements and tags are avoided through the
 \texttt{http://perla.dei.org/device/instructions} namespace, commonly
-associated with the \texttt{<i:} prefix. Node developers are invited to follow
-this convention, as the use of a different namespace prefix may create
+associated with the ``\texttt{<i:}'' prefix. Node developers are invited to
+follow this convention, as the use of a different namespace prefix may create
 confusion among end users and future Device Descriptor maintainers. 
 
 Every \texttt{Script} instruction is composed of a \textit{name}, a textual
@@ -865,7 +872,95 @@ exception of the \texttt{submit} instruction, whose unconventional syntax is
 described in the remainder of this section, parameters are defined using XML
 tags. PerLa \texttt{Scripts} currently support two different types of
 parameters: \textit{simple text} and \textit{expression}. Textual parameters
-are simple string values, whose  
+are simple string values,   
+
+
+\subsubsection{\texttt{var} instruction}
+
+\textbf{Description}
+
+Declares a new variable. This instruction requires two mandatory parameters:
+
+\begin{itemize}
+
+    \item \textbf{name:} The variable name, namely a textual identifier used to
+        reference the variable in later instructions. It must be unique in the
+        scope of a single script.
+
+    \item \textbf{type:} The type of data that can be stored inside the newly
+        created variable. It can be set to one of the six PerLa primitive data
+        types, or to a user-defined  message type.
+
+\end{itemize}
+
+\textbf{Usage examples}
+
+Creates a new variable named ``count'' of primitive type \texttt{integer}.
+
+\lstset{language=XML}
+\lstinline!<i:var name="count" type="integer"/>!
+\vspace*{1\baselineskip}
+
+Creates a new variable named ``cmd'' of complex type \texttt{node\_command},
+whose declaration is omitted for brevity reasons.
+
+\lstset{language=XML}
+\lstinline!<i:var name="cmd" type="node_command"/>!
+
+
+\subsection{\texttt{set} instruction}
+
+\textbf{Description}
+
+Sets the contents of a variable to a new value. The optional \texttt{field}
+parameter can be used whenever the user needs to modify a specific field of a
+variable of complex type.
+
+\begin{itemize}
+
+    \item \textbf{variable:} Name of the variable to be set.
+
+    \item \textbf{field (optional):} An optional parameter used to select the
+        specific field to set in a variable of complex type.
+
+    \item \textbf{value:} The new value of the variable. This parameter may
+        either be a literal value or an expression.
+
+\end{itemize}
+
+\textbf{Usage examples}
+
+Sets the previously defined ``count'' variable to the literal value \texttt{5}.
+
+\lstset{language=XML}
+\lstinline!<i:set variable="count" value="5"/>!
+\vspace*{1\baselineskip}
+
+Sets the field ``operation'' of the previously defined ``cmd'' variable to the
+literal value \texttt{sample}.
+
+\lstset{language=XML}
+\lstinline!<i:set variable="cmd" field="operation" value="sample"/>!
+\vspace*{1\baselineskip}
+
+Converts a temperature reading from Celsius to Fahreheit degrees, and stores it
+in the ``temp\_f'' field of a hypothetical variable named ``result''.
+
+\lstset{language=XML}
+\lstinline!<i:set variable="result" field="temp\_f" value="${result.temp\_c*9/5 + 32}"/>!
+\vspace*{1\baselineskip}
+
+
+\subsubsection{\texttt{submit} instruction}
+
+\textbf{Description}
+
+
+\textbf{Usage examples}
+
+\subsubsection{\texttt{stop} instruction}
+
+\subsubsection{\texttt{error} intstruction}
 
 \subsection{Script Engine architecture and execution model}
 

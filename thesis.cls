@@ -18,6 +18,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[pctex32]{graphicx}
 \usepackage{setspace}
+\usepackage{parskip}
 \usepackage{emptypage}
 \usepackage{float}
 \usepackage{geometry}
@@ -27,6 +28,10 @@
 \usepackage{color}
 \usepackage{enumitem}
 \setlist{nosep}
+
+% Set numbering for \subsubsection elements and add them to the TOC
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
 
 \definecolor{code_comment}{RGB}{65,126,96}
 \definecolor{code_keyword}{RGB}{126,8,84}
