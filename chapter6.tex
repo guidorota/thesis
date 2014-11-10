@@ -951,10 +951,34 @@ in the ``temp\_f'' field of a hypothetical variable named ``result''.
 \vspace*{1\baselineskip}
 
 
+\subsubsection{\texttt{append} instruction}
+
+
 \subsubsection{\texttt{submit} instruction}
 
 \textbf{Description}
 
+Submits an \texttt{IORequest} on a \texttt{Channel}. This instruction supports
+the following parameters:
+
+\begin{itemize}
+
+    \item \textbf{request:} Identifier of the \texttt{IORequest} to be
+        submitted.
+
+    \item \textbf{channel:} Identifier of the \texttt{Channel} on which the
+        request has to be submitted
+
+    \item \textbf{variable (optional):} Name of the variable where to store the
+        result of the I/O operation performed by the \texttt{Channel}. If
+        present, the complementary \textbf{type} parameter must be set.  It is
+        important to note that the result variable is not to be declared prior
+        to an invocation of this instruction. 
+
+    \item \textbf{type (optional):} Type of the variable used to store the
+        result of the I/O operation.
+
+\end{itemize}
 
 \textbf{Usage examples}
 
