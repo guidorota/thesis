@@ -1150,28 +1150,50 @@ structure to implement advanced error management behaviours.
 
 \textbf{Description}
 
-Adds or substitute a field into the temporary record, i.e., a staging area used
+Adds a field into the staging area, viz. a temporary storage location used
 for the incremental creation of new output records. This instruction requires
-two parameters:
+two mandatory parameters:
 
 \begin{itemize}
 
     \item \textbf{attribute:} Name of the attribute corresponding to the value
-        being added in the stagin area. The purpose of this parameter is
+        being added in the staging area. The purpose of this parameter is
         twofold: first, it defines the name through which the new data can be
-        retrieved (record fields names always correspond to device attribute
-        names); second, it is used to make sure that the value being added in
-        the staging area has the correct data type (record field types always
+        retrieved (record field names always correspond to device attribute
+        names); second, it is used to confirm that the value being added in the
+        staging area has the correct data type (record field types always
         correspond to device attribute types).
 
     \item \textbf{expression:} Value of the new record field.
 
 \end{itemize}
 
+This instruction is intended to be called multiple times in the lifetime of a
+single \texttt{Script} execution, as a single \texttt{put} operation can only
+be used to set one record field. As soon as all the desired values are ready,
+the content of the entired staging area can be flushed into a new record by
+means of the \texttt{emit} instruction.
+
+It is worth noting that the content of the staging area is not deleted once
+\texttt{emit} is invoked. Though this may seem counterintuitive or even
+undesirable, such behaviour allows for a simpler and more efficient management
+of struct unrolling procedures. The ability to retain field values set with
+previous invocations of the \texttt{put} instruction is key to the example of
+figure~\ref{fig:script_unrolling}, where low frequency data --- namely the
+\textit{name-id} and the \textit{city} records --- is set only once, and only
+the high-frequency information is constantly overwritten with new calls to the
+\texttt{put} instruction. This optimization technique would not be possible if
+the staging area were not provided with the aforementioned memory-retaining
+mechanism.
+
+
 \textbf{Usage Example}
 
 
 \subsubsection{\texttt{emit} instruction}
+
+All records emitted are sent to output as soon as the script hits a stop
+instruction
 
 
 \subsubsection{\texttt{if} control structure}
