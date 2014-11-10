@@ -22,6 +22,7 @@
 \usepackage{emptypage}
 \usepackage{float}
 \usepackage{geometry}
+\usepackage{gensymb}
 %\usepackage[showframe]{geometry}
 \usepackage{caption}
 \usepackage{listings}

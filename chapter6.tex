@@ -858,7 +858,7 @@ processed by the \texttt{Script Engine}, a Middleware module that reads,
 interprets and executes script instructions. Instructions are currently
 specified using a proprietary XML syntax, specifically designed to allow PerLa
 \texttt{Scripts} to be directly embedded in a Device Descriptor. Conflicts with
-potentially similar XML elements and tags are avoided through the
+potentially similar XML tags and attributes are avoided through the
 \texttt{http://perla.dei.org/device/instructions} namespace, commonly
 associated with the ``\texttt{<i:}'' prefix. Node developers are invited to
 follow this convention, as the use of a different namespace prefix may create
@@ -870,7 +870,7 @@ property that identifies a specific type of computation, and a list of
 and customize the runtime behaviour of a specific script operation. With the
 exception of the \texttt{submit} instruction, whose unconventional syntax is
 described in the remainder of this section, parameters are defined using XML
-tags. PerLa \texttt{Scripts} currently support two different types of
+attributes. PerLa \texttt{Scripts} currently support two different types of
 parameters: \textit{simple text} and \textit{expression}. Textual parameters
 are simple string values,   
 
@@ -898,15 +898,17 @@ Declares a new variable. This instruction requires two mandatory parameters:
 Creates a new variable named ``count'' of primitive type \texttt{integer}.
 
 \lstset{language=XML}
-\lstinline!<i:var name="count" type="integer"/>!
-\vspace*{1\baselineskip}
+\begin{lstlisting}
+<i:var name="count" type="integer"/>
+\end{lstlisting}
 
 Creates a new variable named ``cmd'' of complex type \texttt{node\_command},
 whose declaration is omitted for brevity reasons.
 
 \lstset{language=XML}
-\lstinline!<i:var name="cmd" type="node_command"/>!
-
+\begin{lstlisting}
+<i:var name="cmd" type="node_command"/>
+\end{lstlisting}
 
 \subsection{\texttt{set} instruction}
 
@@ -918,10 +920,10 @@ variable of complex type.
 
 \begin{itemize}
 
-    \item \textbf{variable:} Name of the variable to be set.
+    \item \textbf{variable:} Name of the variable to be modified.
 
-    \item \textbf{field (optional):} An optional parameter used to select the
-        specific field to set in a variable of complex type.
+    \item \textbf{field (optional):} An optional parameter that can be used to
+        select the specific field to set in a variable of complex type.
 
     \item \textbf{value:} The new value of the variable. This parameter may
         either be a literal value or an expression.
@@ -933,25 +935,62 @@ variable of complex type.
 Sets the previously defined ``count'' variable to the literal value \texttt{5}.
 
 \lstset{language=XML}
-\lstinline!<i:set variable="count" value="5"/>!
-\vspace*{1\baselineskip}
+\begin{lstlisting}
+<i:set variable="count" value="5"/>
+\end{lstlisting}
 
 Sets the field ``operation'' of the previously defined ``cmd'' variable to the
 literal value \texttt{sample}.
 
 \lstset{language=XML}
-\lstinline!<i:set variable="cmd" field="operation" value="sample"/>!
-\vspace*{1\baselineskip}
+\begin{lstlisting}
+<i:set variable="cmd" field="operation" value="sample"/>
+\end{lstlisting}
 
 Converts a temperature reading from Celsius to Fahreheit degrees, and stores it
 in the ``temp\_f'' field of a hypothetical variable named ``result''.
 
 \lstset{language=XML}
-\lstinline!<i:set variable="result" field="temp\_f" value="${result.temp\_c*9/5 + 32}"/>!
-\vspace*{1\baselineskip}
+\begin{lstlisting}
+<i:set variable="result" field="temp\_f"
+    value="${result.temp\_c * 9/5 + 32}"/>
+\end{lstlisting}
+
+Deep copy. The contents of the source variable is accessed through the
+expression \lstinline!${original}! expression.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:set variable="copy" value="${original}"/>
+\end{lstlisting}
 
 
 \subsubsection{\texttt{append} instruction}
+
+\textbf{Description}
+
+Appends a new element to the end of a list-qualified field.
+
+\begin{itemize}
+
+    \item \textbf{variable:} Name of the variable to be modified.
+    
+    \item \textbf{field:} Name of the field where the new value is to be
+        appended.
+
+    \item \textbf{value:} The new value to be inserted at the end of the list.
+        This parameter may either be a literal value or an expression.
+
+\end{itemize}
+
+\textbf{Usage examples}
+
+Appends a literal value to a list field.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:append variable="result" field="temp_list" value="5"/>
+\end{lstlisting}
 
 
 \subsubsection{\texttt{submit} instruction}
@@ -969,22 +1008,177 @@ the following parameters:
     \item \textbf{channel:} Identifier of the \texttt{Channel} on which the
         request has to be submitted
 
-    \item \textbf{variable (optional):} Name of the variable where to store the
-        result of the I/O operation performed by the \texttt{Channel}. If
-        present, the complementary \textbf{type} parameter must be set.  It is
-        important to note that the result variable is not to be declared prior
-        to an invocation of this instruction. 
+    \item \textbf{variable (optional):} Name of the variable used to store the
+        result of the I/O operation. If present, the complementary
+        \textbf{type} parameter must be set. It is important to note that the
+        result variable is automatically declared by the \texttt{submit}
+        instruction; therefore, the final user needs not to create it
+        explicitly with a \texttt{var} instruction.
 
     \item \textbf{type (optional):} Type of the variable used to store the
-        result of the I/O operation.
+        result of the I/O operation. Its presence is subordinated to the
+        aforementioned \textbf{type} parameter.
+
+\end{itemize}
+
+\texttt{IORequest} parameters can be specified by supplying an appropriate list
+of \texttt{param} XML tags, each of which must contain the name of the
+parameter being set and a reference to a variable containing the desired
+parameter value (see the usage example section for further information).
+
+\textbf{Usage examples}
+
+Basic usage, submits the ``start\_sampling'' \texttt{IORequest} to a
+\texttt{SerialChannel}. All information received during the I/O operation is
+discarded since no result variable is specified.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:submit request="start_sampling" channel="serial"/>
+\end{lstlisting}
+
+Submits the ``get\_data'' \texttt{IORequest} to a \texttt{HTTPChannel}. All
+bytes received from the remote server are stored in the ``result'' variable.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:submit request="get_data" channel="http"
+  variable="result" type="json_result"/>
+\end{lstlisting}
+
+Submits the ``send\_command'' \texttt{IORequest} to a \texttt{SerialChannel}.
+The ``command'' variable is set as an \texttt{IORequest} parameter.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:submit request="get_data" channel="http">
+  <i:param name="payload" variable="command"/>
+</i:submit>
+\end{lstlisting}
+
+
+\subsubsection{\texttt{stop} instruction}
+
+\textbf{Description}
+
+Stops the \texttt{Script}. This instruction is usually employed in conjunction
+with the \texttt{if} control structure to implement advanced halt conditions
+based on data only available at runtime.
+
+\textbf{Usage example}
+
+Immediately stops the execution of the \texttt{Script}.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:stop/>
+\end{lstlisting}
+
+Guarded stop. Halts the execution of the \texttt{Script} only when a certain
+condition holds true.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:if condition="${temp_c > 25}"> 
+  <i:then>
+    <i:stop/>
+  </i:then>
+</i:if>
+\end{lstlisting}
+
+
+\subsubsection{\texttt{error} instruction}
+
+\textbf{Description}
+
+Aborts the \texttt{Script}, signalling an abnormal execution condition. This
+instruction must be supplied with a \textbf{message} parameter that indicates
+the cause of failure. Similarly to the \texttt{stop} instruction,
+\texttt{error} is commonly guarded by an \texttt{if} control structure to
+implement advanced error management behaviours.
+
+\textbf{Usage examples}
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:if condition="${humidity >= 0 && humidity <= 100}"> 
+  <i:then>
+    <i:put expression="${humidity}" attribute="humidity"/>
+    <i:emit/>
+    <i:stop/>
+  </i:then>
+  <i:else>
+    <i:error message="humidity out of range"/>
+  </i:else>
+</i:if>
+\end{lstlisting}
+
+
+\subsubsection{\texttt{if} control structure}
+
+\textbf{Description}
+
+A conditional control structure for executing different texttt{Script} branches
+depending on whether the \textbf{condition} expression evaluates to true or
+false.
+
+\textbf{Usage example}
+
+If..then example. Sets the variable ``alarm'' to TRUE when the temperature
+rises above 25\degree~C.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:if condition="${temp_c > 25}"> 
+  <i:then>
+    <i:set variable="alarm" value="true"/>
+  </i:then>
+</i:if>
+\end{lstlisting}
+
+If..then..else example. Sets the variable ``tropical'' to TRUE when the
+temperature rises above 30\degree~C and the humidity is higher than 90\%, or
+to false when the condition does not hold.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:if condition="${temp_c > 25 && hum > 90}"> 
+  <i:then>
+    <i:set variable="tropical" value="true"/>
+  </i:then>
+  <i:else>
+    <i:set variable="tropical" value="true"/>
+  </i:else>
+</i:if>
+\end{lstlisting}
+
+
+\subsubsection{\texttt{foreach} control structure}
+
+\textbf{Description}
+
+A control structure for traversing list-qualified \texttt{Message} fields. It
+can be used to repeat a given block of code for every element of a collection.
+The \texttt{foreach} control structure supports the following parameters:
+
+\begin{itemize}
+
+    \item \textbf{items-var:} Name of the source variable.
+
+    \item \textbf{items-field:} Name of the source field, namely the
+        list-qualified field inside the \textbf{items-var} on which to loop
+        over.
+
+    \item \textbf{variable:} Name of the variable through which the current
+        item is exposed.
+
+    \item \textbf{index (optional):} Index of the current item.
 
 \end{itemize}
 
 \textbf{Usage examples}
 
-\subsubsection{\texttt{stop} instruction}
-
-\subsubsection{\texttt{error} intstruction}
+Unrolls the 
 
 \subsection{Script Engine architecture and execution model}
 
