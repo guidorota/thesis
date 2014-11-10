@@ -855,25 +855,57 @@ PerLa \texttt{Script} is a full-fledged imperative programming language
 composed of data management instructions, control flow statements and a
 powerful expression language. Procedures written in PerLa \texttt{Script} are
 processed by the \texttt{Script Engine}, a Middleware module that reads,
-interprets and executes script instructions. Instructions are currently
-specified using a proprietary XML syntax, specifically designed to allow PerLa
-\texttt{Scripts} to be directly embedded in a Device Descriptor. Conflicts with
-potentially similar XML tags and attributes are avoided through the
-\texttt{http://perla.dei.org/device/instructions} namespace, commonly
-associated with the ``\texttt{<i:}'' prefix. Node developers are invited to
+interprets and executes script instructions. Instructions are specified using a
+proprietary XML syntax, specifically designed to allow PerLa \texttt{Scripts}
+to be directly embedded in a Device Descriptor. Conflicts with potentially
+similar XML tags and attributes are avoided through the
+\texttt{http://perla.dei.org/device/instructions} namespace, which is commonly
+associated with the ``\texttt{<i:}'' prefix. PerLa developers are invited to
 follow this convention, as the use of a different namespace prefix may create
 confusion among end users and future Device Descriptor maintainers. 
 
 Every \texttt{Script} instruction is composed of a \textit{name}, a textual
 property that identifies a specific type of computation, and a list of
-\textit{parameters}. Parameters are name-value pairs that can be used to alter
-and customize the runtime behaviour of a specific script operation. With the
-exception of the \texttt{submit} instruction, whose unconventional syntax is
-described in the remainder of this section, parameters are defined using XML
-attributes. PerLa \texttt{Scripts} currently support two different types of
-parameters: \textit{simple text} and \textit{expression}. Textual parameters
-are simple string values,   
+\textit{parameters}, name-value pairs that can be used customize its runtime
+behaviour. With the exception of the \texttt{submit} instruction, whose
+unconventional characteristics are described in the remainder of this section,
+instruction parameters are defined using the standard XML attribute syntax.
+PerLa \texttt{Scripts} currently support two different types of parameters:
+\textit{literals} and \textit{expressions}. Literals are simple textual strings
+whose value is used as-is by the execution engine; they are commonly employed
+to express constant concepts like variable names or immutable values.
+Expressions, on the other hand, are combinations of variables, operators,
+functions and constants, whose evaluation produces a result value. Differently
+from literals, expressions are prefixed by the \$ sign and enclosed in curly
+braces (\lstinline!${ ... }!); this cue is employed by the execution engine to
+determine whether an instruction parameter has to be pre-processed or not prior
+to being used. Expressions can be used to perform the following operations:
 
+\begin{itemize}
+        
+    \item Arithmetic operations (sum, subtration, product, division, modulo)
+
+    \item Logical operations (or, and, not)
+
+    \item Comparisons (\lstinline$<, >, !=, <=, >=$)
+
+    \item Access \texttt{Message} fields (dot operator). Multiple dot operators
+        may be applied in succession to access a specific value buried inside a
+        complex data structure (e.g., the expression
+        \lstinline!${result.environment.temperature}! is used to traverse 3
+        nesting levels).
+
+    \item Retrieve \texttt{Script} arguments through the built-in \texttt{args}
+        associative array. This feature can be leveraged to create parametric
+        \texttt{Script}s that dynamically adapt to the user's requests.
+
+\end{itemize}
+
+Whether a certain parameter can be specified as a literal, as an expression, or
+both, depends entirely on the instruction in which it is employed. This
+information, along with other useful details regarding the \texttt{Script}
+instructions currently available in PerLa, is available in the remainder of
+this section.
 
 \subsubsection{\texttt{var} instruction}
 
@@ -957,7 +989,7 @@ in the ``temp\_f'' field of a hypothetical variable named ``result''.
 \end{lstlisting}
 
 Deep copy. The contents of the source variable is accessed through the
-expression \lstinline!${original}! expression.
+\lstinline!${original}! expression.
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -1023,7 +1055,7 @@ the following parameters:
 
 \texttt{IORequest} parameters can be specified by supplying an appropriate list
 of \texttt{param} XML tags, each of which must contain the name of the
-parameter being set and a reference to a variable containing the desired
+parameter being set, and a reference to a variable containing the desired
 parameter value (see the usage example section for further information).
 
 \textbf{Usage examples}
@@ -1094,8 +1126,8 @@ condition holds true.
 Aborts the \texttt{Script}, signalling an abnormal execution condition. This
 instruction must be supplied with a \textbf{message} parameter that indicates
 the cause of failure. Similarly to the \texttt{stop} instruction,
-\texttt{error} is commonly guarded by an \texttt{if} control structure to
-implement advanced error management behaviours.
+\texttt{error} invocations are commonly guarded by an \texttt{if} control
+structure to implement advanced error management behaviours.
 
 \textbf{Usage examples}
 
@@ -1114,13 +1146,41 @@ implement advanced error management behaviours.
 \end{lstlisting}
 
 
+\subsubsection{\texttt{put} instruction}
+
+\textbf{Description}
+
+Adds or substitute a field into the temporary record, i.e., a staging area used
+for the incremental creation of new output records. This instruction requires
+two parameters:
+
+\begin{itemize}
+
+    \item \textbf{attribute:} Name of the attribute corresponding to the value
+        being added in the stagin area. The purpose of this parameter is
+        twofold: first, it defines the name through which the new data can be
+        retrieved (record fields names always correspond to device attribute
+        names); second, it is used to make sure that the value being added in
+        the staging area has the correct data type (record field types always
+        correspond to device attribute types).
+
+    \item \textbf{expression:} Value of the new record field.
+
+\end{itemize}
+
+\textbf{Usage Example}
+
+
+\subsubsection{\texttt{emit} instruction}
+
+
 \subsubsection{\texttt{if} control structure}
 
 \textbf{Description}
 
 A conditional control structure for executing different texttt{Script} branches
-depending on whether the \textbf{condition} expression evaluates to true or
-false.
+depending on whether a user-specified \textbf{condition} expression evaluates
+to true or false.
 
 \textbf{Usage example}
 
@@ -1178,7 +1238,17 @@ The \texttt{foreach} control structure supports the following parameters:
 
 \textbf{Usage examples}
 
-Unrolls the 
+Emits a new record for each list item.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:foreach items-var="input" items-field="samples" variable="sample">
+  <i:put expression="${sample.timestamp}" attribute="timestamp"/>
+  <i:put expression="${sample.temp}" attribute="temperature"/>
+  <i:put expression="${sample.hum}" attribute="humidity"/>
+  <i:emit />
+</i:foreach>
+\end{lstlisting}
 
 \subsection{Script Engine architecture and execution model}
 
