@@ -927,15 +927,15 @@ Declares a new variable. This instruction requires two mandatory parameters:
 
 \textbf{Usage examples}
 
-Creates a new variable named ``count'' of primitive type \texttt{integer}.
+Creates a new variable named \texttt{count} of primitive type \texttt{integer}.
 
 \lstset{language=XML}
 \begin{lstlisting}
 <i:var name="count" type="integer"/>
 \end{lstlisting}
 
-Creates a new variable named ``cmd'' of complex type \texttt{node\_command},
-whose declaration is omitted for brevity reasons.
+Creates a new variable named \texttt{cmd} of complex type
+\texttt{node\_command}, whose declaration is omitted for brevity reasons.
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -964,15 +964,15 @@ variable of complex type.
 
 \textbf{Usage examples}
 
-Sets the previously defined ``count'' variable to the literal value \texttt{5}.
+Sets the previously defined \texttt{count} variable to the literal value \texttt{5}.
 
 \lstset{language=XML}
 \begin{lstlisting}
 <i:set variable="count" value="5"/>
 \end{lstlisting}
 
-Sets the field ``operation'' of the previously defined ``cmd'' variable to the
-literal value \texttt{sample}.
+Sets the field \texttt{operation} of the previously defined \texttt{cmd}
+variable to the literal value \texttt{sample}.
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -980,7 +980,7 @@ literal value \texttt{sample}.
 \end{lstlisting}
 
 Converts a temperature reading from Celsius to Fahreheit degrees, and stores it
-in the ``temp\_f'' field of a hypothetical variable named ``result''.
+in the \texttt{temp\_f} field of a hypothetical variable named \texttt{result}.
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -1060,7 +1060,7 @@ parameter value (see the usage example section for further information).
 
 \textbf{Usage examples}
 
-Basic usage, submits the ``start\_sampling'' \texttt{IORequest} to a
+Basic usage, submits the \texttt{start\_sampling} \texttt{IORequest} to a
 \texttt{SerialChannel}. All information received during the I/O operation is
 discarded since no result variable is specified.
 
@@ -1069,8 +1069,9 @@ discarded since no result variable is specified.
 <i:submit request="start_sampling" channel="serial"/>
 \end{lstlisting}
 
-Submits the ``get\_data'' \texttt{IORequest} to a \texttt{HTTPChannel}. All
-bytes received from the remote server are stored in the ``result'' variable.
+Submits the \texttt{get\_data} \texttt{IORequest} to a \texttt{HTTPChannel}.
+All bytes received from the remote server are stored in the \texttt{result}
+variable.
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -1078,8 +1079,9 @@ bytes received from the remote server are stored in the ``result'' variable.
   variable="result" type="json_result"/>
 \end{lstlisting}
 
-Submits the ``send\_command'' \texttt{IORequest} to a \texttt{SerialChannel}.
-The ``command'' variable is set as an \texttt{IORequest} parameter.
+Submits the \texttt{send\_command} \texttt{IORequest} to a
+\texttt{SerialChannel}.  The \texttt{command} variable is set as an
+\texttt{IORequest} parameter.
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -1213,7 +1215,7 @@ Creates a record containing two literal fields.
 \end{lstlisting}
 
 Maps a flat data structure into a record. Differently from the previous
-example, record values are dynamically read from the ``sample'' variable
+example, record values are dynamically read from the \texttt{sample} variable
 hypothetically received from a remote sensor node.
 
 \lstset{language=XML}
@@ -1231,16 +1233,16 @@ sent by the sensor node.
 
 \lstset{language=XML}
 \begin{lstlisting}
-<i:put attribute="temp\_centigrade" expression="${sample.temp\_cent}"/>
-<i:put attribute="temp\_fahrenheit"
-  expression="${sample.temp\_centigrade * 9/5 + 32}"}"/>
+<i:put attribute="temp_centigrade" expression="${sample.temp_cent}"/>
+<i:put attribute="temp_fahrenheit"
+  expression="${sample.temp_centigrade * 9/5 + 32}"}"/>
 <i:put attribute="humidity" expression="${sample.humidity}"/>
 <i:put attribute="timestamp" expression="${sample.timestamp}"/>
 <i:emit/>
 \end{lstlisting}
 
 Looping over multiple samples stored in a list. The following example creates a
-new record for each element contained in the ``data.samples'' field. 
+new record for each element contained in the \texttt{data.samples} field. 
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -1252,6 +1254,23 @@ new record for each element contained in the ``data.samples'' field.
 </i:foreach>
 \end{lstlisting}
 
+Exploiting the characteristic memory-retention feature of the \texttt{put}
+instruction to efficiently combine high-frequency and low-frequency
+information. Note that the \texttt{node} and \texttt{city} fields are staged
+only once, while all other fast changing information requires the execution of
+a \texttt{put} instruction for each list element.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:put expression="${input.node-id}" attribute="node"/>
+<i:put expression="${input.city}" attribute="city"/>
+<i:foreach items-var="input" items-field="samples" variable="sample">
+  <i:put expression="${sample.timestamp}" attribute="timestamp"/>
+  <i:put expression="${sample.temp}" attribute="temperature"/>
+  <i:put expression="${sample.hum}" attribute="humidity"/>
+<i:emit />
+</i:foreach> 
+\end{lstlising}
 
 \subsubsection{\texttt{if} control structure}
 
@@ -1263,7 +1282,7 @@ to true or false.
 
 \textbf{Usage example}
 
-If..then example. Sets the variable ``alarm'' to TRUE when the temperature
+If..then example. Sets the variable \texttt{alarm} to TRUE when the temperature
 rises above 25\degree~C.
 
 \lstset{language=XML}
@@ -1275,7 +1294,7 @@ rises above 25\degree~C.
 </i:if>
 \end{lstlisting}
 
-If..then..else example. Sets the variable ``tropical'' to TRUE when the
+If..then..else example. Sets the variable \texttt{tropical} to TRUE when the
 temperature rises above 30\degree~C and the humidity is higher than 90\%, or
 to false when the condition does not hold.
 
