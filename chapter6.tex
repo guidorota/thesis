@@ -904,8 +904,8 @@ to being used. Expressions can be used to perform the following operations:
 Whether a certain parameter can be specified as a literal, as an expression, or
 both, depends entirely on the instruction in which it is employed. This
 information, along with other useful details regarding the \texttt{Script}
-instructions currently available in PerLa, is available in the remainder of
-this section.
+instructions currently available in PerLa, is available in the following
+instruction compendium.
 
 \subsubsection{\texttt{var} instruction}
 
@@ -1170,30 +1170,87 @@ two mandatory parameters:
 
 This instruction is intended to be called multiple times in the lifetime of a
 single \texttt{Script} execution, as a single \texttt{put} operation can only
-be used to set one record field. As soon as all the desired values are ready,
-the content of the entired staging area can be flushed into a new record by
-means of the \texttt{emit} instruction.
+be used to set one record field at a time. As soon as all the desired values
+are ready, the content of the entired staging area can be flushed into a new
+record by means of the \texttt{emit} instruction.
 
 It is worth noting that the content of the staging area is not deleted once
 \texttt{emit} is invoked. Though this may seem counterintuitive or even
 undesirable, such behaviour allows for a simpler and more efficient management
-of struct unrolling procedures. The ability to retain field values set with
-previous invocations of the \texttt{put} instruction is key to the example of
-figure~\ref{fig:script_unrolling}, where low frequency data --- namely the
-\textit{name-id} and the \textit{city} records --- is set only once, and only
-the high-frequency information is constantly overwritten with new calls to the
+of aggregated data. The ability to retain all field values set with previous
+invocations of the \texttt{put} instruction is key to the example of
+figure~\ref{fig:script_unrolling}, where low frequency information --- namely
+the \textit{name-id} and the \textit{city} records --- is set only once, and
+only the high-frequency samples are continuously replaced with new calls to the
 \texttt{put} instruction. This optimization technique would not be possible if
 the staging area were not provided with the aforementioned memory-retaining
 mechanism.
 
+\textbf{Usage Examples}
 
-\textbf{Usage Example}
+Refer to section~\ref{sec:emit_instruction} for combined usage examples of the
+instructions \texttt{put} and \texttt{emit}.
 
 
 \subsubsection{\texttt{emit} instruction}
+\label{sec:emit_instruction}
 
-All records emitted are sent to output as soon as the script hits a stop
-instruction
+\textbf{Description}
+
+Creates a new record using the field values stored in the staging area. All
+records created by the \texttt{emit} instruction are released to the user only
+if the \texttt{Script} terminates without errors.
+
+\textbf{Usage Examples}
+
+Creates a record containing two literal fields.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:put attribute="temperature" expression="25"/>
+<i:put attribute="humidity" expression="85"/>
+<i:emit/>
+\end{lstlisting}
+
+Maps a flat data structure into a record. Differently from the previous
+example, record values are dynamically read from the ``sample'' variable
+hypothetically received from a remote sensor node.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:put attribute="temperature" expression="${sample.temperature}"/>
+<i:put attribute="humidity" expression="${sample.humidity}"/>
+<i:put attribute="timestamp" expression="${sample.timestamp}"/>
+<i:emit/>
+\end{lstlisting}
+
+\texttt{Script} expressions can also be used to create new record values at
+runtime. In the following code excerpt, a simple conversion formula is employed
+to derive the \texttt{temp\_fahrenheit} record field from other information
+sent by the sensor node.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:put attribute="temp\_centigrade" expression="${sample.temp\_cent}"/>
+<i:put attribute="temp\_fahrenheit"
+  expression="${sample.temp\_centigrade * 9/5 + 32}"}"/>
+<i:put attribute="humidity" expression="${sample.humidity}"/>
+<i:put attribute="timestamp" expression="${sample.timestamp}"/>
+<i:emit/>
+\end{lstlisting}
+
+Looping over multiple samples stored in a list. The following example creates a
+new record for each element contained in the ``data.samples'' field. 
+
+\lstset{language=XML}
+\begin{lstlisting}
+<i:foreach items-var="data" items-field="samples" variable="sample">
+  <i:put expression="${sample.timestamp}" attribute="timestamp"/>
+  <i:put expression="${sample.temp}" attribute="temperature"/>
+  <i:put expression="${sample.hum}" attribute="humidity"/>
+  <i:emit/>
+</i:foreach>
+\end{lstlisting}
 
 
 \subsubsection{\texttt{if} control structure}
@@ -1260,21 +1317,22 @@ The \texttt{foreach} control structure supports the following parameters:
 
 \textbf{Usage examples}
 
-Emits a new record for each list item.
+Computing the average of all temperatures received from a remote sensor node.
 
 \lstset{language=XML}
 \begin{lstlisting}
-<i:foreach items-var="input" items-field="samples" variable="sample">
-  <i:put expression="${sample.timestamp}" attribute="timestamp"/>
-  <i:put expression="${sample.temp}" attribute="temperature"/>
-  <i:put expression="${sample.hum}" attribute="humidity"/>
-  <i:emit />
+<i:var name="count" type="integer"/>
+<i:set variable="count" value="0"/> 
+<i:var name="avg" type="float"/>
+<i:set variable="avg" value="0"/>
+<i:foreach items-var="data" items-field="samples" variable="sample">
+  <i:set variable="avg" value="${avg + sample.temperature}"/>
+  <i:set variable="count" value="${count + 1}"/>
 </i:foreach>
+<i:set variable="avg" value=""${avg / cont}"/>
 \end{lstlisting}
 
 \subsection{Script Engine architecture and execution model}
-
-\subsection{Script examples}
 
 
 \section{Putting it all together: the FPC}
