@@ -1362,7 +1362,7 @@ is an instruction, and each arc is a potential evolution of the program status;
 thus, SIR-encoded \texttt{Scripts} can be run by simply traversing the source
 data structure until a \texttt{stop} instruction is encountered, or an error is
 thrown. Thanks to this intermediate representation, the \texttt{Script Engine}
-architecture is lean and efficient; the core execution loop need not to be
+architecture is lean and efficient; the core execution loop need not be
 concerned with the continuous interpretation of textual instructions or with
 complex error-checking procedures, as these two operations are only performed
 once, by the \texttt{FPCFactory}, when a \texttt{Script} is translated in its
@@ -1403,20 +1403,25 @@ management of sensor data tend to run frequently and for a relatively short
 period of time, as their execution is triggered by each sample collected from
 the sensing network. To better cope with such usage scenario, the
 \texttt{Script Engine} implements a thread caching mechanism that reduces
-memory usage and startup time by reclaiming the runtime environment of each
-terminated \texttt{Script} and repurposing it for a new execution. This caching
-technique greatly reduces the overall number of objects allocated by the Java
-Virtual Machine, and guarantees that the overhead due to the initialization of
-new \texttt{ExecutionContext} instances is shared between multiple
-\texttt{Script} runs.
+memory usage and startup times by reclaiming the runtime environment of each
+terminated \texttt{Script}, and repurposing it for a new execution. This
+caching technique greatly reduces the overall number of objects allocated by
+the Java Virtual Machine, and guarantees that the overhead due to the
+initialization of new \texttt{ExecutionContext} instances is shared between
+multiple \texttt{Script} runs.
 
+Moreover, the \texttt{Script Engine} can preemptively pause I/O bound
+computations to optimize the usage of available system resources. This feature,
+implemented by leveraging the asynchronous I/O design of the PerLa Middleware,
+is totally transparent to the \texttt{Script} developer, who should not worry
+with matters of concurrent programming; \texttt{Scripts} are automatically
+paused after an \texttt{IORequest} is submitted to a \texttt{Channel}, and
+their execution resumes as soon as the I/O activity terminates. These
+two operations --- pause and resume --- are performed within the
+\texttt{submit} instruction, which interrupts the \texttt{Script} after
+an I/O request is submitted, and restarts it once the associated response is
+available.
 
-What do we have to say about this module?
-
-- How scripts are executed: interpretation, flowchart with the process of
-execution
-- Optimization through thread pool and re-useable execution context
-- Yielding instructions: How the submit instruction is managed
 
 \section{Putting it all together: the FPC}
 
