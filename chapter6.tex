@@ -1445,4 +1445,156 @@ available.
 
 \subsection{Registry}
 
+
 \subsection{Complete XML Device Descriptor examples}
+
+The Device Descriptor portrayed in this first example is employed to create a
+Simulator \texttt{FPC}, a useful tool with which the PerLa Middleware may be
+tested even when no physical sensor nodes are available. This simulated device
+exposes two attributes: a read-only float representing the temperature in
+Celsius degrees (\texttt{temp\_c}), and a write-only integer that will be used
+to set the sampling period (\texttt{period}).
+
+This \texttt{FPC} contains one \texttt{Channel} of type
+\texttt{SimulatorChannel}, which generates new data samples without requiring a
+connection to a real sensing device. In our example, the
+\texttt{SimulatorChannel} is configured with a single data generation routine,
+named \texttt{temperature}, that automatically creates new data samples in
+increments of 0.1\degree, spanning from a minimum of 16\degree~C to a maximum
+of 20\degree~C. As can be seen from the \lstinline!<request>! section of the
+descriptor, a single \texttt{IORequest} object is enough to drive the single
+data generator available in this \texttt{FPC}.
+
+Only two \texttt{Message} types are declared in the Device Descriptor: a
+\texttt{temperature-msg} message, which contains a single field of type
+\texttt{float}, and a \texttt{sampling-period} message, composed of only an
+\texttt{integer} field. These two messages will be used to collect temperature
+samples and to set the desired sampling period in the \texttt{SimulatorChannel}
+respectively.
+
+As can be seen from the \lstinline!<operation>! section of this descriptor, the
+simulator device exposes a periodic sampling operation named
+\texttt{temp-periodic}. It is important to note that the \texttt{start Script}
+initializes the \texttt{SimulatorChannel} according to the sampling rate
+specified by the user, which is retrieved with a \lstinline!${arg['period']}!
+expression; conversely, the generation of new data samples can be stopped by
+setting the sampling frequency to zero. The \texttt{on Script} is used to
+generate a new record for each sample created by the generator.
+
+\lstset{language=XML}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="Weather simulator"
+    xmlns="http://perla.dei.org/device"
+    xmlns:i="http://perla.dei.org/device/instructions"
+    xmlns:sim="http://perla.dei.org/channel/simulator">
+
+    <attributes>
+        <attribute id="temp\_c" type="float" permission="read-only"/>
+        <attribute id="period" type="integer" permission="write-only"/>
+    </attributes>
+
+    <channels>
+        <sim:channel id="simulator">
+            <sim:generator id="temperature">
+                <sim:field name="temperature" strategy="step"
+                    type="float" min="16" max="20" increment="0.1"/>
+            </sim:generator>
+        </sim:channel>
+    </channels>
+
+    <messages>
+        <sim:message id="temperature-msg">
+            <sim:field name="temperature" type="float"/>
+        </sim:message>
+        <sim:message id="sampling-period">
+            <sim:field name="period" type="integer"/>
+        </sim:message>
+    </messages>
+
+    <requests>
+        <sim:request id="temperature-request" generator="temperature"/>
+    </requests>
+
+    <operations>
+        <periodic id="temp-periodic">
+            <start>
+                <i:create variable="period" type="sampling-period"/>
+                <i:set variable="period" field="period" value="${arg['period']}"/>
+                <i:submit request="temperature-request" channel="simulator">
+                    <i:param name="period" variable="period"/>
+                </i:submit>
+            </start>
+            <stop>
+                <i:create variable="period" type="sampling-period"/>
+                <i:set variable="period" field="period" value="0"/>
+                <i:submit request="temperature-request" channel="simulator">
+                    <i:param name="period" variable="period"/>
+                </i:submit>
+            </stop>
+            <on message="temperature-msg" variable="result">
+                <i:put expression="\${result.temperature}" attribute="temp\_c" />
+                <i:emit />
+            </on>
+        </periodic>
+    </operations>
+
+</device>
+\end{lstlisting}
+
+
+
+\lstset{language=XML}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="REST Weather station"
+    xmlns="http://perla.dei.org/device"
+    xmlns:js="http://perla.dei.org/fpc/message/json"
+    xmlns:http="http://perla.dei.org/channel/http"
+    xmlns:i="http://perla.dei.org/device/instructions">
+
+    <attributes>
+        <attribute id="city" type="string" permission="read-only"/>
+        <attribute id="temp\_k" type="float" permission="read-only"/>
+        <attribute id="temp\_c" type="float" permission="read-only"/>
+        <attribute id="temp\_f" type="float" permission="read-only"/>
+        <attribute id="pressure" type="float" permission="read-only"/>
+        <attribute id="humidity" type="float" permission="read-only"/>
+        <attribute id="wind\_speed" type="float" permission="read-only"/>
+        <attribute id="wind\_deg" type="float" permission="read-only"/>
+    </attributes>
+
+    <channels>
+        <http:channel id="http"/>
+    </channels>
+
+    <messages>
+        <js:object id="coord">
+            <js:value name="lon" type="string"/>
+            <js:value name="lat" type="string"/>
+        </js:object>
+
+        <js:object id="main">
+            <js:value name="temp" type="float"/>
+            <js:value name="pressure" type="float"/>
+            <js:value name="humidity" type="float"/>
+            <js:value name="temp\_min" type="float"/>
+            <js:value name="temp\_max" type="float"/>
+        </js:object>
+
+        <js:object id="wind">
+            <js:value name="speed" type="float"/>
+            <js:value name="deg" type="float"/>
+        </js:object>
+
+        <js:object id="weather">
+            <js:value name="coord" type="coord"/>
+            <js:value name="main" type="main"/>
+            <js:value name="wind" type="wind"/>
+        </js:object>
+    </messages>
+
+</device>
+\end{lstlisting}
+
+
