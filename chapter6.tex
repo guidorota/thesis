@@ -1373,29 +1373,38 @@ PerLa \texttt{Script} format does not entail any modification to the
 the new syntax.
 
 Once started, PerLa \texttt{Scripts} are sandboxed in a dedicated thread of
-execution. The current status of each \texttt{Scrip} execution instance is
-stored inside a private \texttt{ExecutionContext} Java object, which contains
-the following elements:
+execution. For better isolation, the current status of each running
+\texttt{Scrip} instance is stored inside a private \texttt{ExecutionContext}
+object, which contains the following elements:
 
 \begin{itemize}
 
-    \item A reference to the current instruction (the Program Counter);
+    \item \textbf{Program Counter:} A reference to the current instruction;
 
-    \item The current value of all declared variables;
+    \item \textbf{Variable Map:} An associative array that stores the current
+        value of all declared variables;
 
-    \item The record staging area;
+    \item \textbf{Record staging area:} Temporary working area used to create
+        new records;
 
-    \item A list of emitted records (i.e., records to be returned when the
-        \texttt{stop} instruction is encountered). 
+    \item \textbf{Output records:} List of records to be returned when the
+        \texttt{stop} instruction is encountered. 
 
 \end{itemize}
 
-The \texttt{ExecutionContext} object isolates threads running concurrently, as
-it is the only object that a \texttt{Script} is allowed to alter while it's
-being executed. This design ensures that all changes a \texttt{Script} makes to
-its environment remain private, and that the its status cannot be altered by
-other misbehaving or poorly designed routines. Furthermore, it allows PerLa
-\texttt{Scripts} to be interrupted and resumed at will, as 
+This design ensures that all changes a single \texttt{Script} makes to its
+environment will remain private, and that its status won't be altered by any
+other rogue routine.
+
+The execution of a \texttt{Script} is always subordinated to an external event,
+like the submission of a new user request or the arrival of information from a
+sensing device. In particular, PerLa \texttt{Scripts} associated with the
+management of sensor data tend to run frequently and for a relatively short
+period of time, as their execution is triggered by each new sample collected
+from the sensing network. To better cope with this usage scenario, the
+\texttt{Script Engine} implements a thread caching mechanism designed to reduce
+both memory usage and \texttt{Script} startup time. 
+
 
 What do we have to say about this module?
 
