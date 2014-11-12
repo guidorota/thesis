@@ -1270,7 +1270,7 @@ a \texttt{put} instruction for each list element.
   <i:put expression="${sample.hum}" attribute="humidity"/>
 <i:emit />
 </i:foreach> 
-\end{lstlising}
+\end{lstlisting}
 
 \subsubsection{\texttt{if} control structure}
 
@@ -1371,6 +1371,11 @@ provided by this intermediate code representation, the introduction of a new
 PerLa \texttt{Script} format does not entail any modification to the
 \texttt{Script Engine}, as long as a suitable SIR translator is provided for
 the new syntax.
+
+\begin{figure}[h!]
+\includegraphics[width=\textwidth]{imgs/script_sir.pdf}
+\caption{A PerLa \texttt{Script} and its corresponding SIR representation}
+\end{figure}
 
 Once started, PerLa \texttt{Scripts} are sandboxed in a dedicated thread of
 execution. For better isolation, the current status of each running
