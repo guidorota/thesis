@@ -1432,23 +1432,63 @@ available.
 
 The \texttt{FPC} (Functionality Proxy Component) is the main data access
 interface available to the PerLa Middleware. Its chief duty is to provide a
-high-level abstraction of a Pervasive System, by exposing the functionalities
-of all devices in the network through a single consistent API. Every instance
-of the PerLa Middleware hosts multiple \texttt{FPCs}, one for each sensing
-node. This one-to-one relationship --- the fulcrum of the PerLa philosophy ---
-is a fundamental architectural feature that endows the Middleware with utmost
+high-level abstraction of a Pervasive System by exposing the functionalities of
+all devices in the network through a single consistent API. Every instance of
+the PerLa Middleware hosts multiple \texttt{FPCs}, one for each sensing node.
+This one-to-one relationship --- the fulcrum of the PerLa philosophy --- is a
+fundamental architectural feature that endows the Middleware with utmost
 flexibility and the finest granularity of control, as it presents final users
-with the possibility to direct heterogeneous networks of sensing devices, down
+with the possibility to manage heterogeneous networks of sensing devices, down
 to the single node, through a uniform set of high-level functions.
 
-As explained in the preiovus chapter, every \texttt{FPC} exposes a well defined
-set of \texttt{Attributes}, each of which corresponds to a single data element
-which can be retrieved or set on the controlled device.
+\begin{figure}[h!]
+\includegraphics[width=\textwidth]{imgs/fpc.pdf}
+\caption{Internal structure of the Functionality Proxy Component}
+\label{fig:fpc}
+\end{figure}
 
-- talk about device attributes, then move on to the FPC interface
+\texttt{FPCs} are created from the composition of all Middleware components
+described in the former sections of this chapter. As shown in
+figure~\ref{fig:fpc}, these software modules are complemented by a set of
+\texttt{Operations} and an \texttt{Operation Scheduler}. An \texttt{Operation}
+is a collection of \texttt{Scripts} committed to handling a well defined aspect
+of the endpoint device, as the management of an internal status variable or the
+retrieval of a specific data sample at periodic intervals.
 
-FPC description
-Interface explained
+As shown in previous chapters, every \texttt{FPC} exposes a well defined set of
+\texttt{Attributes}, each of which corresponds to a single data element that
+can be retrieved or sent to the endpoint device. \texttt{Attributes} are
+declared inside the \lstinline!<attribute>! section of the Device Descriptor
+
+
+As shown in listing~\ref{lst:fpc}, \texttt{Attributes} are
+used in conjunction with the \texttt{set()}, \texttt{get()} and
+\texttt{async()} methods to address specific capabilities of the sensor node;
+collecting  
+
+\subsection{The FPC interface}
+
+\lstset{language=java}
+\begin{lstlisting}[float,caption=The FPC interface,label={lst:fpc}]
+public interface Fpc {
+    public int getId();
+
+    public String getType();
+
+    public Collection<Attribute> getAttributes();
+
+    public Task set(Map<Attribute, Object> valueMap, TaskHandler handler);
+
+    public Task get(Collection<Attribute> attributes, TaskHandler handler);
+
+    public Task get(Collection<Attribute> attributes, long periodMs,
+            TaskHandler handler);
+
+    public Task async(Collection<Attribute> attributes, TaskHandler handler);
+
+    public void stop(StopHandler<Fpc> handler);
+}
+\end{lstlisting}
 
 \subsection{Operations}
 
@@ -1463,8 +1503,6 @@ How does the scheduler select an operation to run?
 Changing the sampling frequency
 Current limitations (only a single operation can be in execution)
 
-
-\section{Device Descriptor and FPC Factory}
 
 \subsection{The XML Device Descriptor}
 
