@@ -1643,6 +1643,8 @@ Current limitations (only a single operation can be in execution)
 
 \subsection{Complete XML Device Descriptor examples}
 
+\textbf{Example 1}
+
 The Device Descriptor portrayed in this first example is employed to create a
 Simulator \texttt{FPC}, a useful tool that helps testing the PerLa Middleware
 even when no physical sensor nodes are available. This simulated device exposes
@@ -1737,7 +1739,7 @@ generate a new record for each sample created by the generator.
 </device>
 \end{lstlisting}
 
-
+\textbf{Example 2}
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -1797,11 +1799,13 @@ generate a new record for each sample created by the generator.
 
   <operations>
     <get id="weather-mi">
-      <i:submit request="weather-mi" channel="http" variable="result" type="weather"/>
+      <i:submit request="weather-mi" channel="http"
+                variable="result" type="weather"/>
       <i:put expression="Milan" attribute="city"/>
       <i:put expression="${result.main.temp}" attribute="temp_k"/>
       <i:put expression="${result.main.temp - 272.15}" attribute="temp_c"/>
-      <i:put expression="${(result.main.temp - 273.15) * 9 / 5 + 32}" attribute="temp_f"/>
+      <i:put expression="${(result.main.temp - 273.15) * 9 / 5 + 32}"
+             attribute="temp_f"/>
       <i:put expression="${result.main.pressure}" attribute="pressure"/>
       <i:put expression="${result.main.humidity}" attribute="humidity"/>
       <i:put expression="${result.wind.speed}" attribute="wind_speed"/>
@@ -1813,4 +1817,194 @@ generate a new record for each sample created by the generator.
 </device>
 \end{lstlisting}
 
+\textbf{Example 3}
+
+A purely educational Device Descriptor designed to showcase the following PerLa
+Middleware features:
+
+\begin{itemize}
+    \item read-write, read-only write-only and static attributes;
+    \item \texttt{SimulatorChannel} value generator configurations for all
+        available data types;
+    \item \texttt{Get} and \texttt{Set Operations};
+    \item \texttt{Periodic Operations} with single and multiple
+        \lstinline!<on>! \texttt{Scripts}.
+\end{itemize}
+
+\lstset{language=XML}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="test"
+    xmlns="http://perla.dei.org/device"
+    xmlns:i="http://perla.dei.org/device/instructions"
+    xmlns:sim="http://perla.dei.org/channel/simulator">
+
+  <attributes>
+    <attribute id="integer" type="integer" permission="read-write"/>
+    <attribute id="float" type="float" permission="read-write"/>
+    <attribute id="boolean" type="boolean" permission="read-write"/>
+    <attribute id="string" type="string" permission="read-write"/>
+    <attribute id="event" type="boolean" permission="read-only"/>
+    <attribute id="period" type="integer" permission="write-only"/>
+    <attribute id="static" type="integer" access="static" value="5"/>
+  </attributes>
+
+  <channels>
+    <sim:channel id="simulator">
+      <sim:generator id="all">
+        <sim:field name="type" strategy="static" value="all"/>
+        <sim:field name="integer" strategy="dynamic"
+                   type="integer" min="12" max="32"/>
+        <sim:field name="float" strategy="dynamic"
+                   type="float" min="450" max="600"/>
+        <sim:field name="string" strategy="dynamic"
+                   type="string" min="10" max="15"/>
+      </sim:generator>
+      <sim:generator id="integer">
+        <sim:field name="type" strategy="static" value="integer"/>
+        <sim:field name="integer" strategy="dynamic"
+                   type="integer" min="47" max="58"/>
+      </sim:generator>
+      <sim:generator id="string">
+          <sim:field name="type" strategy="static" value="integer"/>
+          <sim:field name="string" strategy="dynamic"
+                     type="string" min="5" max="5"/>
+      </sim:generator>
+      <sim:generator id="boolean">
+        <sim:field name="type" strategy="static" value="boolean"/>
+        <sim:field name="boolean" strategy="dynamic" type="boolean"/>
+      </sim:generator>
+      <sim:generator id="event">
+        <sim:field name="type" strategy="static" value="event"/>
+        <sim:field name="event" strategy="dynamic" type="boolean"/>
+      </sim:generator>
+    </sim:channel>
+  </channels>
+
+  <messages>
+    <sim:message id="set-msg">
+      <sim:field name="test" type="integer"/>
+    </sim:message>
+    <sim:message id="sampling-period">
+      <sim:field name="period" type="integer"/>
+    </sim:message>
+    <sim:message id="all-msg">
+      <sim:field name="type" type="string" qualifier="static" value="all"/>
+      <sim:field name="integer" type="integer"/>
+      <sim:field name="float" type="float"/>
+      <sim:field name="string" type="string"/>
+    </sim:message>
+    <sim:message id="integer-msg">
+      <sim:field name="type" type="string" qualifier="static" value="integer"/>
+      <sim:field name="integer" type="integer"/>
+    </sim:message>
+    <sim:message id="string-msg">
+      <sim:field name="type" type="string" qualifier="static" value="string"/>
+      <sim:field name="string" type="string"/>
+    </sim:message>
+    <sim:message id="boolean-msg">
+      <sim:field name="type" type="string" qualifier="static" value="boolean"/>
+      <sim:field name="boolean" type="boolean"/>
+    </sim:message>
+    <sim:message id="event-msg">
+      <sim:field name="type" type="string" qualifier="static" value="event"/>
+      <sim:field name="event" type="boolean"/>
+    </sim:message>
+  </messages>
+
+  <requests>
+    <sim:request id="all-request" generator="all"/>
+    <sim:request id="integer-request" generator="integer"/>
+    <sim:request id="string-request" generator="string"/>
+    <sim:request id="boolean-request" generator="boolean"/>
+    <sim:request id="event-request" generator="event"/>
+  </requests>
+
+  <operations>
+    <get id="integer-get">
+      <i:submit request="integer-request"
+                channel="simulator" variable="result" type="integer-msg"/>
+      <i:put expression="${result.integer}" attribute="integer"/>
+      <i:emit/>
+    </get>
+    <get id="string-get">
+      <i:submit request="string-request"
+                channel="simulator" variable="result" type="string-msg"/>
+      <i:put expression="${result.string}" attribute="string"/>
+      <i:emit/>
+    </get>
+    <set id="integer-set">
+      <!-- Just used for test purposes -->
+      <i:create variable="set-data" type="set-msg"/>
+      <i:set variable="set-data" field="test" value="${param['integer']}"/>
+    </set>
+    <periodic id="all-periodic">
+      <start>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="${param['period']}"/>
+        <i:submit request="all-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </start>
+      <stop>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="0"/>
+        <i:submit request="all-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </stop>
+      <on message="all-msg" variable="result">
+        <i:put expression="${result.integer}" attribute="integer" />
+        <i:put expression="${result.float}" attribute="float" />
+        <i:put expression="${result.string}" attribute="string" />
+        <i:emit />
+      </on>
+    </periodic>
+    <periodic id="multiple-periodic">
+      <start>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="${param['period']}"/>
+        <i:submit request="integer-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+        <i:submit request="boolean-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </start>
+      <stop>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="0"/>
+        <i:submit request="integer-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+        <i:submit request="boolean-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </stop>
+      <on message="integer-msg" variable="result" sync="true">
+        <i:put expression="${result.integer}" attribute="integer" />
+        <i:emit />
+      </on>
+      <on message="boolean-msg" variable="result">
+        <i:put expression="${result.boolean}" attribute="boolean" />
+        <i:emit />
+      </on>
+    </periodic>
+    <async id="event-async">
+      <start>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="200"/>
+        <i:submit request="event-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </start>
+      <on message="event-msg" variable="result">
+        <i:put expression="${result.event}" attribute="event"/>
+        <i:emit />
+      </on>
+    </async>
+  </operations>
+
+</device>
+\end{lstlisting}
 
