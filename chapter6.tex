@@ -1430,11 +1430,38 @@ available.
 
 \section{Putting it all together: the FPC}
 
-\subsection{Data access interface}
+The \texttt{FPC} (Functionality Proxy Component) is the main data access
+interface available to the PerLa Middleware. Its chief duty is to provide a
+high-level abstraction of a Pervasive System, by exposing the functionalities
+of all devices in the network through a single consistent API. Every instance
+of the PerLa Middleware hosts multiple \texttt{FPCs}, one for each sensing
+node. This one-to-one relationship --- the fulcrum of the PerLa philosophy ---
+is a fundamental architectural feature that endows the Middleware with utmost
+flexibility and the finest granularity of control, as it presents final users
+with the possibility to direct heterogeneous networks of sensing devices, down
+to the single node, through a uniform set of high-level functions.
 
-\subsection{Controlling the remote device}
+As explained in the preiovus chapter, every \texttt{FPC} exposes a well defined
+set of \texttt{Attributes}, each of which corresponds to a single data element
+which can be retrieved or set on the controlled device.
+
+- talk about device attributes, then move on to the FPC interface
+
+FPC description
+Interface explained
+
+\subsection{Operations}
+
+Operations: what they are
+Different types of operations found in the system: get, set periodc, async
+Simulating different operations
 
 \subsection{Scheduling mechanism}
+
+Why do we need a scheduler inside the FPC (support concurrent requests)
+How does the scheduler select an operation to run?
+Changing the sampling frequency
+Current limitations (only a single operation can be in execution)
 
 
 \section{Device Descriptor and FPC Factory}
@@ -1449,11 +1476,11 @@ available.
 \subsection{Complete XML Device Descriptor examples}
 
 The Device Descriptor portrayed in this first example is employed to create a
-Simulator \texttt{FPC}, a useful tool with which the PerLa Middleware may be
-tested even when no physical sensor nodes are available. This simulated device
-exposes two attributes: a read-only float representing the temperature in
-Celsius degrees (\texttt{temp\_c}), and a write-only integer that will be used
-to set the sampling period (\texttt{period}).
+Simulator \texttt{FPC}, a useful tool that helps testing the PerLa Middleware
+even when no physical sensor nodes are available. This simulated device exposes
+two attributes: a read-only float representing the temperature in Celsius
+degrees (\texttt{temp\_c}), and a write-only integer that will be used to set
+the sampling period (\texttt{period}).
 
 This \texttt{FPC} contains one \texttt{Channel} of type
 \texttt{SimulatorChannel}, which generates new data samples without requiring a
