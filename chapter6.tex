@@ -1464,43 +1464,23 @@ is a collection of \texttt{Scripts} committed to the management of a well
 defined aspect of an endpoint device, such as the retrieval of a specific data
 sample at periodic intervals of time. In total, there are four different
 \texttt{Operation} types available in the PerLa Middleware, each of which
-corresponds to a specific \texttt{FPC} action:
-
-\begin{itemize}
-
-    \item \texttt{Get Operation:} A single \texttt{Script} that retrieves
-        information from the remote device. It can be used to perform a
-        single-shot sampling operation or to read software parameters stored in
-        the connected endpoint.
-
-    \item \texttt{Set Operation:} A single \texttt{Script} that sends
-        information to the remote device. It can be used to dispatch commands,
-        activate remote mechanisms, or change software parameters on a node of
-        the sensing network.
-
-    \item \texttt{Periodic Operation:} A collection of \texttt{Scripts} for
-        handling a periodic stream of information; It is usually employed to
-        start an unattended sampling operations.
-
-    \item \texttt{Async Operation:} A collection of \texttt{Scripts} that
-        handles an asynchronous stream of information from the device, i.e. a
-        series of events that are received at irregular intervals of time.
-
-
-\end{itemize}
-
-\texttt{Operations} are declared, along with all other \texttt{FPC} components,
-inside the Device Descriptor. Each \texttt{Operation} category has a distinct
-syntax, which is strictly dependent on the number and type of \texttt{Scripts}
-required for its correct execution. 
+corresponds to a \texttt{FPC} action (get, set, periodic sampling and
+asynchronous event handling). Each of these \texttt{Operations} is associated
+with the list of device \texttt{Attribute} that can be modified or generated
+with it; this list is automatically inferred by the PerLa Middleware by
+analyzing the associated data access \texttt{Scripts}.
 
 \subsubsection{Get Operation}
 
-The \texttt{Get Operation} is introduced by the \lstinline!<get>! XML tag, and
-contains a single PerLa \texttt{Script} that is responsible for connecting with
-the remote device, retrieving the information requested by the user, and
+A single \texttt{Script} that retrieves information from the remote device. It
+can be used to perform a single-shot sampling operation or to read software
+parameters stored on the connected endpoint.
+
+This \texttt{Operation} type is introduced by the \lstinline!<get>! XML tag,
+and contains a single PerLa \texttt{Script} that is responsible for connecting
+with the remote device, retrieving the information requested by the user, and
 creating an output record. The following example shows a textbook
-implementation of the \texttt{Get Operation}, which demonstrates how the
+implementation of the \texttt{Get Operation}, which demonstrates how all the
 aforementioned operations can be performed in a few lines of PerLa
 \texttt{Script}.
 
@@ -1516,12 +1496,17 @@ aforementioned operations can be performed in a few lines of PerLa
 
 \subsubsection{Set Operation}
 
-The \texttt{Set Operation}, introduced by a \lstinline!<set>! XML tag, allows
-node developers to define the actions to be performed for sending a specific
-information to the remote device. An example of this \texttt{Operation} is
-available below; this code excerpt is employed to retrieve the current time
-from a parameter passed by the \texttt{FPC} user (\lstinline!arg['timestamp']!)
-and deliver it to the remote device by means of a \texttt{SerialChannel}.
+A single \texttt{Script} that sends information to the controlled device. It
+can be used to dispatch commands, activate mechanisms, or change software
+parameters on a remote sensing node.
+
+All \texttt{Set Operation} \texttt{Scripts} must be enclosed in a
+\lstinline!<set>! XML tag, and are required to define a series of actions
+resulting in the transmission of data to the remote device. An example of this
+\texttt{Operation} is available in the code excerpt below, which retrieves the
+current time from a parameter passed by the \texttt{FPC} user
+(\lstinline!arg['timestamp']!), and delivers it by means of a
+\texttt{SerialChannel}.
 
 \lstset{language=XML}
 \begin{lstlisting}
@@ -1536,66 +1521,98 @@ and deliver it to the remote device by means of a \texttt{SerialChannel}.
 
 \subsubsection{Periodic Operation}
 
-A more complicated syntax is needed to handle periodic streams of data samples.
-\texttt{Periodic Operations} require three different \texttt{Script} types.
-The \lstinline!<start>! \texttt{Script} is used to configure the remote device
-with the desired sampling period, exposed by the Middleware through
-\lstinline!arg['period']! argument variable. During the startup phase, this
-\texttt{Script} is must convert the sampling frequency into whichever format is
-required by the remote device, handle 
+A collection of \texttt{Scripts} for managing an unattended, periodic stream of
+information. The \texttt{Periodic Operation} is more complicated than previous
+\texttt{Operation} types, both from a syntactic and an operative point of view,
+as it requires the device developer to specify three different classes of
+\texttt{Scripts}.
 
-Start \texttt{Scripts} are
-required to convert the sampling period provided by the user, which is exposed
-as a millisecond value through the \lstinline!arg['period']! argument, into a
-format that can be parsed and interpreted by the remote device.
+The first of these is the \lstinline!<start>! \texttt{Script}, which is
+employed to initialize the sampling operation. It normally contains a series of
+instruction that parse the signal rate requested by the user, configure the
+device to start the sampling operation, and handle potential error conditions.
+By default, the sampling period exposed to the \texttt{Script} by means of the
+\lstinline!arg['period']! argument is expressed in milliseconds; it is the
+developer's duty to convert this value into whichever format is required by the
+remote device. The code extract available below is worthy of note, since it is
+employed to initialize two different sampling operations at once, one for
+temperature, and one for humidity.
 
-the first one, enclosed inside a \lstinline!<start>!  tag,
-starts the sampling activity; the second is employed to stop the sampling
-(\lstinline!<stop>! tag); the remaining \lstinline!<on>!-tagged
-\texttt{Scripts} are required to convert the messages generated by the device
-into records. 
+After the sampling operation is correctly initialized, the sensing node will
+begin sending data packets towards its controlling \texttt{FPC}. All the
+instructions required to convert these raw information into a record suitable
+for further processing have to be specified inside an \lstinline!<on>! tag. As
+shown below, each \texttt{Periodic Operation} is to be equipped with an
+\lstinline!<on>! \texttt{Script} for each different type of \texttt{Message}
+sent by the device.
 
-Every \lstinline!<on>! \texttt{Script} associated with a specific
-\texttt{Message} type, which will be used to trigger the 
+Finally, the \texttt{Periodic Operation} is required to contain a
+\lstinline!<stop>! \texttt{Script} that can be used to terminate the sampling
+operation and undo any action performed at startup.
 
 \lstset{language=XML}
 \begin{lstlisting}
-<periodic id="all-periodic">
+<periodic id="weather-periodic">
   <start>
     <i:create variable="period" type="sampling-period"/>
     <i:set variable="period" field="period" value="${arg['period']}"/>
-    <i:submit request="all-request" channel="simulator">
+    <i:submit request="temperature-request" channel="simulator">
+            <i:param name="period" variable="period"/>
+    </i:submit>
+    <i:submit request="humidity-request" channel="simulator">
             <i:param name="period" variable="period"/>
     </i:submit>
   </start>
   <stop>
     <i:create variable="period" type="sampling-period"/>
     <i:set variable="period" field="period" value="0"/>
-    <i:submit request="all-request" channel="simulator">
+    <i:submit request="temperature-request" channel="simulator">
+            <i:param name="period" variable="period"/>
+    </i:submit>
+    <i:submit request="humidity-request" channel="simulator">
             <i:param name="period" variable="period"/>
     </i:submit>
   </stop>
-  <on message="all-msg" variable="result">
-    <i:put expression="${result.integer}" attribute="integer" />
-    <i:put expression="${result.float}" attribute="float" />
-    <i:put expression="${result.string}" attribute="string" />
+  <on message="temperature-msg" variable="result">
+    <i:put expression="${result.temperature}" attribute="temperature" />
     <i:emit />
   </on>
+  <on message="humidity-msg" variable="result">
+    <i:put expression="${result.humidity}" attribute="humidity" />
+    <i:emit />
+  </on>
+</periodic>
 </periodic>
 \end{lstlisting}
 
 \subsubsection{Async Operation}
 
-As shown in previous chapters, every \texttt{FPC} exposes a well defined set of
-\texttt{Attributes}, each of which corresponds to a single data element that
-can be retrieved or sent to the endpoint device. \texttt{Attributes} are
-declared inside the \lstinline!<attribute>! section of the Device Descriptor
+A collection of \texttt{Scripts} that handles an asynchronous stream of
+information from the device, i.e. a series of events that are received at
+irregular intervals of time.
 
+Similarly to the \texttt{Periodic Operation}, the \texttt{Async Operation}
+features a \lstinline!<start>! \texttt{Script} (optional), and a
+\lstinline!<on>! \texttt{Script} for each different type of event message that
+may be received from the sensing node.
 
-As shown in listing~\ref{lst:fpc}, \texttt{Attributes} are
-used in conjunction with the \texttt{set()}, \texttt{get()} and
-\texttt{async()} methods to address specific capabilities of the sensor node;
-collecting  
+\lstset{language=XML}
+\begin{lstlisting}
+<async id="event-async">
+  <start>
+    <i:create variable="period" type="sampling-period"/>
+    <i:set variable="period" field="period" value="200"/>
+    <i:submit request="event-request" channel="simulator">
+      <i:param name="period" variable="period"/>
+    </i:submit>
+  </start>
+  <on message="event-msg" variable="result">
+    <i:put expression="${result.event}" attribute="event"/>
+    <i:emit />
+  </on>
+</async>
+\end{lstlisting}
+
 
 \subsection{The FPC interface}
 
