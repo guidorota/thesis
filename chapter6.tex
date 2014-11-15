@@ -1765,9 +1765,19 @@ PerLa Middleware; \texttt{TinyOSChannels}, on the other hand, expose a
 dedicated handler method designed to broadcast Device Descriptor data to any
 interested \texttt{FPCFactory}.
 
-Figure~\ref{fig:fcpfactory} shows a section of a typical Middleware setup. As
-can be seen, Device Descriptors are parsed and transliterated into an
-intermediate Java representation before being handed over to the
+
+\begin{figure}[h!]
+    \center
+    \includegraphics[width=\textwidth]{imgs/descriptorparser.pdf}
+    \caption{Translation of different Device Descriptor formats into an
+    intermediary Java representation}
+    \label{fig:descriptorparser}
+\end{figure}
+
+
+Figure~\ref{fig:descriptorparser} shows a section of a hypothetical Middleware
+setup. As can be seen, Device Descriptors are parsed and transliterated into
+an intermediate Java representation before being handed over to the
 \texttt{FPCFactory}. This decoupling process, performed by the
 \texttt{DeviceDescriptorParser} interface, ensures that the \texttt{FPCFactory}
 is not directly tied to any particular Device Descriptor format; as a result,
@@ -1779,21 +1789,58 @@ is responsible for translating the XML Device Descriptor syntax shown in
 previous sections of this document into the corresponding
 \texttt{DeviceDescriptor} Java class required by the \texttt{FPCFactory}.
 
+~\\
 \lstset{language=java}
 \begin{lstlisting}[caption={The DeviceDescriptorParser interface}]
 public interface DeviceDescriptorParser {
-
     public DeviceDescriptor parse(InputStream is)
             throws DeviceDescriptorParseException;
-
 }
 \end{lstlisting}
 
+The \texttt{FPCFactory}, in its essence, is a coordinator object that delegates
+the actual construction of all \texttt{FPC} components to the various factory
+modules described in the former sections of this chapter. This feature is an
+essential characteristics of the new Middleware architecture, and constitutes
+the basic building block of the PerLa pluggable module system. New
+\texttt{Channels}, \texttt{IORequests}, and \texttt{Messages} can be added
+simply by means of the \texttt{FPCFactory} constructor method (see
+listing~\ref{lst:fpcfactory}), and don't require any modification to the
+existing Middleware code; PerLa is open for extension but closed for
+modification.
+
+In addition to the creation of all required component modules, the
+\texttt{FPCFactory} performs the following tasks:
+
+\begin{itemize}
+
+    \item Parses the \lstinline!<operation>! Device Descriptor section and
+        compiles all PerLa \texttt{Scripts} in their intermediate SIR form;
+
+    \item Associates every declared device \texttt{Attribute} to the
+        \texttt{Operation} that is responsible for its management;
+
+    \item Assembles the various component modules, \texttt{Operations} and
+        \texttt{Scripts} inside a single \texttt{FPC} object.
+
+\end{itemize}
+
+~\\
+\lstset{language=java}
+\begin{lstlisting}[caption={The FPCFactory class methods},label={lst:fpcfactory}]
+public class FPCFactory { 
+   public BaseFpcFactory(List<MapperFactory> mapperFactoryList,
+            List<ChannelFactory> channelFactoryList,
+            List<IORequestBuilderFactory> requestBuilderFactoryList)
+    
+    public Fpc createFpc(DeviceDescriptor descriptor, int id)
+            throws InvalidDeviceDescriptorException;
+}
+\end{lstlisting}
+
+
 Upon arrival of a new Device Descriptor
 
-The device descriptor in XML is parsed and converted into java objects, this
-gives us the possibility to change the descriptor syntax without having to
-scrap the fpcfactory
 the fpc factory then takes all the device descriptor parts and sends them to
 the most appropriate component factory (e.g., channel to channel factory, etc).
 It uses Java reflection and the accepted*descriptorclass method to identify
