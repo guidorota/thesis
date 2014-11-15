@@ -1846,7 +1846,31 @@ public class FPCFactory {
 
 \subsection{Registry}
 
-For an effective management of \texttt{FPC} objects,
+The \texttt{Registry} is a simple in-memory database that stores \texttt{FPC}
+objects. It is primarily employed for the discovery of sensing devices
+registered in a PerLa instance, and its services are extensively exploited by
+the Query Executor component. Its interface, available in
+listing~\ref{lst:registry}, is straightforward and easy to use. It is composed
+of two data manipulation methods, namely \texttt{add()} and \texttt{remove()},
+and three data retrieval methods, \texttt{get()}, \texttt{getAll()} and
+\texttt{getByAttribute}.
+
+\texttt{add()} and \texttt{remove()} allow PerLa users to respectively insert
+and delete \texttt{FPC} objects from the \texttt{Registry}. The first method is
+primarily used by the \texttt{FPCFactory}, which is responsible for registering
+newly connected devices, whereas the second is invoked from the \texttt{FPC}
+itself when the controlled node stops operating.
+
+The data retrieval section of the \texttt{Registry} interface comprises three
+methods with different semantics. \texttt{get()} can be used to retrieve a
+single \texttt{FPC} object with a specific identifier; it is usually invoked
+when the user needs to address a certain device in a Pervasive Network.
+\texttt{getAll()} is a shortcut method that returns a list with all the
+\texttt{FPC} objects connected to PerLa. The last method,
+\texttt{getByAttribute()}, allows PerLa users to select a subset of devices
+with well-defined characteristics; its two parameters can in fact be used to
+indicate the precise set of data \texttt{Attributes} that the remote device
+must possess in order to be considered in the selection.
 
 ~\\
 \lstset{language=java}
