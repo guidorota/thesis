@@ -1712,15 +1712,100 @@ operations occurring at different rates, a scenario that requires the
 \texttt{OperationScheduler} to start a single periodic \texttt{Operation} using
 the highest requested sampling frequency, and to distribute the resulting
 records according to the requirements of each single user. An additional thing
-of note on the \texttt{OperationScheduler} is its ability simulate a periodic
-sampling activity by executing a single-shot \texttt{Get Operation} repeatedly.
+of note regarding the \texttt{OperationScheduler} is its ability simulate a
+periodic sampling activity by executing a single-shot \texttt{Get Operation}
+repeatedly.
 
 
 \subsection{FPC Factory}
 
-As suggested by the name, the 
+As suggested by its name, the \texttt{FPCFactory} is the Middleware component
+responsible for creating new \texttt{FPC} objects. It plays a fundamental role
+in the Middleware's Plug-and-Play device addition mechanism; its primary task
+consists in fact in the creation and final assembly of all constituent parts of
+an \texttt{FPC}.
+
+The creation of an \texttt{FPC} is a complex process that begins with the
+reception of a Device Descriptor, a declarative document containing a
+machine-parseable blueprint of the newly connected sensor node. Device
+Descriptors are composed of several parts, the contents of which have been
+thoroughly explained in previous sections of this document: 
+
+\begin{itemize}
+
+    \item \textbf{Device Attributes:} Declaration of all data items supported
+        by the device;
+
+    \item \textbf{Channels and Requests:} Configuration of all
+        \texttt{Channels} and \texttt{IORequest} objects required to
+        communicate with the endpoint device;
+
+    \item \textbf{Messages:} Contains the declaration of all data structures
+        employed during the communication with the endpoint device, along with
+        the strategies to be followed for serializing and deserializing
+        high-level information into \texttt{Channel}-ready \texttt{Payload}
+        objects and vice-versa;
+
+    \item \textbf{Operations:} Definition of the PerLa \texttt{Script}
+        procedures that are to be used for interacting with the remote device.
+    
+\end{itemize}
+
+During the installation of a new PerLa Middleware instance, users must
+guarantee that every available \texttt{Channel} has the possibility to relay
+new Device Descriptors towards an active \texttt{FPCFactory}, as failure to do
+so may prevent some portions of the sensing network from being able to
+autonomously connect through the Plug-and-Play system. This configuration is to
+be done according to the characteristics of each specific \texttt{Channel},
+since every communication mechanism may enforce a different connection
+paradigm. For example, the \texttt{HTTPChannel} module can't be connected to
+the \texttt{FPCFactory}, as web services and REST APIs are not able to initiate
+a spontaneous connection, and thus can't send their Device Descriptors to the
+PerLa Middleware; \texttt{TinyOSChannels}, on the other hand, expose a
+dedicated handler method designed to broadcast Device Descriptor data to any
+interested \texttt{FPCFactory}.
+
+Figure~\ref{fig:fcpfactory} shows a section of a typical Middleware setup. As
+can be seen, Device Descriptors are parsed and transliterated into an
+intermediate Java representation before being handed over to the
+\texttt{FPCFactory}. This decoupling process, performed by the
+\texttt{DeviceDescriptorParser} interface, ensures that the \texttt{FPCFactory}
+is not directly tied to any particular Device Descriptor format; as a result,
+the introduction of a new descriptor syntax does not entail any change to the
+\texttt{FPCFactory} itself, but only the creation of an approriate
+\texttt{DeviceDescriptorParser} class. At the present moment, the PerLa
+Middleware includes a \texttt{JaxbDeviceDescriptParser} implementation, which
+is responsible for translating the XML Device Descriptor syntax shown in
+previous sections of this document into the corresponding
+\texttt{DeviceDescriptor} Java class required by the \texttt{FPCFactory}.
+
+\lstset{language=java}
+\begin{lstlisting}[caption={The DeviceDescriptorParser interface}]
+public interface DeviceDescriptorParser {
+
+    public DeviceDescriptor parse(InputStream is)
+            throws DeviceDescriptorParseException;
+
+}
+\end{lstlisting}
+
+Upon arrival of a new Device Descriptor
+
+The device descriptor in XML is parsed and converted into java objects, this
+gives us the possibility to change the descriptor syntax without having to
+scrap the fpcfactory
+the fpc factory then takes all the device descriptor parts and sends them to
+the most appropriate component factory (e.g., channel to channel factory, etc).
+It uses Java reflection and the accepted*descriptorclass method to identify
+which sub-factory to choose for creating the component.
+Moreover, it parses the operations, and invokes the script compiler to parse
+the SIR.
+Once all these operations are done, it takes all the sub-components and
+assembles a new fpc
 
 \subsection{Registry}
+
+This section concludes
 
 
 \subsection{Complete XML Device Descriptor examples}
