@@ -1706,15 +1706,20 @@ employed by the \texttt{FPC} to check whether the requested information can be
 gathered through the remote device or not, and to select an \texttt{Operation}
 that best suits the user's demands. Both these activities are performed by the
 \texttt{OperationScheduler}, a Middleware component tasked with managing all
-the data handling \texttt{Operations} available in an \texttt{FPC}. This
-component is also responsible for the management of concurrent sampling
-operations occurring at different rates, a scenario that requires the
+data handling \texttt{Operations} available in an \texttt{FPC}. This component
+is also responsible for the management of concurrent operations occurring at
+different sampling rates, a common use case that requires the
 \texttt{OperationScheduler} to start a single periodic \texttt{Operation} using
 the highest requested sampling frequency, and to distribute the resulting
-records according to the requirements of each single user. An additional thing
-of note regarding the \texttt{OperationScheduler} is its ability simulate a
-periodic sampling activity by executing a single-shot \texttt{Get Operation}
-repeatedly.
+records according to the requirements of each single user.
+
+An additional thing of note regarding the \texttt{OperationScheduler} is its
+ability perform several types of \texttt{Operations} even if the endpoint
+device does not support them natively. Periodic sampling activities can be
+simulated from a simple \texttt{Get Operation} simply by executing a
+single-shot request at regular intervals, whereas starting a \texttt{Periodic
+Operation} and stopping it after the arrival of the first data sample is
+tantamount to a \texttt{Get Operation}.
 
 
 \subsection{FPC Factory}
@@ -1839,20 +1844,26 @@ public class FPCFactory {
 \end{lstlisting}
 
 
-Upon arrival of a new Device Descriptor
-
-the fpc factory then takes all the device descriptor parts and sends them to
-the most appropriate component factory (e.g., channel to channel factory, etc).
-It uses Java reflection and the accepted*descriptorclass method to identify
-which sub-factory to choose for creating the component.
-Moreover, it parses the operations, and invokes the script compiler to parse
-the SIR.
-Once all these operations are done, it takes all the sub-components and
-assembles a new fpc
-
 \subsection{Registry}
 
-This section concludes
+For an effective management of \texttt{FPC} objects,
+
+~\\
+\lstset{language=java}
+\begin{lstlisting}[caption={The Registry interface},label={lst:registry}]
+public interface Registry {
+    public Fpc get(int id);
+    
+    public Collection<Fpc> getAll();
+
+    public Collection<Fpc> getByAttribute(Collection<Attribute> with,
+        Collection<Attribute> without);
+    
+    public void add(Fpc fpc);
+    
+    public void remove(Fpc fpc);
+}
+\end{lstlisting}
 
 
 \subsection{Complete XML Device Descriptor examples}
