@@ -37,8 +37,7 @@ communication libraries. \texttt{HTTPChannel}, a \texttt{Channel} providing
 support for HTTP communications, is an excellent example of the advantages of
 this design strategy. Implemented as a simple wrapper around Apache's HTTP
 Components toolkit, its development only required a basic understanding of the
-HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client
-(see section~\ref{sec:channel.implementations} for additional details).
+HTTP protocol; yet \texttt{HTTPChannel} is a fully compliant HTTP/1.1 client.
 
 Upon instantiation, \texttt{Channel}s are open and ready to be used. They may
 be optionally closed to relinquish unused resources by invoking the
@@ -141,14 +140,16 @@ Plugin System, as it allows the Middleware to invoke the most appropriate
 {
 \begin{figurenote}
 This figure illustrates the \texttt{Channel} creation process executed by the
-Middleware upon reception of a new Device Descriptor.  \begin{enumerate}
+Middleware upon reception of a new Device Descriptor.
+\begin{enumerate}
   \itemsep0em
   \item JAXB binds the XML Device Descriptor to an apropriate
 \texttt{ChannelDescriptor} object using namespace information \item A suitable
 \texttt{ChannelFactory} is selected at runtime using the
 \texttt{acceptedChannelDescriptorClass()} method
   \item The information contained in the \texttt{SerialChannelDescriptor} is
-used to create a new \texttt{SerialChannel} \end{enumerate}
+used to create a new \texttt{SerialChannel}
+\end{enumerate}
 \end{figurenote}
 }
 \end{figure}
@@ -237,8 +238,9 @@ templating mechanism is that \texttt{Channel}-related configuration settings
 are only specified once, hence the same \texttt{IORequest} structure can be
 reused multiple times to transport different payload information.
 
+~\\
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=!hbt,caption=The IORequestBuilder
+\begin{lstlisting}[floatplacement=!hbt,caption=The IORequestBuilder
 interface,label={lst:iorequestbuilder}]
 public interface IORequestBuilder {
 
@@ -435,11 +437,19 @@ of addressing information by field name, a convenient feature that dispenses
 with the burden of managing data in byte-sized chunks. The methods available in
 the \texttt{Message} interface are shown in listing~\ref{lst:message}.
 
+\begin{figure}[!hbt]
+\center
+\includegraphics[width=0.6\textwidth]{imgs/mapper_payload.pdf}
+\caption{Relationship between the \texttt{Channel}, \texttt{Payload},
+\texttt{Mapper} and \texttt{Message} objects.}
+\label{fig:channel.async}
+\end{figure}
+
+~\\
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=!hbt,caption=The Message
+\begin{lstlisting}[floatplacement=!hbt,caption=The Message
 interface,label={lst:message}]
 public interface Message {
-
     public String getType();
 
     public boolean hasField(String name);
@@ -454,7 +464,6 @@ public interface Message {
                 throws IllegalArgumentException;
 
     public boolean validate();
-
 }
 \end{lstlisting}
 
@@ -536,8 +545,9 @@ indicates which \texttt{Message} class is supported by a particular
 through a collection of \texttt{Mapper}s, in order to find one that is best
 suited for handling the information currently being processed.
 
+~\\
 \lstset{language=Java}
-\begin{lstlisting}[float,floatplacement=!hbt,caption=The Mapper
+\begin{lstlisting}[floatplacement=!hbt,caption=The Mapper
 interface,label={lst:mapper}]
 public interface Mapper {
 
@@ -1656,9 +1666,10 @@ modified using an \texttt{FPC}, qualified in terms of name, data type
 
 \texttt{Attribute} values can be retrieved or set using the \texttt{FPC}'s data
 access methods, namely \texttt{get()}, \texttt{periodic()}, \texttt{set()}, and
-\texttt{async()}. Similarly to what already seen for other Middleware
-components described in previous sections of this document, all these methods
-implement the asynchronous interaction paradigm introduced in
+\texttt{async()}, each of which correspond to a specific type of
+\texttt{Operation}. Similarly to what already seen for other Middleware
+components described in this document, all these methods implement the
+asynchronous interaction paradigm introduced in
 section~\ref{sec:newmiddleware.async}. As shown in listing~\ref{lst:fpc}, their
 immediate return type is in fact a \texttt{Task} object, which can be employed
 to control the status of the ongoing data access operation. The actual data
@@ -1667,11 +1678,11 @@ through a \texttt{TaskHandler} using the following methods:
 
 \begin{itemize}
 
-    \item \textbf{complete():} Signals that the operation to which the
-        \texttt{TaskHandler} is associated has just been completed. It is
-        employed to notify the successful completion of a \texttt{set()}
-        operation, or to indicate that a \texttt{get()} operation has been
-        stopped and will not produce any new record;
+    \item \textbf{complete():} Signals that the operation associated with the
+        \texttt{TaskHandler} has just been completed. It is employed to notify
+        the successful completion of a \texttt{set()} operation, or to indicate
+        that a \texttt{get()} operation has been stopped and will not produce
+        any new record;
 
     \item \textbf{newRecord():} Delivers a new record;
 
@@ -1700,8 +1711,8 @@ public interface TaskHandler {
 }
 \end{lstlisting}
 
-When invoking one of the available data retrieval methods the user is always
-required to list all \texttt{Attributes} to be sampled. This information is
+The user is always required to list all \texttt{Attributes} to be sampled when
+invoking one of the available data retrieval methods; this information is
 employed by the \texttt{FPC} to check whether the requested information can be
 gathered through the remote device or not, and to select an \texttt{Operation}
 that best suits the user's demands. Both these activities are performed by the
@@ -1715,7 +1726,7 @@ records according to the requirements of each single user.
 
 An additional thing of note regarding the \texttt{OperationScheduler} is its
 ability perform several types of \texttt{Operations} even if the endpoint
-device does not support them natively. Periodic sampling activities can be
+device does not support them natively; periodic sampling activities can be
 simulated from a simple \texttt{Get Operation} simply by executing a
 single-shot request at regular intervals, whereas starting a \texttt{Periodic
 Operation} and stopping it after the arrival of the first data sample is
@@ -1726,9 +1737,9 @@ tantamount to a \texttt{Get Operation}.
 
 As suggested by its name, the \texttt{FPCFactory} is the Middleware component
 responsible for creating new \texttt{FPC} objects. It plays a fundamental role
-in the Middleware's Plug-and-Play device addition mechanism; its primary task
-consists in fact in the creation and final assembly of all constituent parts of
-an \texttt{FPC}.
+in the Middleware's Plug-and-Play device addition mechanism, since its primary
+task consists in the creation and final assembly of all constituent parts of an
+\texttt{FPC} object.
 
 The creation of an \texttt{FPC} is a complex process that begins with the
 reception of a Device Descriptor, a declarative document containing a
@@ -1749,26 +1760,26 @@ thoroughly explained in previous sections of this document:
         employed during the communication with the endpoint device, along with
         the strategies to be followed for serializing and deserializing
         high-level information into \texttt{Channel}-ready \texttt{Payload}
-        objects and vice-versa;
+        objects;
 
     \item \textbf{Operations:} Definition of the PerLa \texttt{Script}
         procedures that are to be used for interacting with the remote device.
     
 \end{itemize}
 
-During the installation of a new PerLa Middleware instance, users must
-guarantee that every available \texttt{Channel} has the possibility to relay
-new Device Descriptors towards an active \texttt{FPCFactory}, as failure to do
-so may prevent some portions of the sensing network from being able to
-autonomously connect through the Plug-and-Play system. This configuration is to
-be done according to the characteristics of each specific \texttt{Channel},
-since every communication mechanism may enforce a different connection
-paradigm. For example, the \texttt{HTTPChannel} module can't be connected to
-the \texttt{FPCFactory}, as web services and REST APIs are not able to initiate
-a spontaneous connection, and thus can't send their Device Descriptors to the
-PerLa Middleware; \texttt{TinyOSChannels}, on the other hand, expose a
-dedicated handler method designed to broadcast Device Descriptor data to any
-interested \texttt{FPCFactory}.
+During the installation of a new PerLa instance, users must guarantee that
+every available \texttt{Channel} has the possibility to relay new Device
+Descriptors towards an active \texttt{FPCFactory}; failure to do so may prevent
+some portions of the sensing network from establishing an autonomous connection
+with the Middleware. This configuration is to be done according to the
+characteristics of each specific \texttt{Channel}, since every communication
+mechanism may enforce a different connection paradigm. For example, the
+\texttt{HTTPChannel} module can't be connected to the \texttt{FPCFactory}, as
+web services and REST APIs are not able to initiate a spontaneous connection to
+the Middleware, and thus can't send their Device Descriptors;
+\texttt{SerialChannels}, on the other hand, expose a dedicated handler method
+designed to broadcast Device Descriptor data to any interested
+\texttt{FPCFactory}.
 
 
 \begin{figure}[h!]
@@ -1796,7 +1807,10 @@ previous sections of this document into the corresponding
 
 ~\\
 \lstset{language=java}
-\begin{lstlisting}[caption={The DeviceDescriptorParser interface}]
+\begin{lstlisting}[caption={The DeviceDescriptorParser interface. The only
+method exposed by this module is responsible for converting Device Descriptors
+received from the sensing nodes into an intermediate Java object
+representation.}]
 public interface DeviceDescriptorParser {
     public DeviceDescriptor parse(InputStream is)
             throws DeviceDescriptorParseException;
@@ -1814,7 +1828,7 @@ listing~\ref{lst:fpcfactory}), and don't require any modification to the
 existing Middleware code; PerLa is open for extension but closed for
 modification.
 
-In addition to the creation of all required component modules, the
+In addition to the creation of all \texttt{FPC} component modules, the
 \texttt{FPCFactory} performs the following tasks:
 
 \begin{itemize}
@@ -1848,12 +1862,12 @@ public class FPCFactory {
 
 The \texttt{Registry} is a simple in-memory database that stores \texttt{FPC}
 objects. It is primarily employed for the discovery of sensing devices
-registered in a PerLa instance, and its services are extensively exploited by
-the Query Executor component. Its interface, available in
-listing~\ref{lst:registry}, is straightforward and easy to use. It is composed
-of two data manipulation methods, namely \texttt{add()} and \texttt{remove()},
-and three data retrieval methods, \texttt{get()}, \texttt{getAll()} and
-\texttt{getByAttribute}.
+registered in a running PerLa instance, and its services are extensively
+exploited by the Query Executor component for the management of \texttt{EXECUTE
+IF} statements. Its interface, available in listing~\ref{lst:registry}, is
+straightforward and easy to use. It is composed of two data manipulation
+methods, namely \texttt{add()} and \texttt{remove()}, and three data retrieval
+methods, \texttt{get()}, \texttt{getAll()} and \texttt{getByAttribute}.
 
 \texttt{add()} and \texttt{remove()} allow PerLa users to respectively insert
 and delete \texttt{FPC} objects from the \texttt{Registry}. The first method is
@@ -1863,14 +1877,14 @@ itself when the controlled node stops operating.
 
 The data retrieval section of the \texttt{Registry} interface comprises three
 methods with different semantics. \texttt{get()} can be used to retrieve a
-single \texttt{FPC} object with a specific identifier; it is usually invoked
+single \texttt{FPC} object with a specific identifier, and is usually invoked
 when the user needs to address a certain device in a Pervasive Network.
-\texttt{getAll()} is a shortcut method that returns a list with all the
-\texttt{FPC} objects connected to PerLa. The last method,
-\texttt{getByAttribute()}, allows PerLa users to select a subset of devices
-with well-defined characteristics; its two parameters can in fact be used to
-indicate the precise set of data \texttt{Attributes} that the remote device
-must possess in order to be considered in the selection.
+\texttt{getAll()} is a shortcut that returns a list with all the \texttt{FPC}
+objects connected to PerLa. The last method, \texttt{getByAttribute()}, allows
+PerLa users to select a subset of devices with well-defined characteristics;
+its two parameters can in fact be used to indicate the precise set of data
+\texttt{Attributes} that a remote node must possess in order to be considered
+in the selection.
 
 ~\\
 \lstset{language=java}
