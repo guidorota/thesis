@@ -53,6 +53,12 @@ that form an \texttt{FPC}:
 
 \end{itemize}
 
+\begin{figure}[h!]
+\includegraphics[width=\textwidth]{imgs/middleware_overview.pdf}
+\caption{Internal FPC structure}
+\label{fig:fpc_overview}
+\end{figure}
+
 New \texttt{FPC} objects are instantiated at runtime by the
 \texttt{FPCFactory}. The starting point for the creation of an \texttt{FPC} is
 the Device Descriptor, an XML document which contains a machine parseable
@@ -65,12 +71,6 @@ behaviour). The latter approach allows devices which are not capable of
 autonomously transmit their Device Descriptor to be registered on the PerLa
 Middleware.
 
-\begin{figure}[h!]
-\label{fig:fpc_overview}
-\includegraphics[width=\textwidth]{imgs/middleware_overview.pdf}
-\caption{Internal FPC structure}
-\end{figure}
-
 A reference to each \texttt{FPC} is stored in the \texttt{Registry}, a
 Middleware component that is responsible for maintaining a complete index of
 all devices accessible through the PerLa framework. Thanks to the
@@ -82,11 +82,18 @@ used to interact with them.
 \label{sec:newmiddleware.async}
 
 One of the major differences between the New and Classic Middleware
-architectures lies in the paradigm employed to interconnect all internal
-modules of the PerLa software infrastructure. The New Middleware design
-introduces a fully asynchronous interaction paradigm that deviates profoundly
-from the mechanism previously promoted, as it is based on the idea of
-thread-less module composition.
+architectures lies in the paradigm employed to interconnect internal modules of
+the PerLa software infrastructure. The New Middleware design introduces a fully
+asynchronous interaction paradigm that deviates profoundly from the mechanism
+previously promoted, as it is based on non-blocking method invocations and
+event-driven programming techniques.
+
+\begin{figure}[h!]
+    \center
+    \includegraphics[width=0.5\textwidth]{imgs/pipe_waiter.pdf}
+    \caption{A typical \texttt{Pipe}-\texttt{Waiter} connection in the Classic
+        PerLa Middleware}
+\end{figure}
 
 Within the previous Middleware architecture, a connection between two different
 modules was achieved by means of a decoupling element dubbed \texttt{Pipe}, a
@@ -96,24 +103,67 @@ first development stages of PerLa, as its generic interface allowed the early
 designers to experiment with several competing architectures and component
 combinations. However, its flexibility came at a cost, both in terms of
 performances and API readability. First of all, each \texttt{Pipe} allocated an
-initial memory cache of 10 data elements. Moreover, the receiving end of a
+initial memory cache of 10 elements. Moreover, the receiving end of a
 \texttt{Pipe}, namely the \texttt{Waiter}, was required to instantiate a Java
 thread dedicated solely to the reception of data messages. The widespread use
 of the \texttt{Pipe}-\texttt{Waiter} paradigm thus led to the proliferation of
 threads and to an overuse of memory, which negatively impacted the overall
 system efficiency. In addition, the loosely coupled interaction paradigm
-promoted by the Classic Middleware resulted in a weak API that lacked semantic
-clarity.
+promoted by the Classic Middleware resulted in a weak API that lacked intent
+and semantic clarity.
 
-The new 
+The asynchronous, event-driven architecture implemented in the New Middleware
+is designed to overcome all aforementioned drawbacks, and to improve the
+overall system throughput and scalability. Differently from the deprecated
+\texttt{Pipe}-driven architecture, this design fosters a direct exchange of
+information between data producers and data consumers; information is no more
+delivered using a mandatory middleman (i.e., the \texttt{Pipe}), but is
+explicitly handed over to the intended recipients. This interaction paradigm is
+based on the \textit{Hollywood Principle} (don't call us, we call you), a
+software design methodology that encourages the development of highly-cohesive,
+low-coupling APIs.
 
-Although this may not seem as an advantage, as long-running operations must be
-performed in a thread nonetheless, short activities
+\begin{figure}[h!]
+\center
+\includegraphics[width=0.8\textwidth]{imgs/async_paradigm.pdf}
+\caption{Sequence diagram of an asynchronous method call. Note that the
+consumer and the producer continue their execution in parallel.}
+\label{fig:async_paradigm}
+\end{figure}
 
+An asynchronous method call in the New PerLa Middleware is identified by the
+following characteristics:
 
+\begin{itemize}
 
-\subsection{Factory patterns}
+    \item \textbf{Does not block:} Calls to an asynchronous method never block;
+        control of the execution flow is immediately returned to the caller,
+        and the requested computation is executed asynchronously. This
+        characteristics reduces the number of Java threads that the caller
+        module needs to instantiate;
+
+    \item \textbf{Returns a Task object:} Asynchronous method calls do not
+        return the immediate result of a computation. Instead, they return a
+        \texttt{Task}, an object that can be employed to stop the ongoing
+        operation or to query its current state of progress;
+
+    \item \textbf{Deferred delivery of results:} The effective Result is
+        notified by invoking a \texttt{Handler} function passed by the caller
+        itself.
+
+\end{itemize}
+
+\subsection{Factory Plugin System}
 \label{sec:newmiddleware.factory}
 
-\subsection{Device Descriptor and Plugin system}
-\label{sec:newmiddleware.descriptor}
+The New Middleware expands upon the concept of Factory by
+introducing a modular Plugin System that improves the flexibility and
+expandability of PerLa. The Factory is a widespread design pattern that allows
+the creation of new objects without specifying at compile time which exact
+class will be instantiated. This object creation abstraction is equivalent to a
+polymorphic constructor that uses runtime information to create new class
+instances.
+
+The new \texttt{FPCFactory} is a modular software entity composed of many
+sub-factories, each of which is dedicated to the creation of a specific
+\texttt{FPC} component.
