@@ -156,14 +156,24 @@ following characteristics:
 \subsection{Factory Plugin System}
 \label{sec:newmiddleware.factory}
 
-The New Middleware expands upon the concept of Factory by
-introducing a modular Plugin System that improves the flexibility and
-expandability of PerLa. The Factory is a widespread design pattern that allows
-the creation of new objects without specifying at compile time which exact
-class will be instantiated. This object creation abstraction is equivalent to a
-polymorphic constructor that uses runtime information to create new class
-instances.
+The New Middleware expands upon the concept of Factory by introducing a modular
+Plugin System that improves the flexibility and expandability of PerLa. The
+Factory is a widespread design pattern that allows the creation of new objects
+without specifying at compile time which exact class will be instantiated. This
+object creation abstraction is equivalent to a polymorphic constructor that
+uses runtime information to create new class instances.
 
 The new \texttt{FPCFactory} is a modular software entity composed of many
 sub-factories, each of which is dedicated to the creation of a specific
-\texttt{FPC} component.
+\texttt{FPC} component. The new Factory Plugin System is a significant
+departure from the original monolithic \texttt{FPCFactory} design. It is a
+direct implementation of the \textit{Open/Closed} principle: the
+\texttt{FPCFactory} is open for extension, as its functionalities can be
+exanded by adding new plugins, but closed for modification, as the addition of
+a new sub-factory does not require any alteration to its source code. The
+current version of the PerLa Middleware supports three different Factory
+Plugins, \texttt{ChannelFactories}, \texttt{IORequestFactories} and
+\texttt{MapperFactories}, which are responsible for the creation of new
+\texttt{Channel}, \texttt{IORequests} and \texttt{Mappers} respectively
+(consult chapter~\ref{cha:components} for further information on these
+classes).
