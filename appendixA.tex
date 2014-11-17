@@ -1,0 +1,393 @@
+\chapter{Complete XML Device Descriptor examples}
+
+\section{Example 1}
+
+The Device Descriptor portrayed in this first example is employed to create a
+Simulator \texttt{FPC}, a useful tool that helps testing the PerLa Middleware
+even when no physical sensor nodes are available. This simulated device exposes
+two attributes: a read-only float representing the temperature in Celsius
+degrees (\texttt{temp\_c}), and a write-only integer that will be used to set
+the sampling period (\texttt{period}).
+
+This \texttt{FPC} contains one \texttt{Channel} of type
+\texttt{SimulatorChannel}, which generates new data samples without requiring a
+connection to a real sensing device. In our example, the
+\texttt{SimulatorChannel} is configured with a single data generation routine,
+named \texttt{temperature}, that automatically creates new data samples in
+increments of 0.1\degree, spanning from a minimum of 16\degree~C to a maximum
+of 20\degree~C. The \lstinline!<request>! section shows that a single
+\texttt{IORequest} object is enough to drive the single data generator
+available in this \texttt{FPC}.
+
+Only two \texttt{Message} types are declared in the Device Descriptor: a
+\texttt{temperature-msg} message, which contains a single field of type
+\texttt{float}, and a \texttt{sampling-period} message, composed of only an
+\texttt{integer} field. These two messages will be used to collect temperature
+samples and to set the desired sampling period in the \texttt{SimulatorChannel}
+respectively.
+
+As can be seen from the \lstinline!<operation>! section of this descriptor, the
+simulator device exposes a periodic sampling operation named
+\texttt{temp-periodic}. It is important to note that the \texttt{start Script}
+initializes the \texttt{SimulatorChannel} according to the sampling rate
+specified by the user, which is retrieved with a \lstinline!${arg['period']}!
+expression. New output records are create by the \texttt{on Script} upon
+arrival of each \texttt{temperature-msg}. Finally, the generation of new data
+samples can be stopped by setting the sampling frequency to zero.
+
+~\\
+\lstset{language=XML}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="Weather simulator"
+    xmlns="http://perla.dei.org/device"
+    xmlns:i="http://perla.dei.org/device/instructions"
+    xmlns:sim="http://perla.dei.org/channel/simulator">
+
+  <attributes>
+    <attribute id="temp_c" type="float" permission="read-only"/>
+    <attribute id="period" type="integer" permission="write-only"/>
+  </attributes>
+
+  <channels>
+    <sim:channel id="simulator">
+      <sim:generator id="temperature">
+        <sim:field name="temperature" strategy="step"
+                   type="float" min="16" max="20" increment="0.1"/>
+        </sim:generator>
+    </sim:channel>
+  </channels>
+  
+  <messages>
+    <sim:message id="temperature-msg">
+      <sim:field name="temperature" type="float"/>
+    </sim:message>
+    <sim:message id="sampling-period">
+      <sim:field name="period" type="integer"/>
+    </sim:message>
+  </messages>
+  
+  <requests>
+    <sim:request id="temperature-request" generator="temperature"/>
+  </requests>
+  
+  <operations>
+    <periodic id="temp-periodic">
+      <start>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="${arg['period']}"/>
+        <i:submit request="temperature-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </start>
+      <stop>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="0"/>
+        <i:submit request="temperature-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </stop>
+      <on message="temperature-msg" variable="result">
+        <i:put expression="\${result.temperature}" attribute="temp_c" />
+        <i:emit />
+      </on>
+    </periodic>
+  </operations>
+
+</device>
+\end{lstlisting}
+
+\section{Example 2}
+
+This second Device Descriptor is used to configure an \texttt{FPC} for
+collecting data from a RESTful meteorological service. The remote API is
+accessed by means of a \texttt{HTTPChannel}, which retrieves a complete
+JSON-encoded weather report for the city of Milan.
+
+The service chosen for this application returns its results using a fairly
+complex JSON entity, whose structure has been replicated in the
+\lstinline!<message>! section of this descriptor. The main \texttt{weather}
+object is in fact a wrapper for three other components: a \texttt{coord}
+message, a \texttt{data} message, and a \texttt{wind} message. It is worth
+noting that these three sub-objects are constructed using only primitive
+fields, and that they are not intended to be used on their own; their only
+purpose is to be included as the constituent elements of a \texttt{weather}
+message.
+
+The stateless nature of the HTTP protocol is underscored by the simplicity of
+the \texttt{HTTPChannel} declaration, which doesn't require any parameter
+except for its own identifier, and by the related \texttt{HTTPIORequest}, where
+all information required for querying the RESTful API endpoint is stored. These
+two \texttt{FPC} components are then employed in the \lstinline!<get>!
+\texttt{Operation}, which is tasked with creating a new record from the
+\texttt{weather} object retrieved from the web service. 
+
+~\\
+\lstset{language=XML}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="REST Weather station"
+    xmlns="http://perla.dei.org/device"
+    xmlns:js="http://perla.dei.org/fpc/message/json"
+    xmlns:http="http://perla.dei.org/channel/http"
+    xmlns:i="http://perla.dei.org/device/instructions">
+
+  <attributes>
+    <attribute id="city" type="string" permission="read-only"/>
+    <attribute id="temp_k" type="float" permission="read-only"/>
+    <attribute id="temp_c" type="float" permission="read-only"/>
+    <attribute id="temp_f" type="float" permission="read-only"/>
+    <attribute id="pressure" type="float" permission="read-only"/>
+    <attribute id="humidity" type="float" permission="read-only"/>
+    <attribute id="wind_speed" type="float" permission="read-only"/>
+    <attribute id="wind_deg" type="float" permission="read-only"/>
+  </attributes>
+
+  <channels>
+    <http:channel id="http"/>
+  </channels>
+
+  <messages>
+    <js:object id="coord">
+      <js:value name="lon" type="string"/>
+      <js:value name="lat" type="string"/>
+    </js:object>
+
+    <js:object id="data">
+      <js:value name="temp" type="float"/>
+      <js:value name="pressure" type="float"/>
+      <js:value name="humidity" type="float"/>
+      <js:value name="temp_min" type="float"/>
+      <js:value name="temp_max" type="float"/>
+    </js:object>
+
+    <js:object id="wind">
+      <js:value name="speed" type="float"/>
+      <js:value name="deg" type="float"/>
+    </js:object>
+
+    <js:object id="weather">
+      <js:value name="coord" type="coord"/>
+      <js:value name="data" type="data"/>
+      <js:value name="wind" type="wind"/>
+    </js:object>
+  </messages>
+
+  <requests>
+    <http:request id="weather-mi"
+                  host="http://api.openweathermap.org/data/2.5/weather?q=Milan,it"
+                  method="get" />
+  </requests>
+
+  <operations>
+    <get id="weather-mi">
+      <i:submit request="weather-mi" channel="http"
+                variable="result" type="weather"/>
+      <i:put expression="Milan" attribute="city"/>
+      <i:put expression="${result.data.temp}" attribute="temp_k"/>
+      <i:put expression="${result.data.temp - 272.15}" attribute="temp_c"/>
+      <i:put expression="${(result.data.temp - 273.15) * 9 / 5 + 32}"
+             attribute="temp_f"/>
+      <i:put expression="${result.data.pressure}" attribute="pressure"/>
+      <i:put expression="${result.data.humidity}" attribute="humidity"/>
+      <i:put expression="${result.wind.speed}" attribute="wind_speed"/>
+      <i:put expression="${result.wind.deg}" attribute="wind_deg"/>
+      <i:emit/>
+    </get>
+  </operations>
+
+</device>
+\end{lstlisting}
+
+\section{Example 3}
+
+A purely educational Device Descriptor designed to showcase the following PerLa
+Middleware features:
+
+\begin{itemize}
+    \item read-write, read-only write-only and static attributes;
+    \item \texttt{SimulatorChannel} value generator configurations for all
+        available data types;
+    \item \texttt{Get} and \texttt{Set Operations};
+    \item \texttt{Periodic Operations} with single and multiple
+        \lstinline!<on>! \texttt{Scripts}.
+\end{itemize}
+
+~\\
+\lstset{language=XML}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="test"
+    xmlns="http://perla.dei.org/device"
+    xmlns:i="http://perla.dei.org/device/instructions"
+    xmlns:sim="http://perla.dei.org/channel/simulator">
+
+  <attributes>
+    <attribute id="integer" type="integer" permission="read-write"/>
+    <attribute id="float" type="float" permission="read-write"/>
+    <attribute id="boolean" type="boolean" permission="read-write"/>
+    <attribute id="string" type="string" permission="read-write"/>
+    <attribute id="event" type="boolean" permission="read-only"/>
+    <attribute id="period" type="integer" permission="write-only"/>
+    <attribute id="static" type="integer" access="static" value="5"/>
+  </attributes>
+
+  <channels>
+    <sim:channel id="simulator">
+      <sim:generator id="all">
+        <sim:field name="type" strategy="static" value="all"/>
+        <sim:field name="integer" strategy="dynamic"
+                   type="integer" min="12" max="32"/>
+        <sim:field name="float" strategy="dynamic"
+                   type="float" min="450" max="600"/>
+        <sim:field name="string" strategy="dynamic"
+                   type="string" min="10" max="15"/>
+      </sim:generator>
+      <sim:generator id="integer">
+        <sim:field name="type" strategy="static" value="integer"/>
+        <sim:field name="integer" strategy="dynamic"
+                   type="integer" min="47" max="58"/>
+      </sim:generator>
+      <sim:generator id="string">
+          <sim:field name="type" strategy="static" value="integer"/>
+          <sim:field name="string" strategy="dynamic"
+                     type="string" min="5" max="5"/>
+      </sim:generator>
+      <sim:generator id="boolean">
+        <sim:field name="type" strategy="static" value="boolean"/>
+        <sim:field name="boolean" strategy="dynamic" type="boolean"/>
+      </sim:generator>
+      <sim:generator id="event">
+        <sim:field name="type" strategy="static" value="event"/>
+        <sim:field name="event" strategy="dynamic" type="boolean"/>
+      </sim:generator>
+    </sim:channel>
+  </channels>
+
+  <messages>
+    <sim:message id="set-msg">
+      <sim:field name="test" type="integer"/>
+    </sim:message>
+    <sim:message id="sampling-period">
+      <sim:field name="period" type="integer"/>
+    </sim:message>
+    <sim:message id="all-msg">
+      <sim:field name="type" type="string" qualifier="static" value="all"/>
+      <sim:field name="integer" type="integer"/>
+      <sim:field name="float" type="float"/>
+      <sim:field name="string" type="string"/>
+    </sim:message>
+    <sim:message id="integer-msg">
+      <sim:field name="type" type="string" qualifier="static" value="integer"/>
+      <sim:field name="integer" type="integer"/>
+    </sim:message>
+    <sim:message id="string-msg">
+      <sim:field name="type" type="string" qualifier="static" value="string"/>
+      <sim:field name="string" type="string"/>
+    </sim:message>
+    <sim:message id="boolean-msg">
+      <sim:field name="type" type="string" qualifier="static" value="boolean"/>
+      <sim:field name="boolean" type="boolean"/>
+    </sim:message>
+    <sim:message id="event-msg">
+      <sim:field name="type" type="string" qualifier="static" value="event"/>
+      <sim:field name="event" type="boolean"/>
+    </sim:message>
+  </messages>
+
+  <requests>
+    <sim:request id="all-request" generator="all"/>
+    <sim:request id="integer-request" generator="integer"/>
+    <sim:request id="string-request" generator="string"/>
+    <sim:request id="boolean-request" generator="boolean"/>
+    <sim:request id="event-request" generator="event"/>
+  </requests>
+
+  <operations>
+    <get id="integer-get">
+      <i:submit request="integer-request"
+                channel="simulator" variable="result" type="integer-msg"/>
+      <i:put expression="${result.integer}" attribute="integer"/>
+      <i:emit/>
+    </get>
+    <get id="string-get">
+      <i:submit request="string-request"
+                channel="simulator" variable="result" type="string-msg"/>
+      <i:put expression="${result.string}" attribute="string"/>
+      <i:emit/>
+    </get>
+    <set id="integer-set">
+      <!-- Just for test purposes -->
+      <i:create variable="set-data" type="set-msg"/>
+      <i:set variable="set-data" field="test" value="${param['integer']}"/>
+    </set>
+    <periodic id="all-periodic">
+      <start>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="${param['period']}"/>
+        <i:submit request="all-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </start>
+      <stop>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="0"/>
+        <i:submit request="all-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </stop>
+      <on message="all-msg" variable="result">
+        <i:put expression="${result.integer}" attribute="integer" />
+        <i:put expression="${result.float}" attribute="float" />
+        <i:put expression="${result.string}" attribute="string" />
+        <i:emit />
+      </on>
+    </periodic>
+    <periodic id="multiple-periodic">
+      <start>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="${param['period']}"/>
+        <i:submit request="integer-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+        <i:submit request="boolean-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </start>
+      <stop>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="0"/>
+        <i:submit request="integer-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+        <i:submit request="boolean-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </stop>
+      <on message="integer-msg" variable="result" sync="true">
+        <i:put expression="${result.integer}" attribute="integer" />
+        <i:emit />
+      </on>
+      <on message="boolean-msg" variable="result">
+        <i:put expression="${result.boolean}" attribute="boolean" />
+        <i:emit />
+      </on>
+    </periodic>
+    <async id="event-async">
+      <start>
+        <i:create variable="period" type="sampling-period"/>
+        <i:set variable="period" field="period" value="200"/>
+        <i:submit request="event-request" channel="simulator">
+          <i:param name="period" variable="period"/>
+        </i:submit>
+      </start>
+      <on message="event-msg" variable="result">
+        <i:put expression="${result.event}" attribute="event"/>
+        <i:emit />
+      </on>
+    </async>
+  </operations>
+
+</device>
+\end{lstlisting}
+
