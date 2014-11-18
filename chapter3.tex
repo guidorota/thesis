@@ -1,6 +1,6 @@
 \chapter{New middleware architecture}
 
-\section{Design goals and core concepts}
+Introduce the design goals of the new Middleware architecture
 
 \section{Architecture overview}
 
@@ -113,14 +113,14 @@ promoted by the Classic Middleware resulted in a weak API that lacked intent
 and semantic clarity.
 
 The asynchronous, event-driven architecture implemented in the New Middleware
-overcomes all aforementioned drawbacks, improving on the overall system
-throughput and scalability. Differently from the deprecated
+overcomes all aforementioned drawbacks, and improves system performances in
+terms of both throughput and scalability. Differently from the deprecated
 \texttt{Pipe}-driven system, this new design fosters a direct exchange of
 information between data producers and data consumers; information is no more
 delivered using a mandatory middleman (i.e., the \texttt{Pipe}), but is
 explicitly handed over to the intended recipients. This interaction paradigm is
 based on the \textit{Hollywood Principle}, a software design methodology whose
-principles are summarized by the motto ``\textit{don't call us, we call you}'',
+tenets are summarized by the motto ``\textit{don't call us, we call you}'',
 that encourages the development of highly-cohesive, low-coupling APIs, 
 
 \begin{figure}[h!]
@@ -147,15 +147,14 @@ following characteristics:
         \texttt{Task}, i.e., an object that can be employed to stop the ongoing
         operation or to query its current state of progress;
 
-    \item \textbf{Deferred delivery of results:} The effective Result is
-        notified through a \texttt{Handler} function, which is invoked as soon
-        as the computation terminates. \texttt{Handler} functions are specified
-        upon use of an asynchronous method by the caller module itself.
+    \item \textbf{Defers the delivery of results:} The effective result of an
+        asynchronous method is notified through a \texttt{Handler} function,
+        which is invoked as soon as the computation terminates.
 
 \end{itemize}
 
 For an in-depth description of the actual asynchronous APIs implemented within
-the PerLa Middleware, please refer to chapter~\ref{cha:components}.
+the PerLa Middleware, refer to chapter~\ref{cha:components}.
 
 
 \subsection{FPCFactory Plugin System}
@@ -167,7 +166,7 @@ Its design is a significant departure from the original monolithic factory
 structure, and allows final users to easily expand the base capabilities of the
 PerLa Middleware without modifying its original source code. This modular
 architecture, formally called \texttt{FPCFactory} Plugin System, is a direct
-implementation of the \textit{Open/Closed} principle: the \texttt{FPCFactory}
+implementation of the \textit{Open/Close} principle: the \texttt{FPCFactory}
 is open for extension, as its functionalities can be expanded by adding new
 plugins, but closed for modification, since the addition of a new sub-factory
 does not require any change to the Middleware's source code.
@@ -176,13 +175,12 @@ At the current state of implementation the PerLa Middleware supports three
 different \texttt{FPCFactory} plugin types, viz. \texttt{ChannelFactories},
 \texttt{IORequestFactories} and \texttt{MapperFactories}, which are responsible
 for the creation of new \texttt{Channels}, \texttt{IORequests} and
-\texttt{Mappers} respectively (further information on all aforementioned
-classes are available in chapter~\ref{cha:components}). Different
-implementations of a single plugin type are tasked with creating the same class
-of \texttt{FPC} modules; for example, the \texttt{HTTPChannelFactory} and the
-\texttt{TinyOSChannelFactory} both create \texttt{Channel} objects, but the
-first is used to connect with RESTful web APIs, while the second one interfaces
-the PerLa Middleware with a TinyOS network.
+\texttt{Mappers} respectively. Different implementations of a single plugin
+type are tasked with creating the same class of \texttt{FPC} modules; for
+example, the \texttt{HTTPChannelFactory} and the \texttt{TinyOSChannelFactory}
+both create \texttt{Channel} objects, but the first is used to connect with
+RESTful web APIs, while the second one interfaces the PerLa Middleware with a
+TinyOS network.
 
 The introduction of a new modular \texttt{FPCFactory} Plugin System resulted in
 a complete redesign of the Device Descriptor itself, which changed its layout
@@ -192,9 +190,10 @@ following elements:
 
 \begin{itemize}
 
-    \item \textbf{Preamble:} A \lstinline!<device>! XML tag that contains a
-        textual description of the endpoint, and a list of XML namespaces used
-        to select the various Device Descriptor and \texttt{FPCFactory} plugins
+    \item \textbf{Preamble:} Represented by the root \lstinline!<device>! tag,
+        this section contains a textual description of the endpoint, and a list
+        of XML namespaces. As shown later, namespaces are employed to select
+        the various Device Descriptor features and \texttt{FPCFactory} plugins
         required for the creation of the \texttt{FPC} object;
 
     \item \textbf{Attribute declarations:} A list of all the device
@@ -204,38 +203,70 @@ following elements:
     \item \textbf{Channel declarations:} This section contains the
         configuration options of all \texttt{Channel} objects required to
         communicate with the remote device. Its contents are parsed and
-        interpreted by the \texttt{ChannelFactory} plugins;
+        interpreted by the \texttt{ChannelFactory} plugins, whose structure is
+        discussed in section~\ref{sec:channel};
 
     \item \textbf{Message declarations:} A section reserved for the declaration
-        of all data structures required to support the interaction with a node
-        of the network. Its contents are directly interpreted by the
-        \texttt{MapperFactory} plugins for the creation of new \texttt{Message}
-        mappers;
+        of all data structures required to exchange information with a node of
+        the network. Its contents are directly interpreted by the
+        \texttt{MapperFactory} plugins to create new \texttt{Message}
+        mappers, as described in section~\ref{sec:components.mapper};
 
     \item \textbf{Request declarations:} This part of the Device Descriptor
         is reserved for the declaration of all \texttt{IORequest} objects
         needed to communicate with a remote device. The helements hereby
-        contained are processed by the \texttt{IORequestFactory} plugins;
+        contained are processed by the \texttt{IORequestFactory} plugins, as
+        per instructions given in section~\ref{sec:channel};
 
-    \item \textbf{Operation declarations:} This last section of the Device
-        Descriptor contains the PerLa \texttt{Scripts} that are used for
-        controlling the remote device.
+    \item \textbf{Operation declarations:} As shown in
+        section~\ref{sec:components.fpc}, this final portion of the Device
+        Descriptor contains all PerLa \texttt{Scripts} employed to control the
+        remote device.
 
 \end{itemize}
 
+~\\
 \lstset{language=XML}
 \begin{lstlisting}[caption={The skeleton of the new XML Device Descriptor.}]
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="test" xmlns="http://perla.dei.org/device">
+
+  <attribute>
+    <!-- Attribute declarations -->
+  </attribute>
+
+  <channel>
+    <!-- Channel declarations -->
+  </channel>
+
+  <message>
+    <!-- Message declarations -->
+  </message>
+
+  <request>
+    <!-- IORequest declarations -->
+  </request>
+
+  <operation>
+    <!-- Operation and Scripts -->
+  </operation>
+
+</device>
 \end{lstlisting}
 
-Moreover, every \texttt{FPCFactory} plugin is responsible for defining the
-specific XML syntax to be used in its Device Descriptor section. This feature
-endows plugin authors with the possibility to specify the custom set of options
-to be used for the creation of their \texttt{FPC} modules. The possibility of
-using a custom syntax is key to the new \texttt{FPCFactory} Plugin System,
-since different types of plugins may require totally different configuration
-options in order to be used or even initialized (e.g., communicating over a
-HTTP \texttt{Channel} is considerably different than sending data on a
-low-power mesh network).
+Every \texttt{FPCFactory} plugin is responsible for defining the specific XML
+syntax to be used in its Device Descriptor section. This feature endows plugin
+authors with the opportunity to specify the custom set of options to be used
+for the creation of their \texttt{FPC} modules. The possibility of using a
+custom syntax is key to the new \texttt{FPCFactory} Plugin System, since
+different types of plugins may require totally different configuration options
+in order to be used or even initialized (e.g., communicating over a HTTP
+\texttt{Channel} is considerably different than sending data on a low-power
+mesh network).
+
+As briefly explained in the previous paragraphs, XML namespaces are a
+fundamental element of the \texttt{FPCFactory} Plugin System. They are in fact
+used to 
 
 
 
