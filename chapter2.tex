@@ -12,35 +12,56 @@ went on to propose a reference software architecture that could support the
 execution of PerLa data collection queries.
 
 In their first design they envisioned the possibility of creating a
-\textit{Device Access Layer} whose goal was to conceal all the hidiosincratic
+\textit{Device Access Layer} whose goal was to conceal all the idiosyncratic
 features of a Pervasive System, and provide a homogeneous data access interface
-that could support the PerLa language in its first development stages. The
-principal element of this earliest software architecture was the
+that could be used as a thought device to support the first development stages
+of PerLa. The principal element of this earliest software architecture was the
 \textit{Logical Object}, a virtualization module that provides a uniform API
 for accessing the functionalities of a single device in the sensing network.
 This germinal architecture evolved during the course of the following years
-into what will later be known as the \textit{PerLa Middleware}. 
+into what would later be known as \textit{PerLa Middleware}. 
 
-The PerLa Middleware architecture~\cite{tse_perla} was primarily concerned with
-providing an actual implementation of the Logical Object abstraction, a goal
-that was achieved with the creation of the Functionality Proxy Component
-(\texttt{FPC}). The \texttt{FPC} is a Java entity that reifies all concepts
-embodied by the Logical Object, with particular emphasis on the ability to
-abstract the peculiar features of a single sensing device through a common and
-uniform programming interface. However, the PerLa Middleware was more than a
-simple implementation of the Logical Object, as it provided a \textit{Plug \&
-Play} system for the autonomous creation of \texttt{FPC} objects and an
-initial implementation of the PerLa Language Executor component.
+The PerLa Middleware~\cite{tse_perla} was primarily concerned with providing an
+actual implementation of the Logical Object abstraction, a goal that was
+achieved with the creation of the Functionality Proxy Component (\texttt{FPC}).
+The \texttt{FPC} is a Java entity that reifies all concepts embodied by the
+Logical Object, with particular emphasis on the ability to abstract the
+peculiar features of a single sensing device through a common and uniform
+programming interface. The PerLa Middleware, however, was more than a simple
+implementation of the Logical Object, as it provided a \textit{Plug \& Play}
+system for the autonomous creation of \texttt{FPC} objects and an initial
+implementation of the PerLa Language Executor component.
 
-Context Management represents the next stage in the evolution of PerLa. In
-\cite{push_ctx} 
+The development of the PerLa Middleware has been a collaborative effort that
+involved multiple students and several years of work. The product that was
+created is thus the sum of all contributions made by different people that, at
+one time or another, put their minds (and hearts) at the design and
+implementation of the system. While this development methodology allowed PerLa
+to thrive and mature rapidly, since many intellects had the possibility to
+contribute with their innovative ideas, it also meant that its growth has been
+dishomogeneous and, at times, chaotic. It is under these premises that, in
+early 2014, the Middleware underwent a complete redesign, whose primary
+intentions were to consolidate the main programmatic API (Application
+Programming Interface), improve performances, and further advance some of the
+defining characteristics of the system. This thesis is a description of this
+recent endeavor, and will continue by describing the past, present and
+foreseeable future of the PerLa System.
 
-As of 2014 the PerLa System underwent a complete redesign of its 
-The following sections and chapter of this thesis are concerned with the
-redesign of the 
+The remaining sections of this chapter provide an account of PerLa prior to the
+current redesign, starting with the previous Middleware architecture --- also
+known as Classic PerLa Middleware --- and ending with a short digression
+towards Context management in Pervasive Systems. This same chapter will
+describe the main features of the PerLa Query Language, which as of today still
+is the interface of choice for using PerLa.
+Chapters~\ref{cha:middleware_overview} and~\ref{cha:components} contain an
+in-depth description of the New Middleware architecture, which concerns any
+developer interested in developing new PerLa Plugins or connecting new types of
+sensing devices. Finally, chapter~\ref{cha:conclusions} wraps up the work
+illustrated in this thesis, and provides an outlook on the prospects for
+PerLa's future.
 
-The development of the PerLa System focused on the design and implementation of
-the following features:
+
+\section{The Classic Middleware Architecture}
 
 \begin{itemize}
 
@@ -89,7 +110,7 @@ creates a Functionality Proxy Component suitable to handling the node.
 The Query Parser and the Query Analyser compose the user interface of the
 entire PerLa System.
 
-\subsection{The PerLa query language}
+\section{The PerLa query language}
 
 \section{Context management}
 
