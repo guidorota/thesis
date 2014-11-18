@@ -82,11 +82,11 @@ used to interact with them.
 \label{sec:newmiddleware.async}
 
 One of the major differences between the New and Classic Middleware
-architectures lies in the paradigm employed to interconnect internal modules of
-the PerLa software infrastructure. The New Middleware design introduces a fully
-asynchronous interaction paradigm that deviates profoundly from the mechanism
-previously promoted, as it is based on non-blocking method invocations and
-event-driven programming techniques.
+architectures lies in the technique employed to interconnect internal modules
+of the PerLa software infrastructure. The New Middleware introduces a fully
+asynchronous interaction paradigm based on non-blocking method invocations and
+event-driven programming techniques, which deviates profoundly from the
+mechanism previously promoted in the Classic design.
 
 \begin{figure}[h!]
     \center
@@ -113,15 +113,15 @@ promoted by the Classic Middleware resulted in a weak API that lacked intent
 and semantic clarity.
 
 The asynchronous, event-driven architecture implemented in the New Middleware
-is designed to overcome all aforementioned drawbacks, and to improve the
-overall system throughput and scalability. Differently from the deprecated
-\texttt{Pipe}-driven architecture, this design fosters a direct exchange of
+overcomes all aforementioned drawbacks, improving on the overall system
+throughput and scalability. Differently from the deprecated
+\texttt{Pipe}-driven system, this new design fosters a direct exchange of
 information between data producers and data consumers; information is no more
 delivered using a mandatory middleman (i.e., the \texttt{Pipe}), but is
 explicitly handed over to the intended recipients. This interaction paradigm is
-based on the \textit{Hollywood Principle} (don't call us, we call you), a
-software design methodology that encourages the development of highly-cohesive,
-low-coupling APIs.
+based on the \textit{Hollywood Principle}, a software design methodology whose
+principles are summarized by the motto ``\textit{don't call us, we call you}'',
+that encourages the development of highly-cohesive, low-coupling APIs, 
 
 \begin{figure}[h!]
 \center
@@ -131,7 +131,7 @@ consumer and the producer continue their execution in parallel.}
 \label{fig:async_paradigm}
 \end{figure}
 
-An asynchronous method call in the New PerLa Middleware is identified by the
+Every asynchronous method call in the New PerLa Middleware is identified by the
 following characteristics:
 
 \begin{itemize}
@@ -144,36 +144,104 @@ following characteristics:
 
     \item \textbf{Returns a Task object:} Asynchronous method calls do not
         return the immediate result of a computation. Instead, they return a
-        \texttt{Task}, an object that can be employed to stop the ongoing
+        \texttt{Task}, i.e., an object that can be employed to stop the ongoing
         operation or to query its current state of progress;
 
     \item \textbf{Deferred delivery of results:} The effective Result is
-        notified by invoking a \texttt{Handler} function passed by the caller
-        itself.
+        notified through a \texttt{Handler} function, which is invoked as soon
+        as the computation terminates. \texttt{Handler} functions are specified
+        upon use of an asynchronous method by the caller module itself.
 
 \end{itemize}
 
-\subsection{Factory Plugin System}
+For an in-depth description of the actual asynchronous APIs implemented within
+the PerLa Middleware, please refer to chapter~\ref{cha:components}.
+
+
+\subsection{FPCFactory Plugin System}
 \label{sec:newmiddleware.factory}
+
+The new \texttt{FPCFactory} is a modular software entity composed of various
+factory components dedicated to the creation of a specific \texttt{FPC} module.
+Its design is a significant departure from the original monolithic factory
+structure, and allows final users to easily expand the base capabilities of the
+PerLa Middleware without modifying its original source code. This modular
+architecture, formally called \texttt{FPCFactory} Plugin System, is a direct
+implementation of the \textit{Open/Closed} principle: the \texttt{FPCFactory}
+is open for extension, as its functionalities can be expanded by adding new
+plugins, but closed for modification, since the addition of a new sub-factory
+does not require any change to the Middleware's source code.
+
+At the current state of implementation the PerLa Middleware supports three
+different \texttt{FPCFactory} plugin types, viz. \texttt{ChannelFactories},
+\texttt{IORequestFactories} and \texttt{MapperFactories}, which are responsible
+for the creation of new \texttt{Channels}, \texttt{IORequests} and
+\texttt{Mappers} respectively (further information on all aforementioned
+classes are available in chapter~\ref{cha:components}). Different
+implementations of a single plugin type are tasked with creating the same class
+of \texttt{FPC} modules; for example, the \texttt{HTTPChannelFactory} and the
+\texttt{TinyOSChannelFactory} both create \texttt{Channel} objects, but the
+first is used to connect with RESTful web APIs, while the second one interfaces
+the PerLa Middleware with a TinyOS network.
+
+The introduction of a new modular \texttt{FPCFactory} Plugin System resulted in
+a complete redesign of the Device Descriptor itself, which changed its layout
+to accomodate a modular structure that closely follows the new
+\texttt{FPCFactory} architecture. The new Device Descriptor is composed of the
+following elements:
+
+\begin{itemize}
+
+    \item \textbf{Preamble:} A \lstinline!<device>! XML tag that contains a
+        textual description of the endpoint, and a list of XML namespaces used
+        to select the various Device Descriptor and \texttt{FPCFactory} plugins
+        required for the creation of the \texttt{FPC} object;
+
+    \item \textbf{Attribute declarations:} A list of all the device
+        \texttt{Attributes} exposed by the device. It must be enclosed in a
+        \lstinline!<attribute>! XML tag;
+
+    \item \textbf{Channel declarations:} This section contains the
+        configuration options of all \texttt{Channel} objects required to
+        communicate with the remote device. Its contents are parsed and
+        interpreted by the \texttt{ChannelFactory} plugins;
+
+    \item \textbf{Message declarations:} A section reserved for the declaration
+        of all data structures required to support the interaction with a node
+        of the network. Its contents are directly interpreted by the
+        \texttt{MapperFactory} plugins for the creation of new \texttt{Message}
+        mappers;
+
+    \item \textbf{Request declarations:} This part of the Device Descriptor
+        is reserved for the declaration of all \texttt{IORequest} objects
+        needed to communicate with a remote device. The helements hereby
+        contained are processed by the \texttt{IORequestFactory} plugins;
+
+    \item \textbf{Operation declarations:} This last section of the Device
+        Descriptor contains the PerLa \texttt{Scripts} that are used for
+        controlling the remote device.
+
+\end{itemize}
+
+\lstset{language=XML}
+\begin{lstlisting}[caption={The skeleton of the new XML Device Descriptor.}]
+\end{lstlisting}
+
+Moreover, every \texttt{FPCFactory} plugin is responsible for defining the
+specific XML syntax to be used in its Device Descriptor section. This feature
+endows plugin authors with the possibility to specify the custom set of options
+to be used for the creation of their \texttt{FPC} modules. The possibility of
+using a custom syntax is key to the new \texttt{FPCFactory} Plugin System,
+since different types of plugins may require totally different configuration
+options in order to be used or even initialized (e.g., communicating over a
+HTTP \texttt{Channel} is considerably different than sending data on a
+low-power mesh network).
+
+
 
 The New Middleware expands upon the concept of Factory by introducing a modular
 Plugin System that improves the flexibility and expandability of PerLa. The
-Factory is a widespread design pattern that allows the creation of new objects
-without specifying at compile time which exact class will be instantiated. This
-object creation abstraction is equivalent to a polymorphic constructor that
-uses runtime information to create new class instances.
-
-The new \texttt{FPCFactory} is a modular software entity composed of many
-sub-factories, each of which is dedicated to the creation of a specific
-\texttt{FPC} component. The new Factory Plugin System is a significant
-departure from the original monolithic \texttt{FPCFactory} design. It is a
-direct implementation of the \textit{Open/Closed} principle: the
-\texttt{FPCFactory} is open for extension, as its functionalities can be
-exanded by adding new plugins, but closed for modification, as the addition of
-a new sub-factory does not require any alteration to its source code. The
-current version of the PerLa Middleware supports three different Factory
-Plugins, \texttt{ChannelFactories}, \texttt{IORequestFactories} and
-\texttt{MapperFactories}, which are responsible for the creation of new
-\texttt{Channel}, \texttt{IORequests} and \texttt{Mappers} respectively
-(consult chapter~\ref{cha:components} for further information on these
-classes).
+term Factory refers to a widespread design pattern that allows the creation of
+new objects without specifying, at compile time, which exact class will be
+instantiated. This object creation abstraction is equivalent to a polymorphic
+constructor that uses runtime information to create new class instances.
