@@ -1,8 +1,10 @@
-\chapter{New middleware architecture}
+\chapter{The PerLa Middleware}
+
+\section{Design goals}
 
 Introduce the design goals of the new Middleware architecture
 
-\section{Architecture overview}
+\section{Middleware architecture overview}
 
 The PerLa Middleware is responsible for managing the lifecycle of all devices
 connected to the PerLa framework, and for providing a uniform API to interact
@@ -11,7 +13,7 @@ with them. Its design revolves around the Functionality Proxy Component
 required to communicate with a single remote device.  The most prominent trait
 of the \texttt{FPC} is its interface, an API that allows PerLa users to
 interact with the sensing network through two hardware-agnostic communication
-primitives, named get() and set().  Use of this interface neither requires
+primitives, named get() and set(). Use of this interface neither requires
 knowledge of the sensing network, nor of the device that will ultimately
 perform the requested operation.
 
@@ -83,6 +85,9 @@ all devices accessible through the PerLa framework. Thanks to the
 \texttt{Registry}, PerLa user can discover sensing nodes through
 capability-based queries, and retrieve the \texttt{FPC} objects that can be
 used to interact with them.
+
+
+\section{Differences with the Classic Middleware}
 
 \subsection{Asynchronous interaction paradigm}
 \label{sec:newmiddleware.async}
@@ -285,4 +290,8 @@ since different types of plugins may require totally different configuration
 values in order to be used or even initialized (e.g., communicating over a HTTP
 \texttt{Channel} is considerably different than sending data on a low-power
 mesh network).
+
+\subsection{PerLa Scripting system}
+
+
 
