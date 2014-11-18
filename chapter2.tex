@@ -4,24 +4,40 @@ PerLa is a software infrastructure for data management and integration in
 Pervasive Information Systems. Its development began in 2005 at Politecnico di
 Milano, with a thesis by Marco Marelli and Marco Fortunato entitled ``\textit{A
 Declarative Language for Pervasive Systems}'' \cite{mm_thesis}. With this
-document the two authors laid the foundations for the implementation of a
-completely declarative, SQL-like language that could be used to gather
-information from Pervasive Systems and Wireless Sensing Networks. Though their
-work primarily focussed on defining the syntax and semantics of the PerLa
-language, Marelli and Fortunato went on to propose a reference software
-architecture that could support the execution of PerLa data collection queries.
+document the two authors laid the foundations of a completely declarative,
+SQL-like language that could be used to gather information from Pervasive
+Systems and Wireless Sensing Networks. Though their work primarily focussed on
+defining the syntax and semantics of the PerLa language, Marelli and Fortunato
+went on to propose a reference software architecture that could support the
+execution of PerLa data collection queries.
 
 In their first design they envisioned the possibility of creating a
-\textit{Device Access Layer}, whose goal was to conceal all the hidiosincratic
-features of a Pervasive System and provide a homogeneous data access interface
-that could be used to develop the PerLa language. The principal element of this
-earliest software architecture was the \textit{Logical Object}, a
-virtualization module that provides a uniform API for accessing the
-functionalities of a single device in the sensing network.
+\textit{Device Access Layer} whose goal was to conceal all the hidiosincratic
+features of a Pervasive System, and provide a homogeneous data access interface
+that could support the PerLa language in its first development stages. The
+principal element of this earliest software architecture was the
+\textit{Logical Object}, a virtualization module that provides a uniform API
+for accessing the functionalities of a single device in the sensing network.
+This germinal architecture evolved during the course of the following years
+into what will later be known as the \textit{PerLa Middleware}. 
 
-This initial design later evolved with the 
+The PerLa Middleware architecture~\cite{tse_perla} was primarily concerned with
+providing an actual implementation of the Logical Object abstraction, a goal
+that was achieved with the creation of the Functionality Proxy Component
+(\texttt{FPC}). The \texttt{FPC} is a Java entity that reifies all concepts
+embodied by the Logical Object, with particular emphasis on the ability to
+abstract the peculiar features of a single sensing device through a common and
+uniform programming interface. However, the PerLa Middleware was more than a
+simple implementation of the Logical Object, as it provided a \textit{Plug \&
+Play} system for the autonomous creation of \texttt{FPC} objects and an
+initial implementation of the PerLa Language Executor component.
 
-quickly evolved to include a middleware and a 
+Context Management represents the next stage in the evolution of PerLa. In
+\cite{push_ctx} 
+
+As of 2014 the PerLa System underwent a complete redesign of its 
+The following sections and chapter of this thesis are concerned with the
+redesign of the 
 
 The development of the PerLa System focused on the design and implementation of
 the following features:
