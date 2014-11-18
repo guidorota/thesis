@@ -33,23 +33,29 @@ that form an \texttt{FPC}:
 \begin{itemize}
 
     \item \textbf{Channel:} A software component capable of performing I/O
-    operations. \texttt{Channels} are responsible for managing the
-    communication between the PerLa framework and the remote devices;
+        operations. \texttt{Channels} are responsible for managing the
+        communication between the PerLa Middleware and the remote devices.
+        Every \texttt{Channel} is bundled with a collection of
+        \texttt{IORequest} objects, which are employed to initiate specific I/O
+        tasks on the sensing nodes;
 
     \item \textbf{Mapper:} A data marshaller/unmarshaller. \texttt{Mappers}
-    allow the \texttt{FPC} to interpret byte streams received from a Channel,
-    and to serialize high-level data structures prior to transmission;
+        allow the \texttt{FPC} to interpret byte streams received from a
+        Channel, and to serialize high-level data structures prior to
+        transmission. Moreover, every \texttt{Mapper} is responsible for the
+        management of a high level PerLa data structures dubbed
+        \texttt{Messages};
 
     \item \textbf{Script Engine:} An interpreter for executing PerLa
-    \texttt{Scripts}, small programs written in a proprietary PerLa scripting
-    language, which are used to dynamically bind high level data requests to
-    native processing tasks performed on the remote device;
+        \texttt{Scripts}, small programs written in a proprietary PerLa
+        scripting language, which are used to dynamically bind high level data
+        requests to native processing tasks performed on the remote device;
 
     \item \textbf{Operation Scheduler:} Schedules the execution of concurrent
-    data collection operations on the remote device. The scheduler may simulate
-    certain operations if the device connected to the FPC is not able to
-    perform them natively (e.g., periodic sampling may be simulated by polling
-    the remote device at regular intervals).
+        data collection operations on the remote device. The scheduler may
+        simulate certain operations if the device connected to the FPC is not
+        able to perform them natively (e.g., periodic sampling may be simulated
+        by polling the remote device at regular intervals).
 
 \end{itemize}
 
@@ -160,7 +166,7 @@ the PerLa Middleware, refer to chapter~\ref{cha:components}.
 \subsection{FPCFactory Plugin System}
 \label{sec:newmiddleware.factory}
 
-The new \texttt{FPCFactory} is a modular software entity composed of various
+The new \texttt{FPCFactory} is a modular software entity composed of multiple
 factory components dedicated to the creation of a specific \texttt{FPC} module.
 Its design is a significant departure from the original monolithic factory
 structure, and allows final users to easily expand the base capabilities of the
@@ -171,16 +177,15 @@ is open for extension, as its functionalities can be expanded by adding new
 plugins, but closed for modification, since the addition of a new sub-factory
 does not require any change to the Middleware's source code.
 
-At the current state of implementation the PerLa Middleware supports three
+At the current state of implementation, the PerLa Middleware supports three
 different \texttt{FPCFactory} plugin types, viz. \texttt{ChannelFactories},
 \texttt{IORequestFactories} and \texttt{MapperFactories}, which are responsible
 for the creation of new \texttt{Channels}, \texttt{IORequests} and
-\texttt{Mappers} respectively. Different implementations of a single plugin
-type are tasked with creating the same class of \texttt{FPC} modules; for
-example, the \texttt{HTTPChannelFactory} and the \texttt{TinyOSChannelFactory}
-both create \texttt{Channel} objects, but the first is used to connect with
-RESTful web APIs, while the second one interfaces the PerLa Middleware with a
-TinyOS network.
+\texttt{Mappers} respectively. All implementations of a single plugin type are
+tasked with creating the same class of \texttt{FPC} modules; for example, the
+\texttt{HTTPChannelFactory} and the \texttt{TinyOSChannelFactory} both create
+\texttt{Channel} objects, but the first are used to connect with RESTful web
+APIs, whereas the second are interfaces to TinyOS networks.
 
 The introduction of a new modular \texttt{FPCFactory} Plugin System resulted in
 a complete redesign of the Device Descriptor itself, which changed its layout
@@ -194,10 +199,10 @@ following elements:
         this section contains a textual description of the endpoint, and a list
         of XML namespaces. As shown later, namespaces are employed to select
         the various Device Descriptor features and \texttt{FPCFactory} plugins
-        required for the creation of the \texttt{FPC} object;
+        required for the creation of an \texttt{FPC} object;
 
     \item \textbf{Attribute declarations:} A list of all the device
-        \texttt{Attributes} exposed by the device. It must be enclosed in a
+        \texttt{Attributes} exposed by the device. It must be enclosed in an
         \lstinline!<attribute>! XML tag;
 
     \item \textbf{Channel declarations:} This section contains the
@@ -212,11 +217,11 @@ following elements:
         \texttt{MapperFactory} plugins to create new \texttt{Message}
         mappers, as described in section~\ref{sec:components.mapper};
 
-    \item \textbf{Request declarations:} This part of the Device Descriptor
-        is reserved for the declaration of all \texttt{IORequest} objects
-        needed to communicate with a remote device. The helements hereby
-        contained are processed by the \texttt{IORequestFactory} plugins, as
-        per instructions given in section~\ref{sec:channel};
+    \item \textbf{Request declarations:} This part of the Device Descriptor is
+        reserved for the declaration of all \texttt{IORequest} objects needed
+        to communicate with a remote device. The elements hereby contained are
+        processed by the \texttt{IORequestFactory} plugins, as per instructions
+        given in section~\ref{sec:channel};
 
     \item \textbf{Operation declarations:} As shown in
         section~\ref{sec:components.fpc}, this final portion of the Device
@@ -230,49 +235,54 @@ following elements:
 \begin{lstlisting}[caption={The skeleton of the new XML Device Descriptor.}]
 <?xml version="1.0" encoding="UTF-8"?>
 <device type="test" xmlns="http://perla.dei.org/device">
-
   <attribute>
     <!-- Attribute declarations -->
   </attribute>
-
   <channel>
     <!-- Channel declarations -->
   </channel>
-
   <message>
     <!-- Message declarations -->
   </message>
-
   <request>
     <!-- IORequest declarations -->
   </request>
-
   <operation>
     <!-- Operation and Scripts -->
   </operation>
-
 </device>
 \end{lstlisting}
 
-Every \texttt{FPCFactory} plugin is responsible for defining the specific XML
-syntax to be used in its Device Descriptor section. This feature endows plugin
-authors with the opportunity to specify the custom set of options to be used
-for the creation of their \texttt{FPC} modules. The possibility of using a
-custom syntax is key to the new \texttt{FPCFactory} Plugin System, since
-different types of plugins may require totally different configuration options
-in order to be used or even initialized (e.g., communicating over a HTTP
+As briefly explained in previous paragraphs, XML namespaces constitute a
+fundamental element of the \texttt{FPCFactory} Plugin System, since they are
+used to select which factory component must be employed for the creation of a
+specific \texttt{FPC} module. A practical example of this concept is available
+in figure~\ref{fig:dd_namespace}: this Device Descriptor excerpt specifies two
+plugin namespaces, one for a \texttt{HTTPChannel}
+(\texttt{http://perla.dei.org/fpc/channel/http}), and the other for a
+\texttt{JSONMapper} (\texttt{http://perla.dei.org/fpc/message/json}); these two
+values, once processed by the texttt{FPCFactory}, are used for selecting the
+specific plugin that will be used for constructing the corresponding
+\texttt{FPC} components. It is important to note that the
+\texttt{http://perla.dei.org/device} and
+\texttt{http://perla.dei.org/device/instructions} namespaces are mandatory, as
+they respectively define the Device Descriptor base elements and all available
+\texttt{Script} instructions.
+
+\begin{figure}[h!]
+\center
+\includegraphics[width=\textwidth]{imgs/dd_namespace.pdf}
+\caption{Namespace-guided FPC creation.}
+\label{fig:dd_namespace}
+\end{figure}
+
+Every \texttt{FPCFactory} plugin is also responsible for defining the
+particular XML syntax to be used in its Device Descriptor section. This feature
+endows plugin authors with the opportunity to specify a custom set of options
+to be used for the creation of their \texttt{FPC} modules. The possibility of
+using a custom syntax is key to the new \texttt{FPCFactory} Plugin System,
+since different types of plugins may require totally different configuration
+values in order to be used or even initialized (e.g., communicating over a HTTP
 \texttt{Channel} is considerably different than sending data on a low-power
 mesh network).
 
-As briefly explained in the previous paragraphs, XML namespaces are a
-fundamental element of the \texttt{FPCFactory} Plugin System. They are in fact
-used to 
-
-
-
-The New Middleware expands upon the concept of Factory by introducing a modular
-Plugin System that improves the flexibility and expandability of PerLa. The
-term Factory refers to a widespread design pattern that allows the creation of
-new objects without specifying, at compile time, which exact class will be
-instantiated. This object creation abstraction is equivalent to a polymorphic
-constructor that uses runtime information to create new class instances.
