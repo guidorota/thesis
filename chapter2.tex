@@ -1,8 +1,27 @@
 \chapter{The PerLa System}
 
-A brief history of PerLa
+PerLa is a software infrastructure for data management and integration in
+Pervasive Information Systems. Its development began in 2005 at Politecnico di
+Milano, with a thesis by Marco Marelli and Marco Fortunato entitled ``\textit{A
+Declarative Language for Pervasive Systems}'' \cite{mm_thesis}. With this
+document the two authors laid the foundations for the implementation of a
+completely declarative, SQL-like language that could be used to gather
+information from Pervasive Systems and Wireless Sensing Networks. Though their
+work primarily focussed on defining the syntax and semantics of the PerLa
+language, Marelli and Fortunato went on to propose a reference software
+architecture that could support the execution of PerLa data collection queries.
 
-\section{Architectural overview}
+In their first design they envisioned the possibility of creating a
+\textit{Device Access Layer}, whose goal was to conceal all the hidiosincratic
+features of a Pervasive System and provide a homogeneous data access interface
+that could be used to develop the PerLa language. The principal element of this
+earliest software architecture was the \textit{Logical Object}, a
+virtualization module that provides a uniform API for accessing the
+functionalities of a single device in the sensing network.
+
+This initial design later evolved with the 
+
+quickly evolved to include a middleware and a 
 
 The development of the PerLa System focused on the design and implementation of
 the following features:
