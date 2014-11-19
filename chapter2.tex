@@ -134,10 +134,103 @@ using a consice but powerful set of clauses. The reminder of this section will
 provide an overview of the main syntactic and semantic features of the PerLa
 Query Language, along with two examples excerpted from real-world use cases.
 
-\subsection{The \textbf{SAMPLING} section}
+\subsection{The Data Management section}
+
+Introduced by the \texttt{SELECT} clause, this section of the PerLa Query
+Language should immediately result familiar to every person acquainted with the
+SQL language. This clause achieves two purposes: first, it defines which data
+elements (specifically, which data \texttt{Attributes}) are to be collected
+from the Pervasive System; second, it indicates the operations and computations
+that must be performed on the information extracted from the Pervasive System.
+
+The need to manage a theoretically infinite stream of data elements coming from
+the sensing network required the development of a custom syntax for aggregate
+operations. Differently from standard SQL aggregates, which always operate on a
+finite set of elements whose size is well-known at runtime, PerLa aggregates
+must cope with an ever-flowing stream of records, and thus require users to
+specify the scope of their intended computations. This is achieved through a
+duration expression, an additional mandatory parameter that complements the
+aggregation expression by limiting the number of records to be processed to a
+limited amount. Duration expressions can be specified using two different
+methods: a time-based syntax, that allows users to define the aggregation scope
+in terms of time windows (\lstinline!SELECT AVG(TEMP, 10 SECONDS)!), and a
+record-based syntax, that clearly indicates the number of records to be used
+for the computation (\lstinline!SELECT AVG(TEMP, 30 SAMPLES)!).
+
+\subsection{The Sampling section}
+
+The Sampling section can be used to specify how and when the data elements
+requested with the \texttt{SELECT} statement are to be extracted from the
+network nodes. There are two different operating modes, both introduced by the
+\texttt{SAMPLING} clause. \textit{Time-based} sampling can be used to collect
+data at periodic intervals. The sampling frequency is specified by means of an
+\texttt{IF-EVERY} syntax that enables users to specify different sampling
+periods, along with the conditions for their activations. On the other hand,
+the \textit{Event-based} sampling mode allows the acquisition of a data sample
+each time the desired event is fired.
+
+~\\
+\begin{lstlisting}[caption={An example of time-based sampling, which shows how
+the sampling frequency can be increased as the monitored phenomenon evolves.}]
+SAMPLING
+    IF temperature < 50 EVERY 10 MINUTES
+    ELSE IF TEMPERATURE >= 50 EVERY 1 MINUTES
+\end{lstlisting}
+
+\subsection{The Conditional Execution section}
+
+Introduced by the \texttt{EXECUTE IF} clause, this query section contains a
+boolean expression that every sensing device must satisfy in order to be
+considered as a candidate data source, and it's often employed when the user
+requires its query to be executed on nodes with well-defined capabilities. This
+section is not mandatory, and its omission implies that the PerLa query must be
+executed on every device of the sensing network. An \texttt{EXECUTE IF}
+statement can be optionally complemented by a \texttt{REFRESH} clause, which
+specifies how often the execution condition is re-evaluated to update the list
+of nodes involved in the evaluation of a query. 
+
+\subsection{The Termination Condition section}
+
+An optional clause that can be used to terminate the execution of a query, both
+in terms of time (\lstinline!TERMINATE AFTER 1 DAY!) or number of selections
+performed (\lstinline!TERMINATE AFTER 10 SELECTIONS!). This behaviour is useful
+when perform a one-shot query, or when the monitoring period is known a priori.
+
+\subsection{Query examples}
+
+The following query initiates a temperature sampling operation on all
+temperature sensors located in room number three. New data readings are
+collected by the minute, as specified by the \texttt{SAMPLING} clause; however,
+new output records are created every 5 minutes, as indicated in the
+\texttt{EVERY} statement that guards the data management section. Finally, each
+record produced by this query contains the maximum temperature value collected
+in the previous 10 minutes of sampling.
+
+\begin{lstlisting}
+CREATE OUTPUT STREAM Table (Temperature FLOAT) AS:
+EVERY 5 MINUTES
+SELECT MAX(temp, 10 MINUTES)
+SAMPLING
+  EVERY 1 MINUTES
+EXECUTE IF EXISTS(temp) AND EXISTS(room) AND room = 3
+\end{lstlisting}
 
 
+This second example illustrates how the PerLa Language can be used to collect
+information in response to an event. First of all, this is a one-shot query, as
+it terminates as soon as the first record is produced. The single output record
+contains the number of times the RFID with identifier \texttt{0xDF445A} was
+scanned in the last 10 minutes.
 
+\begin{lstlisting}
+CREATE OUTPUT STREAM Table (rfid STRING, counter INTEGER) AS:
+EVERY 10 MINUTES
+SELECT lastReaderId, COUNT(*, 10 MINUTES)
+SAMPLING
+  ON EVENT lastReaderChanged
+EXECUTE IF ID=[0xDF445A]
+TERMINATE AFTER 1 SELECTIONS
+\end{lstlisting}
 
 
 \section{Context management}
