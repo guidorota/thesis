@@ -110,7 +110,35 @@ creates a Functionality Proxy Component suitable to handling the node.
 The Query Parser and the Query Analyser compose the user interface of the
 entire PerLa System.
 
-\section{The PerLa query language}
+\section{The PerLa Query Language}
+
+The PerLa Query Language is a declarative, SQL-like language for interacting
+with Pervasive Systems. A sensing network managed by PerLa is abstracted as a
+large table in a streaming database, whose columns correspond to specific data
+elements that can be retrieved from the devices connected to the Middleware.
+This generalization allows final users to glean information out of a Pervasive
+System without dealing with all the complications that stem from managing the
+quirks of every single sensing node, as the intricate mesh of available data
+sources is completely hidden by the database abstraction.
+
+The PerLa Query Language is designed to be simple and easy to use. Its core
+syntax is compact and reminiscent of other well-known database-oriented
+languages as SQL. It provides a uniform interrogation mechanism that enables
+the collection of data elements regardless of their origin. Information may be
+sampled from a physical phenomena, read from the memory of an endpoint device
+or estracted from a web service; whatever the source, the PerLa query pattern
+is always the same.
+
+PerLa queries allow the user to determine the exact behaviour of a data source
+using a consice but powerful set of clauses. The reminder of this section will
+provide an overview of the main syntactic and semantic features of the PerLa
+Query Language, along with two examples excerpted from real-world use cases.
+
+\subsection{The \textbf{SAMPLING} section}
+
+
+
+
 
 \section{Context management}
 
