@@ -63,22 +63,29 @@ PerLa's future.
 
 \section{The Classic Middleware Architecture}
 
-As introduced in the previous sections of this chapter, the principal element
-of the PerLa Middleware, both in its classic and redesigned incarnations, is
-the \texttt{FPC}. Its primary function consists in providing a consistent and
+As stated in the previous sections of this chapter, the principal element of
+the PerLa Middleware, both in its classic and redesigned incarnations, is the
+\texttt{FPC}. Its primary function consists in providing a consistent and
 homogeneous interface that can be used by high-level components of the PerLa
 System to access all functionalities of a Pervasive System, without requiring
 any knowledge of the underlying hardware layer.
 
-The data elements that can be accessed through a sensing node are abstracted
-using the concept of \textit{Device Attribute}. Device Attributes can be
-defined as the single pieces of information produced or consumed by a sensing
-device. By design, they are not tied to any particular technology; therefore,
-an attribute can represent any primitive value, regardless of the method
-employed for its generation (physical sampling, read from main memory, etc.).
-Device attributes are one of the defining elements of the PerLa Middleware, as
-any operation performed through the \texttt{FPC} interface has to be specified
-in terms of reading or writing a specific set of device attributes.
+\begin{figure}[h!]
+\center
+\includegraphics[width=0.6\textwidth]{imgs/classic_fpc.pdf}
+\caption{The Classic FPC design}
+\label{fig:classic_fpc}
+\end{figure}
+
+The data elements that can be accessed through an \texttt{FPC} are abstracted
+using the concept of \textit{Device Attribute}, i.e., a single piece of
+information produced or consumed by a node in the Pervasive System. By design,
+device attributes are not tied to any particular technology, and can therefore
+be used to represent any primitive value, regardless of the method employed for
+its generation (physical sampling, read from main memory, etc.). Device
+Attributes are one of the defining elements of the PerLa Middleware, as any
+operation performed through the \texttt{FPC} interface has to be specified in
+terms of reading or writing a specific set of attributes.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/classic_middleware_overview.pdf}
@@ -133,7 +140,10 @@ attributes would then be executed as follows:
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/classic_descriptor.pdf}
-\caption{Physical to logical attribute mapping in the Classic PerLa Middleware.}
+\caption{Physical to logical attribute mapping in the Classic PerLa Middleware.
+The annotations added to the Java Message allow the \texttt{Marshaller} and
+\texttt{Unmarshaller} components to encode and decode the information exchanged 
+with the remote device.}
 \label{fig:classic_descriptor}
 \end{figure}
 
@@ -141,9 +151,14 @@ All the information required to create the Java objects used during this
 process, along with the corresponding attribute mappings and
 \texttt{Marshaller}/\\texttt{Unmarshaller} directives, are extracted from the
 Device Descriptor. Figure~\ref{fig:classic_descriptor} contains a typical
-descriptor example, which highlights the correlations between a C-Struct
-declaration used in the remote device, its corresponding Device Descriptor, and
-the resulting Java message.
+descriptor example, which highlights the correlations that exist between a
+C-Struct declaration used in the sensing device, its corresponding Device
+Descriptor, and the resulting Java class created by the \texttt{FPCFactory}.
+
+Most of the concepts introduced in this brief description of the Classic PerLa
+architecture will be subject of further discussion in
+Chapter~\ref{cha:middleware_overview}, where they are going to be match
+alongside their novel counterparts.
 
 \section{The PerLa Query Language}
 \label{sec:language}
