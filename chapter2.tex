@@ -22,7 +22,7 @@ This germinal architecture evolved during the course of the following years
 into what would later be known as \textit{PerLa Middleware}. 
 
 The PerLa Middleware~\cite{tse_perla} was primarily concerned with providing an
-actual implementation of the Logical Object abstraction, a goal that was
+actual implementation to the Logical Object abstraction, a goal that was
 achieved with the creation of the Functionality Proxy Component (\texttt{FPC}).
 The \texttt{FPC} is a Java entity that reifies all concepts embodied by the
 Logical Object, with particular emphasis on the ability to abstract the
@@ -30,12 +30,12 @@ peculiar features of a single sensing device through a common and uniform
 programming interface. The PerLa Middleware, however, was more than a simple
 implementation of the Logical Object, as it provided a \textit{Plug \& Play}
 system for the autonomous creation of \texttt{FPC} objects and an initial
-implementation of the PerLa Language Executor component.
+release of the PerLa Query Executor component.
 
 The development of the PerLa Middleware has been a collaborative effort that
 involved multiple students and several years of work. The product that was
-created is thus the sum of all contributions made by different people that, at
-one time or another, put their minds (and hearts) at the design and
+created is thus the sum of all contributions made by different people, that, at
+one time or another, put their minds and hearts at the design and
 implementation of the system. While this development methodology allowed PerLa
 to thrive and mature rapidly, since many intellects had the possibility to
 contribute with their innovative ideas, it also meant that its growth has been
@@ -54,11 +54,11 @@ towards Context management in Pervasive Systems. This same chapter will
 describe the main features of the PerLa Query Language, which as of today still
 is the interface of choice for using PerLa.
 Chapters~\ref{cha:middleware_overview} and~\ref{cha:components} contain an
-in-depth description of the New Middleware architecture, which concerns any
-developer interested in developing new PerLa Plugins or connecting new types of
-sensing devices. Finally, chapter~\ref{cha:conclusions} wraps up the work
-illustrated in this thesis, and provides an outlook on the prospects for
-PerLa's future.
+in-depth description of the New Middleware architecture, which should be of
+concern to any programmer interested in developing new PerLa Plugins or
+connecting new types of sensing devices. Finally, chapter~\ref{cha:conclusions}
+wraps up the work illustrated in this thesis, and provides an outlook on the
+prospects for PerLa's future.
 
 
 \section{The Classic Middleware Architecture}
@@ -77,15 +77,15 @@ any knowledge of the underlying hardware layer.
 \label{fig:classic_fpc}
 \end{figure}
 
-The data elements that can be accessed through an \texttt{FPC} are abstracted
-using the concept of \textit{Device Attribute}, i.e., a single piece of
-information produced or consumed by a node in the Pervasive System. By design,
-device attributes are not tied to any particular technology, and can therefore
-be used to represent any primitive value, regardless of the method employed for
-its generation (physical sampling, read from main memory, etc.). Device
-Attributes are one of the defining elements of the PerLa Middleware, as any
-operation performed through the \texttt{FPC} interface has to be specified in
-terms of reading or writing a specific set of attributes.
+All data elements accessible through an \texttt{FPC} are abstracted using the
+concept of \textit{Device Attribute}, namely a single piece of information
+produced or consumed by a node in the Pervasive System. By design, device
+attributes are not tied to a particular technology, and can therefore be used
+to represent any primitive value, regardless of the method employed for its
+generation (physical sampling, read from main memory, etc.). Device Attributes
+are one of the defining aspects of the PerLa Middleware, as any operation
+performed through the \texttt{FPC} interface has to be specified in terms of
+reading or writing a specific set of attributes.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/classic_middleware_overview.pdf}
@@ -93,22 +93,23 @@ terms of reading or writing a specific set of attributes.
 \label{fig:classic_architecture}
 \end{figure}
 
-The physical connection between an \texttt{FPC} and its remote device is
-entirely managed by the \texttt{Channel Manager} (see
-figure~\ref{fig:classic_architecture}). This component is responsible for the
-creation of \texttt{Virtual Channels}, a software abstraction that hides all
-the peculiar technologies used to communicate with the endpoints in a Pervasive
-System. By means of the \texttt{Channel Manager}, \texttt{FPC}s and physical
-devices can exchange information transparently; however, the achievement of
-this goal is strictly tied to the capabilities of this component, as all
-protocols and communication media available to the Classic Middleware are
-limited to those that the original PerLa Developers hard-coded into the
-\texttt{Channel Manager}.
+In the Classic PerLa Middleware, the physical connection between an
+\texttt{FPC} and its remote device is entirely managed by the \texttt{Channel
+Manager} (see figure~\ref{fig:classic_architecture}). This component is
+responsible for the creation of \texttt{Virtual Channels}, abstract network
+interfaces that conceal the specific technologies required to hold a
+communication link between two endpoints of a Pervasive System. By means of the
+\texttt{Channel Manager}, \texttt{FPC}s and physical devices can exchange
+information transparently, mutually ignoring all the differences that may exist
+between them; The achievement of this goal, however, is strictly limited by the
+capabilities of the \texttt{Channel Manager} itself, as the choice of protocols
+available in the Classic Middleware is restricted to those that the original
+PerLa Developers hard-coded into this component.
 
 Sensing nodes can be added to a running instance of the PerLa Middleware
 through a \textit{Plug \& Play} device registration mechanism. This operation
-is performed by the \texttt{FPCFactory}, a software component tasked with
-creating new \texttt{FPC} objects at runtime from a blueprint document called
+is performed at runtime by the \texttt{FPCFactory}, a software component tasked
+with creating new \texttt{FPC} objects from a blueprint document called
 \textit{Device Descriptor}. PerLa-enabled devices are programmed to send their
 XML descriptor at startup; this allows them to be readily available for use, as
 their controlling \texttt{FPC} object is dynamically instantiated by the
@@ -116,25 +117,26 @@ their controlling \texttt{FPC} object is dynamically instantiated by the
 
 As shown in figure~\ref{fig:classic_fpc}, the internal structure of the Classic
 \texttt{FPC} is mainly composed of a \texttt{Marshaller}, an
-\texttt{Unmarshaller}, and different Java objects representing the messages
-which can be exchanged with the remote endpoint. This early design implements a
-simplified data collection mechanism, which is based on the assumptions that
-every device attribute can be mapped to exactly one message field. Under the
-Classic Middleware, a typical data collection request for a well-defined set of
-attributes would then be executed as follows:
+\texttt{Unmarshaller}, and a selection of Java objects representing the
+messages which can be exchanged with the remote endpoint. This early design is
+enough to implements a simplified data collection mechanism, based on the
+assumptions that every device attribute can be mapped to exactly one message
+field. Under the Classic Middleware, a typical data collection request for a
+well-defined set of attributes would then be executed as follows:
 
 \begin{enumerate}
 
-    \item The \texttt{FPC} compiles a list of data structures which are to be
-        requested from the remote device, leveraging the one-to-one
-        relationship between attributes and message fields;
+    \item Starting from a user's request, and leveragin the one-to-one
+        relationship between attributes and message fields, the \texttt{FPC}
+        compiles a list of data structures which are to be collected from the
+        remote device;
 
     \item The remote device starts streaming data to the \texttt{FPC}. This
         information is unmarshalled into a high-level Java message, according
         to the directives specified inside the Device Descriptor;
 
-    \item The message fields containing all relevant information for the user
-        are accessed in order to produce an output record.
+    \item All message fields containing relevant information for the user are
+        read in order to produce an output record.
 
 \end{enumerate}
 
