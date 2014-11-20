@@ -338,3 +338,14 @@ TERMINATE AFTER 1 SELECTIONS
 
 \section{Context management}
 
+The Context Management layer is an extension to the PerLa framework designed to
+simplify the development and deployment of context-aware applications based on
+distributed sensing networks. It consists of a Context Language and a Context
+Management component, both of which interface directly with the Query Executor
+layer. The Context Language enables PerLa users to define the context-driven
+behaviour of a network of distributed computing nodes; context is represented
+using the Context Dimension Tree model (CDT, \cite{bolchiniCDT}), while
+context-dependent actions are specified using PerLa Queries. The Context
+Management component is responsible for populating the CDT with data collected
+from the sensing network, as well as tailoring and performing the related PerLa
+query associated with the active context.
