@@ -238,40 +238,39 @@ Query Language, along with two examples excerpted from real-world use cases.
 \subsection{The Data Management section}
 
 Introduced by the \texttt{SELECT} clause, this section of the PerLa Query
-Language should immediately result familiar to every person acquainted with the
-SQL language. This clause achieves two purposes: first, it defines which data
-elements (specifically, which data \texttt{Attributes}) are to be collected
-from the Pervasive System; second, it indicates the operations and computations
-that must be performed on the information extracted from the Pervasive System.
+Language should immediately result familiar to every developer acquainted with
+the SQL language. This clause achieves two purposes: first, it defines which
+data elements (specifically, which data \texttt{Attributes}) are to be
+collected from the Pervasive System; second, it indicates the operations and
+computations that must be performed on the information being extracted.
 
 The need to manage a theoretically infinite stream of data elements coming from
 the sensing network required the development of a custom syntax for aggregate
 operations. Differently from standard SQL aggregates, which always operate on a
-finite set of elements whose size is well-known at runtime, PerLa aggregates
-must cope with an ever-flowing stream of records, and thus require users to
-specify the scope of their intended computations. This is achieved through a
-duration expression, an additional mandatory parameter that complements the
-aggregation expression by limiting the number of records to be processed to a
-limited amount. Duration expressions can be specified using two different
-methods: a time-based syntax, that allows users to define the aggregation scope
-in terms of time windows (\lstinline!SELECT AVG(TEMP, 10 SECONDS)!), and a
-record-based syntax, that clearly indicates the number of records to be used
-for the computation (\lstinline!SELECT AVG(TEMP, 30 SAMPLES)!).
+finite set of elements, PerLa aggregates must cope with an ever-flowing stream
+of records, and thus require users to specify the scope of their intended
+computations. This is achieved through a duration expression, a mandatory
+parameter that complements the aggregation clause by limiting the number of
+records to be processed to a limited amount. Duration expressions can be
+specified using two different methods: a time-based syntax, that allows users
+to define the aggregation scope in terms of time windows (\lstinline!SELECT AVG(TEMP, 10 SECONDS)!),
+and a record-based syntax, that clearly indicates the
+number of records to be used for the computation (\lstinline!SELECT AVG(TEMP, 30 SAMPLES)!).
 
 \subsection{The Sampling section}
 
-The Sampling section can be used to specify how and when the data elements
-requested with the \texttt{SELECT} statement are to be extracted from the
-network nodes. There are two different operating modes, both introduced by the
-\texttt{SAMPLING} clause. \textit{Time-based} sampling can be used to collect
-data at periodic intervals. The sampling frequency is specified by means of an
-\texttt{IF-EVERY} syntax that enables users to specify different sampling
-periods, along with the conditions for their activations. On the other hand,
-the \textit{Event-based} sampling mode allows the acquisition of a data sample
-each time the desired event is fired.
+The Sampling section can be used to specify how and when the data
+\texttt{Attribute}s requested with the \texttt{SELECT} statement are to be
+extracted from the network nodes. There are two different operating modes, both
+introduced by the \texttt{SAMPLING} clause. \textit{Time-based} sampling can be
+used to collect data at periodic intervals; the sampling frequency is specified
+by means of an \texttt{IF-EVERY} syntax, which enables users to specify
+different expression-guarded sampling periods (see listing~\ref{lst:ifevery}.
+On the other hand, the \textit{Event-based} sampling mode allows the
+acquisition of a data sample each time a specific event is fired.
 
 ~\\
-\begin{lstlisting}[caption={An example of time-based sampling, which shows how
+\begin{lstlisting}[label={lst:ifevery},caption={An example of time-based sampling, which shows how
 the sampling frequency can be increased as the monitored phenomenon evolves.}]
 SAMPLING
     IF temperature < 50 EVERY 10 MINUTES
@@ -303,9 +302,10 @@ The following query initiates a temperature sampling operation on all
 temperature sensors located in room number three. New data readings are
 collected by the minute, as specified by the \texttt{SAMPLING} clause; however,
 new output records are created every 5 minutes, as indicated in the
-\texttt{EVERY} statement that guards the data management section. Finally, each
-record produced by this query contains the maximum temperature value collected
-in the previous 10 minutes of sampling.
+\texttt{EVERY} statement that guards the data management section. Thanks to the
+\texttt{MAX} aggregation expression, each record produced by this query
+contains the maximum temperature value collected in the previous 10 minutes of
+sampling.
 
 \begin{lstlisting}
 CREATE OUTPUT STREAM Table (Temperature FLOAT) AS:
@@ -319,7 +319,7 @@ EXECUTE IF EXISTS(temp) AND EXISTS(room) AND room = 3
 
 This second example illustrates how the PerLa Language can be used to collect
 information in response to an event. First of all, this is a one-shot query, as
-it terminates as soon as the first record is produced. The single output record
+it terminates as soon as the first record is produced; its single output record
 contains the number of times the RFID with identifier \texttt{0xDF445A} was
 scanned in the last 10 minutes.
 

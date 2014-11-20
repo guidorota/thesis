@@ -1,53 +1,82 @@
-\chapter{The PerLa Middleware}
+\chapter{The New PerLa Middleware}
 \label{cha:middleware_overview}
 
 \section{Design goals}
 
 Introduce the design goals of the new Middleware architecture
 
-\section{Middleware architecture overview}
+\section{Overview of the New Middleware Architecture}
 
-The PerLa Middleware is responsible for managing the lifecycle of all devices
-connected to the PerLa framework, and for providing a uniform API to interact
-with them. Its design revolves around the Functionality Proxy Component
-(\texttt{FPC}), a self-contained proxy object that embeds all the logic
-required to communicate with a single remote device.  The most prominent trait
-of the \texttt{FPC} is its interface, an API that allows PerLa users to
-interact with the sensing network through two hardware-agnostic communication
-primitives, named get() and set(). Use of this interface neither requires
-knowledge of the sensing network, nor of the device that will ultimately
-perform the requested operation.
+As illustrated in the previous chapter, the PerLa Middleware is responsible for
+managing the lifecycle of all devices connected to the PerLa framework, and for
+providing a uniform API to interact with them. Its design revolves around the
+Functionality Proxy Component (\texttt{FPC}), a self-contained proxy object
+that embeds all the logic required to communicate with a single remote device.
+The most prominent trait of the \texttt{FPC} is still its interface, an API
+that allows PerLa users to interact with the sensing network through two
+hardware-agnostic communication primitives, named get() and set(). Use of this
+interface neither requires knowledge of the sensing network, nor of the device
+that will ultimately perform the requested operation.
+
+\subsection{The New FPC}
+
+Differently from the Classic PerLa Middleware, the New \texttt{FPC} is formed
+from the composition of various independent software units, each of which is
+responsible for the management of a single aspect of the interaction with the
+remote device (see figure~\ref{fig:fpc_overview}). This new modular design was
+chosen to further promote reusability and foster future expandability through
+composition of independent objects. The following remainder of this section
+contains a summary of all modules that compose the new \texttt{FPC}
+architecture.
 
 \begin{figure}[h!]
 \center
 \includegraphics[width=0.6\textwidth]{imgs/fpc.pdf}
-\caption{Internal FPC structure}
+\caption{Internal structure of the new FPC component.}
 \label{fig:fpc_overview}
 \end{figure}
 
-Each \texttt{FPC} is formed from the composition of various independent
-software units, each of which is responsible for the management of a single
-aspect of the interaction with the remote device (see
-figure~\ref{fig:fpc_overview}). This modular design was chosen to promote
-reusability and foster future expandability through composition of
-independent objects. The following list contains a synopsis of the modules
-that form an \texttt{FPC}:
+\subsubsection{Channel}
+
+\texttt{Channel}s are software components capable of performing I/O operations.
+They are commonly employed to manage the communication between PerLa and the
+devices of a Pervasive System, and can be thought as a complete substitute of
+the \texttt{Channel Manager}/\texttt{Virtual Channel} components. Unlike their
+counterpart in the Classic architecture, \texttt{Channel}s are settled inside
+the boundary of an \texttt{FPC}. This change of location has two important
+consequences: first of all, it allows each \texttt{FPC} to make use of multiple
+data transmission technologies for the exchange of information with the
+controlled endpoint; second, it enhances the modularity of the entire PerLa
+Middleware, as new communication systems and protocols can be introduced
+without modifying any existing \texttt{Channel} implementations.
+
+Every \texttt{Channel} is bundled with a collection of \texttt{IORequest}
+objects, which are employed to initiate specific I/O tasks on the sensing
+nodes. For example, the \texttt{HTTPChannel} --- a \texttt{Channel}
+implementation of the HTTP protocol --- is bundled with four different
+\texttt{IORequest}s, one for each of the principal HTTP methods (GET, POST, PUT
+and DELETE).
+
+\subsubsection{Mapper}
+
+A software module for marshalling and unmarshalling data. \texttt{Mapper}s
+allow the \texttt{FPC} to interpret byte streams received from a communication
+\texttt{Channel}, and to serialize high-level data structures prior to
+transmission. They perform as a more flexible alternative to the fixed
+\texttt{Marshaller}-\texttt{Unmarshaller} components found in the Classic
+\texttt{FPC} implementation.
+
+Similarly to what already seen for the \texttt{Channel} component, every
+\texttt{Mapper} implementation is responsible for managing a different
+\texttt{Message} format, namely a different data encoding; therefore,
+\texttt{FPC}s may employ different \texttt{Mapper} objects, each of which is
+tasked with managing a well-defined data structure exchanged with the remote
+device. This feature is in stark contrast with the Classic Middleware design,
+which could only manage a single data format per device.
+
+\subsubsection{Scripts and Operations}
 
 \begin{itemize}
-
-    \item \textbf{Channel:} A software component capable of performing I/O
-        operations. \texttt{Channels} are responsible for managing the
-        communication between the PerLa Middleware and the remote devices.
-        Every \texttt{Channel} is bundled with a collection of
-        \texttt{IORequest} objects, which are employed to initiate specific I/O
-        tasks on the sensing nodes;
-
-    \item \textbf{Mapper:} A data marshaller/unmarshaller. \texttt{Mappers}
-        allow the \texttt{FPC} to interpret byte streams received from a
-        Channel, and to serialize high-level data structures prior to
-        transmission. Moreover, every \texttt{Mapper} is responsible for the
-        management of a high level PerLa data structures dubbed
-        \texttt{Messages};
 
     \item \textbf{Script Engine:} An interpreter for executing PerLa
         \texttt{Scripts}, small programs written in a proprietary PerLa
