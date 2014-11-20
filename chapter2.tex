@@ -4,21 +4,21 @@ PerLa is a software infrastructure for data management and integration in
 Pervasive Information Systems. Its development began in 2005 at Politecnico di
 Milano, with a thesis by Marco Marelli and Marco Fortunato entitled ``\textit{A
 Declarative Language for Pervasive Systems}'' \cite{mm_thesis}. With this
-document the two authors laid the foundations of a completely declarative,
+document the two authors laid the foundations for a completely declarative,
 SQL-like language that could be used to gather information from Pervasive
-Systems and Wireless Sensing Networks. Though their work primarily focussed on
-defining the syntax and semantics of the PerLa language, Marelli and Fortunato
-went on to propose a reference software architecture that could support the
-execution of PerLa data collection queries.
+Systems and Wireless Sensing Networks alike. Though their work primarily
+focussed on defining the syntax and semantics of the PerLa language, Marelli
+and Fortunato went on to propose a reference software architecture that could
+support the execution of PerLa data collection queries.
 
 In their first design they envisioned the possibility of creating a
-\textit{Device Access Layer} whose goal was to conceal all the idiosyncratic
+\textit{Device Access Layer}, whose goal was to conceal all the idiosyncratic
 features of a Pervasive System, and provide a homogeneous data access interface
 that could be used as a thought device to support the first development stages
-of PerLa. The principal element of this earliest software architecture was the
+of PerLa. The principal element of this initial software architecture was the
 \textit{Logical Object}, a virtualization module that provides a uniform API
-for accessing the functionalities of a single device in the sensing network.
-This germinal architecture evolved during the course of the following years
+for accessing the functionalities of a single device in the sensing network;
+this germinal design evolved during the course of the following years
 into what would later be known as \textit{PerLa Middleware}. 
 
 The PerLa Middleware~\cite{tse_perla} was primarily concerned with providing an
@@ -29,23 +29,23 @@ Logical Object, with particular emphasis on the ability to abstract the
 peculiar features of a single sensing device through a common and uniform
 programming interface. The PerLa Middleware, however, was more than a simple
 implementation of the Logical Object, as it provided a \textit{Plug \& Play}
-system for the autonomous creation of \texttt{FPC} objects and an initial
-release of the PerLa Query Executor component.
+system for the autonomous creation of \texttt{FPC} objects, as well as an
+initial release of the PerLa Query Executor component.
 
 The development of the PerLa Middleware has been a collaborative effort that
-involved multiple students and several years of work. The product that was
-created is thus the sum of all contributions made by different people, that, at
+involved multiple students and several years of work. Therefore, the product
+that ensued is the sum of all contributions made by different people, that, at
 one time or another, put their minds and hearts at the design and
-implementation of the system. While this development methodology allowed PerLa
-to thrive and mature rapidly, since many intellects had the possibility to
-contribute with their innovative ideas, it also meant that its growth has been
-dishomogeneous and, at times, chaotic. It is under these premises that, in
-early 2014, the Middleware underwent a complete redesign, whose primary
-intentions were to consolidate the main programmatic API (Application
+implementation of the system. While such development approach allowed PerLa to
+thrive and mature rapidly, since many intellects had the possibility to
+contribute with their innovative ideas, it also meant that the growth of the
+system has been inconstant and, at times, chaotic. It is under these premises
+that, in early 2014, the Middleware underwent a complete redesign, whose
+primary intentions were to consolidate the main programmatic API (Application
 Programming Interface), improve performances, and further advance some of the
-defining characteristics of the system. This thesis is a description of this
-recent endeavor, and will continue by describing the past, present and
-foreseeable future of the PerLa System.
+defining characteristics of its architecture. The document you are reading is
+an account of this recent endeavor, and contains a description of the past,
+present and foreseeable future of the PerLa System.
 
 The remaining sections of this chapter provide an account of PerLa prior to the
 current redesign, starting with the previous Middleware architecture --- also
@@ -63,19 +63,42 @@ prospects for PerLa's future.
 
 \section{The Classic Middleware Architecture}
 
-As stated in the previous sections of this chapter, the principal element of
-the PerLa Middleware, both in its classic and redesigned incarnations, is the
-\texttt{FPC}. Its primary function consists in providing a consistent and
-homogeneous interface that can be used by high-level components of the PerLa
-System to access all functionalities of a Pervasive System, without requiring
-any knowledge of the underlying hardware layer.
+\subsection{Main goals and operating principles}
 
-\begin{figure}[h!]
-\center
-\includegraphics[width=0.6\textwidth]{imgs/classic_fpc.pdf}
-\caption{The Classic FPC design}
-\label{fig:classic_fpc}
-\end{figure}
+The PerLa Middleware is a complex software based on the Java platform. Its
+development focussed primarily on the design and implementation of the
+following features:
+
+\begin{itemize}
+
+    \item data-centric view of Pervasive Systems;
+
+    \item homogeneous high level interface to heterogeneous
+        devices;
+
+    \item support for highly dynamic networks (e.g., wireless
+        sensor networks);
+
+    \item minimal coding effort for new device addition.
+
+\end{itemize}
+
+The remaining of this chapter will show how the implementation of the
+\texttt{FPC} component and the development of a Plug \& Play device addition
+mechanism contributed to achieving the aforementioned goals. The reader is
+stronly encouraged not to skip these following sections, as most of the
+concepts hereby introduced will be subject of further discussion in
+chapter~\ref{cha:middleware_overview}, where they are going to be matched
+alongside their novel counterparts.
+
+\subsection{The Functionality Proxy Component}
+
+As previously stated, the principal element of the PerLa Middleware, both in
+its classic and redesigned incarnations, is the \texttt{FPC}. Its primary
+function consists in providing a consistent and homogeneous interface that can
+be used by high-level components of the PerLa System to access all
+functionalities of a Pervasive System, without requiring any knowledge of the
+underlying hardware layer.
 
 All data elements accessible through an \texttt{FPC} are abstracted using the
 concept of \textit{Device Attribute}, namely a single piece of information
@@ -83,9 +106,11 @@ produced or consumed by a node in the Pervasive System. By design, device
 attributes are not tied to a particular technology, and can therefore be used
 to represent any primitive value, regardless of the method employed for its
 generation (physical sampling, read from main memory, etc.). Device Attributes
-are one of the defining aspects of the PerLa Middleware, as any operation
-performed through the \texttt{FPC} interface has to be specified in terms of
-reading or writing a specific set of attributes.
+are one of the defining aspects of the PerLa Middleware, and greatly contribute
+to the creation of a data-centric abstraction that can be used to access all
+features of a sensing network, as any operation performed through the
+\texttt{FPC} interface is specified in terms of reading or writing a specific
+set of attributes.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/classic_middleware_overview.pdf}
@@ -95,25 +120,24 @@ reading or writing a specific set of attributes.
 
 In the Classic PerLa Middleware, the physical connection between an
 \texttt{FPC} and its remote device is entirely managed by the \texttt{Channel
-Manager} (see figure~\ref{fig:classic_architecture}). This component is
-responsible for the creation of \texttt{Virtual Channels}, abstract network
+Manager} (see figure~\ref{fig:classic_architecture}). This singleton component
+is responsible for the creation of \texttt{Virtual Channels}, abstract network
 interfaces that conceal the specific technologies required to hold a
 communication link between two endpoints of a Pervasive System. By means of the
 \texttt{Channel Manager}, \texttt{FPC}s and physical devices can exchange
-information transparently, mutually ignoring all the differences that may exist
-between them; The achievement of this goal, however, is strictly limited by the
-capabilities of the \texttt{Channel Manager} itself, as the choice of protocols
-available in the Classic Middleware is restricted to those that the original
-PerLa Developers hard-coded into this component.
+information transparently, mutually ignoring all the architectural differences
+that may exist between them. The achievement of a truly universal communication
+system, however, is severily limited by the capabilities of the \texttt{Channel
+Manager} itself, as the choice of protocols available in the Classic Middleware
+is restricted to those that the original PerLa Developers hard-coded into this
+component.
 
-Sensing nodes can be added to a running instance of the PerLa Middleware
-through a \textit{Plug \& Play} device registration mechanism. This operation
-is performed at runtime by the \texttt{FPCFactory}, a software component tasked
-with creating new \texttt{FPC} objects from a blueprint document called
-\textit{Device Descriptor}. PerLa-enabled devices are programmed to send their
-XML descriptor at startup; this allows them to be readily available for use, as
-their controlling \texttt{FPC} object is dynamically instantiated by the
-\texttt{FPCFactory} upon reception of the Device Descriptor.
+\begin{figure}[h!]
+\center
+\includegraphics[width=0.6\textwidth]{imgs/classic_fpc.pdf}
+\caption{The Classic FPC design}
+\label{fig:classic_fpc}
+\end{figure}
 
 As shown in figure~\ref{fig:classic_fpc}, the internal structure of the Classic
 \texttt{FPC} is mainly composed of a \texttt{Marshaller}, an
@@ -126,19 +150,40 @@ well-defined set of attributes would then be executed as follows:
 
 \begin{enumerate}
 
-    \item Starting from a user's request, and leveragin the one-to-one
+    \item Starting from a user's request, and leveraging the one-to-one
         relationship between attributes and message fields, the \texttt{FPC}
         compiles a list of data structures which are to be collected from the
         remote device;
 
     \item The remote device starts streaming data to the \texttt{FPC}. This
         information is unmarshalled into a high-level Java message, according
-        to the directives specified inside the Device Descriptor;
+        to the directives specified inside the Device Descriptor (see
+        section~\ref{sec:classic_fpcfactory};
 
     \item All message fields containing relevant information for the user are
         read in order to produce an output record.
 
 \end{enumerate}
+
+A similar process, making use of the \texttt{Marshaller} component instead of
+the \texttt{Unmarshaller}, and with a reversed data flow, allows the
+\texttt{FPC} component to send configuration parameters towards its controlled
+device.
+
+\subsection{Plug \& Play device addition}
+\label{sec:classic_fpcfactory}
+
+Sensing nodes can be added to a running instance of the PerLa Middleware
+through a \textit{Plug \& Play} device registration mechanism, that allows the
+discovery and configuration of new devices without the need for direct user
+interventions. This operation is performed at runtime by the
+\texttt{FPCFactory}, a software component tasked with creating new \texttt{FPC}
+objects from a blueprint document called \textit{Device Descriptor}.
+PerLa-enabled devices are programmed to send their XML descriptor at startup;
+this allows them to be readily available for use, as their controlling
+\texttt{FPC} object is dynamically instantiated by the \texttt{FPCFactory} upon
+reception of the Device Descriptor. Figure~\ref{fig:classic_middleware}
+contains a graphic portrayal of this entire process.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/classic_descriptor.pdf}
@@ -149,18 +194,21 @@ with the remote device.}
 \label{fig:classic_descriptor}
 \end{figure}
 
-All the information required to create the Java objects used during this
-process, along with the corresponding attribute mappings and
-\texttt{Marshaller}/\\texttt{Unmarshaller} directives, are extracted from the
+The information required to create all internal components of an \texttt{FPC},
+along with the corresponding attribute-message mappings and
+\texttt{Marshaller}/\texttt{Unmarshaller} directives, are extracted from the
 Device Descriptor. Figure~\ref{fig:classic_descriptor} contains a typical
-descriptor example, which highlights the correlations that exist between a
-C-Struct declaration used in the sensing device, its corresponding Device
-Descriptor, and the resulting Java class created by the \texttt{FPCFactory}.
+example of such file, which highlights the interdependence that exists between
+C-Struct declarations used in the sensing device, corresponding Device
+Descriptors, and the resulting Java classes created by the \texttt{FPCFactory}.
 
-Most of the concepts introduced in this brief description of the Classic PerLa
-architecture will be subject of further discussion in
-Chapter~\ref{cha:middleware_overview}, where they are going to be match
-alongside their novel counterparts.
+All \texttt{FPC} objects created by the \texttt{FPCFactory} are catalogued and
+inventoried in the \texttt{Registry}, a simplified main-memory database that
+contains a complete directory of all devices connected to the PerLa Middleware.
+By means of the \texttt{Registry}, users can sift through all nodes of the
+network, and select those that best suit their current computational needs. As
+will be shown in the next section, this component is fundamental for the
+imlementation of the \texttt{EXECUTE IF} query clause.
 
 \section{The PerLa Query Language}
 \label{sec:language}
