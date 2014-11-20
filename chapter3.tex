@@ -8,19 +8,20 @@ Introduce the design goals of the new Middleware architecture
 \section{Overview of the New Middleware Architecture}
 
 As illustrated in the previous chapter, the PerLa Middleware is responsible for
-managing the lifecycle of all devices connected to the PerLa framework, and for
+managing the lifecycle of all devices connected to the PerLa System, and for
 providing a uniform API to interact with them. Its design revolves around the
 Functionality Proxy Component (\texttt{FPC}), a self-contained proxy object
 that embeds all the logic required to communicate with a single remote device.
-The most prominent trait of the \texttt{FPC} is still its interface, an API
-that allows PerLa users to interact with the sensing network through two
-hardware-agnostic communication primitives, named get() and set(). Use of this
-interface neither requires knowledge of the sensing network, nor of the device
-that will ultimately perform the requested operation.
+The most prominent trait of the \texttt{FPC} is its interface, an API that
+allows PerLa users to interact with the sensing network through a compact set
+of hardware-agnostic communication primitives reminiscent of classic Java
+getter and setter methods. Use of this interface neither requires knowledge of
+the sensing network, nor of the device that will ultimately perform the
+requested operation.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/middleware_overview.pdf}
-\caption{The PerLa Middleware architecture}
+\caption{The New PerLa Middleware architecture}
 \end{figure}
 
 \subsection{The New FPC}
@@ -30,14 +31,13 @@ from the composition of various independent software units, each of which is
 responsible for the management of a single aspect of the interaction with the
 remote device (see figure~\ref{fig:fpc_overview}). This new modular design was
 chosen to further promote reusability and foster future expandability through
-composition of independent objects. The following remainder of this section
-contains a summary of all modules that compose the new \texttt{FPC}
-architecture.
+composition of independent objects. The remainder of this section contains a
+summary of all modules that compose the new \texttt{FPC} architecture.
 
 \begin{figure}[h!]
 \center
 \includegraphics[width=0.6\textwidth]{imgs/fpc.pdf}
-\caption{Internal structure of the new FPC component.}
+\caption{Internal structure of the New FPC.}
 \label{fig:fpc_overview}
 \end{figure}
 
@@ -46,12 +46,12 @@ architecture.
 \texttt{Channel}s are software components capable of performing I/O operations.
 They are commonly employed to manage the communication between PerLa and the
 devices of a Pervasive System, and can be thought as a complete substitute of
-the \texttt{Channel Manager}/\texttt{Virtual Channel} components. Unlike their
-counterpart in the Classic architecture, \texttt{Channel}s are settled inside
-the boundary of an \texttt{FPC}. This change of location has two important
-consequences: first of all, it allows each \texttt{FPC} to make use of multiple
-data transmission technologies for the exchange of information with the
-controlled endpoint; second, it enhances the modularity of the entire PerLa
+the \texttt{Channel Manager}/\texttt{Virtual Channel} component pair. Unlike
+their counterpart in the Classic architecture, \texttt{Channel}s are settled
+inside the boundary of an \texttt{FPC}. This change of location has two
+important consequences: first of all, it allows each \texttt{FPC} to make use
+of multiple data transmission technologies for the exchange of information with
+the controlled endpoint; second, it enhances the modularity of the entire PerLa
 Middleware, as new communication systems and protocols can be introduced
 without modifying any existing \texttt{Channel} implementations.
 
@@ -71,13 +71,13 @@ transmission. They perform as a more flexible alternative to the fixed
 \texttt{Marshaller}-\texttt{Unmarshaller} components found in the Classic
 \texttt{FPC} implementation.
 
-Similarly to what already seen for the \texttt{Channel} component, every
-\texttt{Mapper} implementation is responsible for managing a different
-\texttt{Message} format, namely a different data encoding; therefore,
-\texttt{FPC}s may employ different \texttt{Mapper} objects, each of which is
-tasked with managing a well-defined data structure exchanged with the remote
-device. This feature is in stark contrast with the Classic Middleware design,
-which could only manage a single data format per device.
+Every \texttt{Mapper} is a discrete component responsible for managing a
+specific \texttt{Message} format. Therefore, similarly to what already seen for
+the \texttt{Channel}, a single \texttt{FPC} may employ different
+\texttt{Mapper} objects tasked with managing a well-defined set of data
+structures exchanged with the remote device. This feature is in stark contrast
+with the Classic Middleware design, which could only handle a single data
+format per device.
 
 \subsubsection{Scripts and Operations}
 
@@ -92,10 +92,10 @@ data structure to the high-level \texttt{Attribute}s generated by an
 \texttt{FPC}. \texttt{Scrip}s are executed by a singleton component denominated
 \texttt{Script Engine}.
 
-\texttt{Operation}s, as can be seen in figure~\ref{fig:fpc_overview}, are data
-access containers that host one or more \texttt{Script}s. The New Middleware
-architecture declares four different \texttt{Operation} types, corresponding 
-distinct data collection/transmission strategies:
+\texttt{Operation}s, on the other hand, are data management entities that
+incorporate one or more \texttt{Script}s dedicated to a specific purpose. The
+New Middleware architecture distinguishes between four \texttt{Operation}
+types, corresponding to different data collection or transmission strategies:
 
 \begin{itemize}
 
@@ -113,22 +113,23 @@ distinct data collection/transmission strategies:
 \end{itemize}
 
 It is important to note that every \texttt{Operation} is associated with the
-set of Device \texttt{Attribute}s that can extract or set. Therefore, under
-the New Middleware architecture, a typical data collection request is executed
-as follows:
+set of Device \texttt{Attribute}s that can extract or set through it.
+Therefore, under the New Middleware architecture, a typical data collection
+request is executed as follows:
 
 \begin{enumerate}
 
     \item The \texttt{FPC} selects an \texttt{Operation} that can be used to
         adequately retrieve the \texttt{Attribute}s requested by the user;
 
-    \item The \texttt{Operation}'s \texttt{Script}s are executed in order to
-        configure the remote device and initiate the collection of data;
+    \item The \texttt{Operation}'s initialization \texttt{Script}s, if any, are
+        executed in order to configure the remote device and commence the
+        collection of data;
 
     \item Every data sample received from the \texttt{FPC} is processed by a
-        \texttt{Script}, as per \texttt{Operation} instruction, which is
-        normally tasked with unmarshalling the information sent by the endpoint
-        and create a new output record.
+        \texttt{Script}, as per \texttt{Operation} instructions, which is
+        tasked with unmarshalling the information sent by the endpoint and
+        create a new output record.
 
 \end{enumerate}
 
@@ -141,20 +142,21 @@ Its design is a significant departure from the original monolithic factory
 structure, and allows final users to easily expand the base capabilities of the
 PerLa Middleware without modifying its original source code. This modular
 architecture, formally called \texttt{FPCFactory} Plugin System, is a direct
-implementation of the \textit{Open/Close} principle: the \texttt{FPCFactory}
-is open for extension, as its functionalities can be expanded by adding new
+implementation of the \textit{Open/Close} principle: the \texttt{FPCFactory} is
+open for extension, as its functionalities can be expanded by adding new
 plugins, but closed for modification, since the addition of a new sub-factory
-does not require any change to the Middleware's source code.
+modules does not require any change to the Middleware's source code.
 
 At the current state of implementation, the PerLa Middleware supports three
 different \texttt{FPCFactory} plugin types, viz. \texttt{ChannelFactories},
 \texttt{IORequestFactories} and \texttt{MapperFactories}, which are responsible
 for the creation of new \texttt{Channels}, \texttt{IORequests} and
 \texttt{Mappers} respectively. All implementations of a single plugin type are
-tasked with creating the same class of \texttt{FPC} modules; for example, the
-\texttt{HTTPChannelFactory} and the \texttt{TinyOSChannelFactory} both create
-\texttt{Channel} objects, but the first are used to connect with RESTful web
-APIs, whereas the second are interfaces to TinyOS networks.
+tasked with creating the same class of \texttt{FPC} modules, but are allowed
+different behaviours; for example, the \texttt{HTTPChannelFactory} and the
+\texttt{TinyOSChannelFactory} both create \texttt{Channel} objects, but the
+first are used to connect with RESTful web APIs, whereas the second are
+interfaces to TinyOS networks.
 
 The introduction of a new modular \texttt{FPCFactory} Plugin System resulted in
 a complete redesign of the Device Descriptor itself, which changed its layout
@@ -170,27 +172,27 @@ following elements:
         the various Device Descriptor features and \texttt{FPCFactory} plugins
         required for the creation of an \texttt{FPC} object;
 
-    \item \textbf{Attribute declarations:} A list of all the device
+    \item \textbf{Attribute declarations:} A list of all the
         \texttt{Attributes} exposed by the device. It must be enclosed in an
         \lstinline!<attribute>! XML tag;
 
     \item \textbf{Channel declarations:} This section contains the
         configuration options of all \texttt{Channel} objects required to
         communicate with the remote device. Its contents are parsed and
-        interpreted by the \texttt{ChannelFactory} plugins, whose structure is
-        discussed in section~\ref{sec:channel};
-
-    \item \textbf{Message declarations:} A section reserved for the declaration
-        of all data structures required to exchange information with a node of
-        the network. Its contents are directly interpreted by the
-        \texttt{MapperFactory} plugins to create new \texttt{Message}
-        mappers, as described in section~\ref{sec:components.mapper};
+        interpreted by the individual \texttt{ChannelFactory} plugins, whose
+        structure is discussed in section~\ref{sec:channel};
 
     \item \textbf{Request declarations:} This part of the Device Descriptor is
         reserved for the declaration of all \texttt{IORequest} objects needed
         to communicate with a remote device. The elements hereby contained are
         processed by the \texttt{IORequestFactory} plugins, as per instructions
         given in section~\ref{sec:channel};
+
+    \item \textbf{Message declarations:} A section reserved for the declaration
+        of all data structures required to exchange information with a node of
+        the network. Its contents are directly interpreted by the
+        \texttt{MapperFactory} plugins to create new \texttt{Message}
+        mappers, as described in section~\ref{sec:components.mapper};
 
     \item \textbf{Operation declarations:} As shown in
         section~\ref{sec:components.fpc}, this final portion of the Device
@@ -234,9 +236,9 @@ values, once processed by the texttt{FPCFactory}, are used for selecting the
 specific plugin that will be used for constructing the corresponding
 \texttt{FPC} components. It is important to note that the
 \texttt{http://perla.dei.org/device} and
-\texttt{http://perla.dei.org/device/instructions} namespaces are mandatory, as
-they respectively define the Device Descriptor base elements and all available
-\texttt{Script} instructions.
+\texttt{http://perla.dei.org/device/instructions} namespaces included in this
+example are mandatory, as they respectively define the Device Descriptor base
+elements and all available \texttt{Script} instructions.
 
 \begin{figure}[h!]
 \center
@@ -259,12 +261,12 @@ mesh network).
 \section{Asynchronous interaction paradigm}
 \label{sec:newmiddleware.async}
 
-One of the major differences between the New and Classic Middleware
-architectures lies in the technique employed to interconnect internal modules
-of the PerLa software infrastructure. The New Middleware introduces a fully
-asynchronous interaction paradigm based on non-blocking method invocations and
-event-driven programming techniques, which deviates profoundly from the
-mechanism previously promoted in the Classic design.
+The last differences between the New and Classic Middleware architectures lies
+in the technique employed to interconnect internal modules of the PerLa
+software infrastructure. The New Middleware introduces a fully asynchronous
+interaction paradigm based on non-blocking method invocations and event-driven
+programming techniques, which deviates profoundly from the mechanism previously
+promoted in the Classic design.
 
 \begin{figure}[h!]
     \center
