@@ -49,6 +49,12 @@ defining characteristics of its architecture. The document you are reading is
 an account of this recent endeavor, and contains a description of the past,
 present and foreseeable future of the PerLa System.
 
+\begin{figure}[h!]
+\center
+\includegraphics[width=0.3\textwidth]{imgs/main_layers.pdf}
+\caption{A macrocomponent view of the PerLa System.}
+\end{figure}
+
 The remaining sections of this chapter provide an overview of PerLa prior to
 the current redesign, starting with the previous Middleware architecture ---
 also known as Classic PerLa Middleware --- and ending with a short digression
@@ -258,7 +264,7 @@ to define the aggregation scope in terms of time windows (\lstinline!SELECT AVG(
 and a record-based syntax, that clearly indicates the
 number of records to be used for the computation (\lstinline!SELECT AVG(TEMP, 30 SAMPLES)!).
 
-\subsection{The Sampling section}
+\subsection{Sampling section}
 
 The Sampling section can be used to specify how and when the data
 \texttt{Attribute}s requested with the \texttt{SELECT} statement are to be
@@ -279,7 +285,7 @@ SAMPLING
     ELSE IF TEMPERATURE >= 50 EVERY 1 MINUTES
 \end{lstlisting}
 
-\subsection{The Conditional Execution section}
+\subsection{Conditional Execution section}
 
 Introduced by the \texttt{EXECUTE IF} clause, this query section contains a
 boolean expression that every sensing device must satisfy in order to be
@@ -291,7 +297,7 @@ statement can be optionally complemented by a \texttt{REFRESH} clause, which
 specifies how often the execution condition is re-evaluated to update the list
 of nodes involved in the evaluation of a query. 
 
-\subsection{The Termination Condition section}
+\subsection{Termination Condition section}
 
 The Termination Condition is an optional clause that can be used to stop a
 query after a specific of amount of time (\lstinline!TERMINATE AFTER 1 DAY!) or
