@@ -30,7 +30,10 @@ public interface Channel {
 The \texttt{Channel} interface is not tied to any specific technology or
 communication stack; as a result of this design choice, a wide variety of data
 management tasks, including but not limited to, networking, file handling, and
-automatic data generation can be implemented as \texttt{Channel}s.
+automatic data generation can be implemented as \texttt{Channel}s. This concept
+is taken even further by the \texttt{SimulatorChannel}, a particular
+\texttt{Channel} implementation that generates radom data samples that allow
+the PerLa Middleware to be tested even when no devices are connected to it.
 
 The current Middleware architecture encourages the creation of several highly
 specialized \texttt{Channel}s, which are usually developed around third-party

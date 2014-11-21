@@ -3,7 +3,52 @@
 
 \section{Design goals}
 
-Introduce the design goals of the new Middleware architecture
+Redesign of the PerLa Middleware began in early 2014 with the intention to
+consolidate the existing software infrastructure and refine its main features.
+This process set in motion a critical analysis of the existing architecture,
+which led to a complete rethinking of many of the Middleware's distinctive
+components and processes, like the \texttt{FPC} and its Plug \& Play device
+addition mechanism. As will become clear, not all components required the same
+amount of changes; some varied much, other less, while others practically
+remained unchanged (for example, the \texttt{Registry}).
+
+The main driving force that pushed this re-engineering endeavour was the need
+to strenghten the major Middleware APIs, and elegantly integrate all isolated
+contributions made by past PerLa developers into a single, coherent product.
+Furthermore, this redesign proved to be an excellent opportunity for expanding
+the capabilities of the PerLa Middleware itself, and to better prepare it to
+cope with a costantly evolving Pervasive Environment where web-services and
+RESTful data sources are ever more present. This last requirement, above
+everything else, has been crucial to the development of the final Middleware
+architecture described in this thesis, as it enforced a precarious balance
+between two seemingly incompatible necessities, namely the need to interface
+with low-level, resource-limited sensing nodes and with high-power web services
+alike. 
+
+In summary, the goals pursued during the re-engineering of the PerLa middleware
+amounted to:
+
+\begin{itemize}
+    
+    \item Consolidate all programming interfaces exposed to the final users,
+        with a special regard to the \texttt{FPC} and the Device Descriptor;
+
+    \item Integrate and coalesce the internal programming interfaces employed
+        to interconnect the various Middleware modules;
+
+    \item Improve the expandability of the system by introducing a modular
+        design composed of pluggable and independente software units;
+
+    \item Identify and solve potential bottlenecks that could prevent the
+        Middleware from scaling gracefully under load.
+
+\end{itemize}
+
+The remainder of this section presents an overview of the New PerLa
+architecture; its intended objective is to convey the major differences that
+exist between the two Middleware designs, while explaining how they contribute
+to achieving the aforementioned goals. An in-dept description of all modules
+described in the following is available in chapter~\ref{cha:components}.
 
 \section{Overview of the New Middleware Architecture}
 
