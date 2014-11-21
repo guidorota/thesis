@@ -19,6 +19,7 @@
 \usepackage[pctex32]{graphicx}
 \usepackage{setspace}
 \usepackage{parskip}
+\usepackage{natbib}
 \usepackage{emptypage}
 \usepackage{float}
 \usepackage{geometry}
