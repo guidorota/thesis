@@ -1,12 +1,34 @@
 \chapter{Conclusions}
 \label{cha:conclusions}
 
-\section{Comparison with the classic architecture}
+This thesis described the design and implementation of an asynchronous data
+access middleware for Pervasive Systems. As shown in previous chapters, the
+implementation of this middleware began with an analysis of the existing data
+access layer employed to support the execution of PerLa Queries, aimed at
+identifying its weaknesses and strength; a series of requirements was 
+
 
 \section{Future work}
 
 \subsection{Implementation of new plugins}
 
+The New PerLa Middleware is designed to be expanded through the addition of new
+modules, and it should come as no surprise that one of its most natural
+evolution paths consists in fact in the development of new Plugins. As
+described in chapter~\ref{cha:components}, there are two main types of modules
+that may be added with the PerLa Plugin System: \texttt{Channels} and
+\texttt{Mappers}.
+
+The possibility to add new \texttt{Channel} implementations is a distinguishing
+feature of the New Middleware that can be exploited to enlarge the type of
+supported endpoint devices. Future \texttt{Channel}s, should be implemented to
+
+
+A natural evolution path for the New PerLa Middleware consist in the expansion
+of the core functionalities through the implementation of new Plugins. This
+
 \subsection{Alternative Device Descriptor forms}
 
-\subsection{Accessing FPC methods through HTTP}
+Chapter~\ref{cha:components} described the 
+
+\subsection{Distributed PerLa}
