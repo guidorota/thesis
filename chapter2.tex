@@ -41,7 +41,7 @@ one time or another, put their minds and hearts at the design and
 implementation of the system. While such development approach allowed PerLa to
 thrive and mature rapidly, since many intellects had the possibility to
 contribute with their innovative ideas, it also meant that the growth of the
-system has been inconstant and, at times, chaotic. It is under these premises
+system has been inconstant and, at times, confusing. It is under these premises
 that, in early 2014, the Middleware underwent a complete redesign, whose
 primary intentions were to consolidate the main programmatic API (Application
 Programming Interface), improve performances, and further advance some of the
@@ -49,18 +49,18 @@ defining characteristics of its architecture. The document you are reading is
 an account of this recent endeavor, and contains a description of the past,
 present and foreseeable future of the PerLa System.
 
-The remaining sections of this chapter provide an account of PerLa prior to the
-current redesign, starting with the previous Middleware architecture --- also
-known as Classic PerLa Middleware --- and ending with a short digression
+The remaining sections of this chapter provide an overview of PerLa prior to
+the current redesign, starting with the previous Middleware architecture ---
+also known as Classic PerLa Middleware --- and ending with a short digression
 towards Context management in Pervasive Systems. This same chapter will
 describe the main features of the PerLa Query Language, which as of today still
 is the interface of choice for using PerLa.
 Chapters~\ref{cha:middleware_overview} and~\ref{cha:components} contain an
 in-depth description of the New Middleware architecture, which should be of
-concern to any programmer interested in developing new PerLa Plugins or
-connecting new types of sensing devices. Finally, chapter~\ref{cha:conclusions}
-wraps up the work illustrated in this thesis, and provides an outlook on the
-prospects for PerLa's future.
+concern to any programmer interested in developing PerLa Plugins or connecting
+new types of sensing devices. Finally, chapter~\ref{cha:conclusions} wraps up
+the work illustrated in this thesis, and provides an outlook on the prospects
+for PerLa's future.
 
 
 \section{The Classic Middleware Architecture}
@@ -110,9 +110,9 @@ to represent any primitive value, regardless of the method employed for its
 generation (physical sampling, read from main memory, etc.). Device Attributes
 are one of the defining aspects of the PerLa Middleware, and greatly contribute
 to the creation of a data-centric abstraction that can be used to access all
-features of a sensing network, as any operation performed through the
-\texttt{FPC} interface is specified in terms of reading or writing a specific
-set of attributes.
+features of a sensing network; any operation performed through the \texttt{FPC}
+interface is in fact specified in terms of reading or writing a specific set of
+attributes.
 
 \begin{figure}[h!]
 \includegraphics[width=\textwidth]{imgs/classic_middleware_overview.pdf}
@@ -131,8 +131,8 @@ information transparently, mutually ignoring all the architectural differences
 that may exist between them. The achievement of a truly universal communication
 system, however, is severily limited by the capabilities of the \texttt{Channel
 Manager} itself, as the choice of protocols available in the Classic Middleware
-is restricted to those that the original PerLa Developers hard-coded into this
-component.
+is strictly restricted to those that the original PerLa Developers hard-coded
+into this component.
 
 \begin{figure}[h!]
 \center
@@ -146,7 +146,7 @@ As shown in figure~\ref{fig:classic_fpc}, the internal structure of the Classic
 \texttt{Unmarshaller}, and a selection of Java objects representing the
 messages which can be exchanged with the remote endpoint. This early design is
 enough to implements a simplified data collection mechanism, based on the
-assumptions that every device attribute can be mapped to exactly one message
+assumption that every device attribute can be mapped to exactly one message
 field. Under the Classic Middleware, a typical data collection request for a
 well-defined set of attributes would then be executed as follows:
 
@@ -160,7 +160,7 @@ well-defined set of attributes would then be executed as follows:
     \item The remote device starts streaming data to the \texttt{FPC}. This
         information is unmarshalled into a high-level Java message, according
         to the directives specified inside the Device Descriptor (see
-        section~\ref{sec:classic_fpcfactory};
+        section~\ref{sec:classic_fpcfactory});
 
     \item All message fields containing relevant information for the user are
         read in order to produce an output record.
@@ -176,7 +176,7 @@ device.
 \label{sec:classic_fpcfactory}
 
 Sensing nodes can be added to a running instance of the PerLa Middleware
-through a \textit{Plug \& Play} device registration mechanism, that allows the
+through a \textit{Plug \& Play} device registration mechanism that allows the
 discovery and configuration of new devices without the need for direct user
 interventions. This operation is performed at runtime by the
 \texttt{FPCFactory}, a software component tasked with creating new \texttt{FPC}
@@ -184,7 +184,7 @@ objects from a blueprint document called \textit{Device Descriptor}.
 PerLa-enabled devices are programmed to send their XML descriptor at startup;
 this allows them to be readily available for use, as their controlling
 \texttt{FPC} object is dynamically instantiated by the \texttt{FPCFactory} upon
-reception of the Device Descriptor. Figure~\ref{fig:classic_middleware}
+reception of the Device Descriptor. Figure~\ref{fig:classic_architecture}
 contains a graphic portrayal of this entire process.
 
 \begin{figure}[h!]
@@ -217,34 +217,33 @@ imlementation of the \texttt{EXECUTE IF} query clause.
 
 The PerLa Query Language is a declarative, SQL-like language for interacting
 with Pervasive Systems. A sensing network managed by PerLa is abstracted as a
-large table in a streaming database, whose columns correspond to specific data
-elements that can be retrieved from the devices connected to the Middleware.
-This generalization allows final users to glean information out of a Pervasive
-System without dealing with all the complications that stem from managing the
-quirks of every single sensing node, as the intricate mesh of available data
-sources is completely hidden by the database abstraction.
+large table in a streaming database, whose columns correspond to specific
+\texttt{Attributes} that can be retrieved from the devices connected to the
+Middleware. This generalization allows final users to glean information out of
+a Pervasive System without dealing with all the complications that stem from
+managing the quirks of every single sensing node, as the intricate mesh of
+available data sources is completely hidden by the database abstraction.
 
 The PerLa Query Language is designed to be simple and easy to use. Its core
 syntax is compact and reminiscent of other well-known database-oriented
-languages as SQL. It provides a uniform interrogation mechanism that enables
-the collection of data elements regardless of their origin. Information may be
+languages as SQL, and provides a uniform interrogation mechanism that enables
+the collection of data elements regardless of their origin; information may be
 sampled from a physical phenomena, read from the memory of an endpoint device
-or estracted from a web service; whatever the source, the PerLa query pattern
+or estracted from a web service: whatever the source, the PerLa query pattern
 is always the same.
 
-PerLa queries allow the user to determine the exact behaviour of a data source
-using a consice but powerful set of clauses. The reminder of this section will
-provide an overview of the main syntactic and semantic features of the PerLa
-Query Language, along with two examples excerpted from real-world use cases.
+The reminder of this section will provide an overview of the main syntactic and
+semantic features of the PerLa Query Language, along with two examples
+excerpted from real-world use cases.
 
 \subsection{The Data Management section}
 
-Introduced by the \texttt{SELECT} clause, this section of the PerLa Query
+Introduced by the \texttt{SELECT} clause, this portion of the PerLa Query
 Language should immediately result familiar to every developer acquainted with
-the SQL language. This clause achieves two purposes: first, it defines which
-data elements (specifically, which data \texttt{Attributes}) are to be
-collected from the Pervasive System; second, it indicates the operations and
-computations that must be performed on the information being extracted.
+classic SQL. This clause achieves two purposes: first, it defines which data
+elements (specifically, which data \texttt{Attributes}) are to be collected
+from the Pervasive System; second, it indicates the operations and computations
+that must be performed on the information being extracted.
 
 The need to manage a theoretically infinite stream of data elements coming from
 the sensing network required the development of a custom syntax for aggregate
@@ -264,12 +263,13 @@ number of records to be used for the computation (\lstinline!SELECT AVG(TEMP, 30
 The Sampling section can be used to specify how and when the data
 \texttt{Attribute}s requested with the \texttt{SELECT} statement are to be
 extracted from the network nodes. There are two different operating modes, both
-introduced by the \texttt{SAMPLING} clause. \textit{Time-based} sampling can be
-used to collect data at periodic intervals; the sampling frequency is specified
-by means of an \texttt{IF-EVERY} syntax, which enables users to specify
-different expression-guarded sampling periods (see listing~\ref{lst:ifevery}.
-On the other hand, the \textit{Event-based} sampling mode allows the
-acquisition of a data sample each time a specific event is fired.
+introduced by the \texttt{SAMPLING} clause. \textit{Time-based} sampling is
+employed to collect data at periodic intervals; in this mode, the sampling
+frequency is specified by means of an \texttt{IF-EVERY} syntax, which enables
+users to specify different expression-guarded sampling periods (see
+listing~\ref{lst:ifevery} for an applicative example). On the other hand, the
+\textit{Event-based} sampling mode allows the acquisition of a data sample each
+time a specific event is fired.
 
 ~\\
 \begin{lstlisting}[label={lst:ifevery},caption={An example of time-based sampling, which shows how
@@ -285,7 +285,7 @@ Introduced by the \texttt{EXECUTE IF} clause, this query section contains a
 boolean expression that every sensing device must satisfy in order to be
 considered as a candidate data source, and it's often employed when the user
 requires its query to be executed on nodes with well-defined capabilities. This
-section is not mandatory, and its omission implies that the PerLa query must be
+section is optional, and its omission implies that the PerLa query must be
 executed on every device of the sensing network. An \texttt{EXECUTE IF}
 statement can be optionally complemented by a \texttt{REFRESH} clause, which
 specifies how often the execution condition is re-evaluated to update the list
@@ -293,19 +293,20 @@ of nodes involved in the evaluation of a query.
 
 \subsection{The Termination Condition section}
 
-An optional clause that can be used to terminate the execution of a query, both
-in terms of time (\lstinline!TERMINATE AFTER 1 DAY!) or number of selections
-performed (\lstinline!TERMINATE AFTER 10 SELECTIONS!). This behaviour is useful
-when perform a one-shot query, or when the monitoring period is known a priori.
+The Termination Condition is an optional clause that can be used to stop a
+query after a specific of amount of time (\lstinline!TERMINATE AFTER 1 DAY!) or
+number of executions (\lstinline!TERMINATE AFTER 10 SELECTIONS!). This
+behaviour is useful when perform a one-shot query, or when the monitoring
+period is known a priori.
 
 \subsection{Query examples}
 
 The following query initiates a temperature sampling operation on all
 temperature sensors located in room number three. New data readings are
-collected by the minute, as specified by the \texttt{SAMPLING} clause; however,
+collected by the minute, as specified in the \texttt{SAMPLING} clause; however,
 new output records are created every 5 minutes, as indicated in the
-\texttt{EVERY} statement that guards the data management section. Thanks to the
-\texttt{MAX} aggregation expression, each record produced by this query
+\texttt{EVERY} statement that guards the entire data management section. Thanks
+to the \texttt{MAX} aggregation expression, each record produced by this query
 contains the maximum temperature value collected in the previous 10 minutes of
 sampling.
 
@@ -320,10 +321,10 @@ EXECUTE IF EXISTS(temp) AND EXISTS(room) AND room = 3
 
 
 This second example illustrates how the PerLa Language can be used to collect
-information in response to an event. First of all, this is a one-shot query, as
-it terminates as soon as the first record is produced; its single output record
-contains the number of times the RFID with identifier \texttt{0xDF445A} was
-scanned in the last 10 minutes.
+information in response to an event. As can be seen from the \texttt{TERMINATE
+AFTER} clause, this one-shot query terminates as soon as the first record is
+produced. Its single output record contains the number of times the RFID with
+identifier \texttt{0xDF445A} was scanned in the last 10 minutes.
 
 \begin{lstlisting}
 CREATE OUTPUT STREAM Table (rfid STRING, counter INTEGER) AS:
@@ -338,14 +339,14 @@ TERMINATE AFTER 1 SELECTIONS
 
 \section{Context management}
 
-The Context Management layer is an extension to the PerLa framework designed to
-simplify the development and deployment of context-aware applications based on
-distributed sensing networks. It consists of a Context Language and a Context
-Management component, both of which interface directly with the Query Executor
-layer. The Context Language enables PerLa users to define the context-driven
-behaviour of a network of distributed computing nodes; context is represented
-using the Context Dimension Tree model (CDT, \cite{bolchiniCDT}), while
-context-dependent actions are specified using PerLa Queries. The Context
-Management component is responsible for populating the CDT with data collected
-from the sensing network, as well as tailoring and performing the related PerLa
-query associated with the active context.
+The Context Management layer \cite{vigano_ctx} is an extension to the PerLa
+framework designed to simplify the development and deployment of context-aware
+applications based on distributed sensing networks. It consists of a Context
+Language and a Context Management component, both of which interface directly
+with the Query Executor layer. The Context Language enables PerLa users to
+define the context-driven behaviour of a network of distributed computing
+nodes; context is represented using the Context Dimension Tree model (CDT,
+\cite{bolchiniCDT}), while context-dependent actions are specified using PerLa
+Queries. The Context Management component is responsible for populating the CDT
+with data collected from the sensing network, as well as tailoring and
+performing the related PerLa query associated with the active context.
