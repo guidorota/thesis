@@ -46,7 +46,11 @@ to user. Additional threads may be instantiated during the execution of PerLa
 The \texttt{FPC} benefits from another improvement brought by the New
 Middleware design, namely the PerLa Scripting Language. This new feature allows
 for an advanced mapping between device capabilities and data
-\texttt{Attributes} exposed by the \texttt{FPC} component.
+\texttt{Attributes} exposed by the \texttt{FPC} component. The imperative
+programming paradigm fostered by the PerLa Scripting Language proved to be a
+key addition to the entire system architecture, as it improves the flexibility
+and versatility of the Middleware and allows it to better adapt to situations
+unforseen at time of development.
 
 
 \section{Future work}
@@ -137,4 +141,7 @@ available.
 
 Future development of the PerLa Middleware should aim at implementing
 in-network processing capabilities in order to better exploit the resources
-available in a Pervasive System. Such efforts 
+available in a Pervasive System. Such efforts must focus on the definition of a
+software distribution infrastructure that can be used to divide a high-level
+computation into smaller, independent units of work to be executed on the
+individual nodes of the sensing network.
