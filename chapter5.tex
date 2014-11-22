@@ -13,22 +13,83 @@ identifying its weaknesses and strength; a series of requirements was
 \subsection{Implementation of new plugins}
 
 The New PerLa Middleware is designed to be expanded through the addition of new
-modules, and it should come as no surprise that one of its most natural
-evolution paths consists in fact in the development of new Plugins. As
-described in chapter~\ref{cha:components}, there are two main types of modules
-that may be added with the PerLa Plugin System: \texttt{Channels} and
-\texttt{Mappers}.
+modules, and it should come as no surprise that one of its intended evolution
+paths consists in fact in the development of new Plugins. As described in
+chapter~\ref{cha:components}, there are two main types of modules that can be
+added to the PerLa Plugin System: \texttt{Channels} and \texttt{Mappers}.
 
 The possibility to add new \texttt{Channel} implementations is a distinguishing
-feature of the New Middleware that can be exploited to enlarge the type of
-supported endpoint devices. Future \texttt{Channel}s, should be implemented to
+feature of the New Middleware design that should be effectively exploited to
+extend the range of supported endpoint devices. At the time of writing the
+selection of Plugins shipped with the core Middleware distribution allows PerLa
+to connect with HTTP services and TinyOS motes. This initial line-up should be
+only considered as a starting point, since a larger assortment of communication
+systems is required to manage even the most rudimentary Pervasive Systems. The
+following list contains a choice of protocols and networking technologies for
+which a dedicated \texttt{Channel} implementation is advised:
 
+\begin{itemize}
 
-A natural evolution path for the New PerLa Middleware consist in the expansion
-of the core functionalities through the implementation of new Plugins. This
+    \item \textbf{TCP/IP:} Widely employed in a vast variety of devices,
+    ranging from high-end personal computers to low power devices;
+
+    \item \textbf{Bluetooth LE:} One of the leading technologies for wireless
+    area networks. Currently supported by all major Operating Systems,
+    Bluetooth LE found its way into many different applications, like fitness
+    bands, smartphones, healthcare instruments, home entertainment devices and
+    localization beacons;
+
+    \item \textbf{IEEE 802.15.4 based protocols:} IEEE 802.15.4 is a physical
+    layer widely employed in many personal area network protocols. It is the
+    basis for many networking specifications like Zigbee, Xbee and MiWi;
+
+    \item \textbf{RS232:} Serial port communication. Its implementation should
+    be considered in order to connect with legay devices and other low power
+    systems (e.g., Arduino).
+
+\end{itemize}
+
+\texttt{Mapper}s represent another extension point of the PerLa Middleware
+infrastructure that can be used to support additional data formats and
+encodings. The only \texttt{Mapper} components available as of December 2014
+in the core Middleware distribution provide support for JSON and URL-encoded
+data structures. Analogously to what arelady stated for the \texttt{Channel}
+component, future PerLa developers should consider implementing new
+\texttt{Mapper}s to support the following data formats:
+
+\begin{itemize}
+
+    \item \textbf{C/C++ structs:} Its implementation should be a simple
+    backport from the Classic Middleware architecture;
+
+    \item \textbf{XML:} A markup language for document encoding;
+
+    \item \textbf{CSV (Comma-Separated Values):} A simple format for the
+    transmission and storage of tabular data.
+
+\end{itemize}
 
 \subsection{Alternative Device Descriptor forms}
 
-Chapter~\ref{cha:components} described the 
+As introduced in chapter~\ref{cha:components}, the new Plug \& Play node
+registration system is comprised of two separate elements: a
+\texttt{DeviceDescriptorParser} front-end, which analyzes the Device Descriptor
+to build a format-agnostic Java representation of the Device Descriptor itself,
+and the \texttt{FPCFactory}, which consumes this intermediate Java
+representation to assemble the final \texttt{FPC}. This new architecture was
+conceived to facilitate the future addition of alternative Device Descriptor
+formats, which can now be easily performed by simply developing an appropriate
+\texttt{DeviceDescriptorParser} module.
+
+There are two main reasons for adding a new Device Descriptor representation:
+first, to support a different data format that may be more convenient for some
+devices (e.g., a JSON Device Descriptor); second, to create \texttt{FPC}s using
+readily available industry standard device description technologies. This
+former motivation leads us to one future development of the PerLa
+infrastructure, namely the possibility of introducin a
+\texttt{DeviceDescriptorParser} for the \textit{SensorML} \cite{sensorml}
+sensor description format. Through this effort the PerLa Middleware would be
+immediately compatible all devices for which a SensorML description is already
+available.
 
 \subsection{Distributed PerLa}
