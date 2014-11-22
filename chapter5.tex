@@ -35,19 +35,18 @@ by this new paradigm can be derived by analysing the number of threads
 instantiated for each \texttt{FPC} registered in the system. In the Classic
 Middleware, each \texttt{FPC} was composed of four distinct Java threads (one
 for reading incoming messages, one for the \texttt{Unmarshaller}, one for the
-    \texttt{Marshaller} and one the creation of output records). Conversely,
-    within the New Middleware infrastructure, a single Java thread located in
-    the \texttt{Channel} module is enough to drive all data handoffs from
-    remote device to user. Additional threads may be instantiated during the
-    execution of PerLa \texttt{Script}s; however, it is worth noting that these
-    are managed by the \texttt{Script Engine}, and are always shared among all
-    running \texttt{FPC}s (see chapter~\ref{cha:components} for additional
-    details).
+\texttt{Marshaller} and one the creation of output records). Conversely, within
+the New Middleware infrastructure, a single Java thread located in the
+\texttt{Channel} module is enough to drive all data handoffs from remote device
+to user. Additional threads may be instantiated during the execution of PerLa
+\texttt{Script}s; however, it is worth noting that these are managed by the
+\texttt{Script Engine}, and are always shared among all running \texttt{FPC}s
+(see chapter~\ref{cha:components} for additional details).
 
 The \texttt{FPC} benefits from another improvement brought by the New
 Middleware design, namely the PerLa Scripting Language. This new feature allows
 for an advanced mapping between device capabilities and data
-    \texttt{Attributes} exposed by the \texttt{FPC} component.
+\texttt{Attributes} exposed by the \texttt{FPC} component.
 
 
 \section{Future work}
@@ -135,3 +134,7 @@ immediately compatible all devices for which a SensorML description is already
 available.
 
 \subsection{Distributed PerLa}
+
+Future development of the PerLa Middleware should aim at implementing
+in-network processing capabilities in order to better exploit the resources
+available in a Pervasive System. Such efforts 
