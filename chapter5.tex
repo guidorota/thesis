@@ -2,10 +2,52 @@
 \label{cha:conclusions}
 
 This thesis described the design and implementation of an asynchronous data
-access middleware for Pervasive Systems. As shown in previous chapters, the
-implementation of this middleware began with an analysis of the existing data
-access layer employed to support the execution of PerLa Queries, aimed at
-identifying its weaknesses and strength; a series of requirements was 
+access middleware for Pervasive Systems. As shown in previous chapters, this
+process began with an analysis aimed at identifying the weaknesses and
+strengths of the Classic PerLa Middleware architecture, which was later used to
+outline a basic set of goals to be followed during the development of the
+software hereby described. From these goals ensued a New Middleware design
+(chapter~\ref{cha:middleware_overview}), and a concrete implementation
+(chapter~\ref{cha:components}). The most important contributions that the
+development of this new data access middleware brought to the PerLa System can
+be classified into three categories: modularization of the Plug \& Play device
+registration process, asynchronous data flow management, and an improved
+\texttt{FPC}. 
+
+The new Plug \& Play device registration process was enhanced with three
+distinct measures: first, the internal structure of the \texttt{FPC} component
+was split into independent modules; second, the \texttt{FPCFactory} itself was
+modularized into several sub-factory units, one for each \texttt{FPC}
+component; third, a Plugin System was designed to allow the addition of new
+\texttt{FPC} components without requiring any direct modification to the
+\texttt{FPCFactory} itself. This new architecture was then validated by the
+implementation of five different modules, three created by the author of this
+thesis (\texttt{JSONMapper}, \texttt{URLEncodedMapper} and
+\texttt{SimulatorChannel}), and two by other graduate student
+(\texttt{HTTPChannel} and \texttt{TinyOSChannel}).
+
+Another crucial aspect of the New PerLa Middleware design is represented by the
+asynchronous data flow management paradigm. As explained in
+section~\ref{sec:newmiddleware.async}, all components of the new architecture
+implement an asynchronous event-driven API that improves both memory usage and
+global reaction times of the overall system. An example of the benefits brought
+by this new paradigm can be derived by analysing the number of threads
+instantiated for each \texttt{FPC} registered in the system. In the Classic
+Middleware, each \texttt{FPC} was composed of four distinct Java threads (one
+for reading incoming messages, one for the \texttt{Unmarshaller}, one for the
+    \texttt{Marshaller} and one the creation of output records). Conversely,
+    within the New Middleware infrastructure, a single Java thread located in
+    the \texttt{Channel} module is enough to drive all data handoffs from
+    remote device to user. Additional threads may be instantiated during the
+    execution of PerLa \texttt{Script}s; however, it is worth noting that these
+    are managed by the \texttt{Script Engine}, and are always shared among all
+    running \texttt{FPC}s (see chapter~\ref{cha:components} for additional
+    details).
+
+The \texttt{FPC} benefits from another improvement brought by the New
+Middleware design, namely the PerLa Scripting Language. This new feature allows
+for an advanced mapping between device capabilities and data
+    \texttt{Attributes} exposed by the \texttt{FPC} component.
 
 
 \section{Future work}
