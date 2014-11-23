@@ -24,12 +24,12 @@ around us in new and innovative ways; different computing devices and services
 must discover themselves and make mutual use of the information that they
 produce or consume, meshing together in what is called a Pervasive System.
 
-Firstly envisioned by Mark Weiser [], Pervasive Systems are connected networks
-of independent and heterogeneous devices, whose ultimate goal is to assist
-people in a way that is effectively invisible to the final user. They are the
-result of a post-pc era, where scores of computing gadgets are disseminated in
-our surroundings, enhancing our capabilities to sense the world and providing
-ubiquitous access to information.
+Firstly envisioned by Mark Weiser \cite{weiser}, Pervasive Systems are
+connected networks of independent and heterogeneous devices, whose ultimate
+goal is to assist people in a way that is effectively invisible to the final
+user. They are the result of a post-pc era, where scores of computing gadgets
+are disseminated in our surroundings, enhancing our capabilities to sense the
+world and providing ubiquitous access to information.
 
 From a software and hardware perspective, a Pervasive Systems is a rich and
 varied environment, hosting myriads of different network protocols, data
@@ -40,12 +40,15 @@ Weiser’s seminal paper, several endeavours have explored different techniques
 for simplifying the task of building and designing Pervasive Systems, many of
     which stemmed from the research on Wireless Sensor Networks (WSN).
 
-\section{Wireless Sensor Networks and beyond} As suggested by the name,
-Wireless Sensor Networks (WSNs) are networks of wirelessly connected devices
-called nodes or motes, that are able to measure or detect physical properties
-from their surrounding environment. Although the original acronym only
-references the sensory features of such systems, current usage of the term WSN
-is commonly extended to include devices with actuation capabilities.
+
+\section{Wireless Sensor Networks and beyond}
+
+As suggested by the name, Wireless Sensor Networks (WSNs) are networks of
+wirelessly connected devices called nodes or motes, that are able to measure or
+detect physical properties from their surrounding environment. Although the
+original acronym only references the sensory features of such systems, current
+usage of the term WSN is commonly extended to include devices with actuation
+capabilities.
 
 Wireless Sensor Networks provide a low-cost and effective solution for
 monitoring physical phenomena: several inexpensive nodes may be scattered
@@ -58,10 +61,24 @@ automation, theft prevention systems, healthcare, control of environmental
 hazards and monitoring of production lines.
 
 The rapid increase in popularity of WSNs, coupled with the intrinsic
-difficulties of working with several computing 
+difficulties of working in a variegated software and hardware environment,
+spurred the development of a wide variety of frameworks, middlewares, and
+ad-hoc programming languages designed for providing an easy way of access to
+the functionalities offered by networks of sensing and actuating devices and
+Pervasive Systems alike.
 
+This thesis describes the design and implementation of one of these software
+systems, an asynchronous data access middleware for Pervasive Networks dubbed
+\textit{New PerLa Middleware}. Its history, as will be shown in
+chapter~\ref{cha:perlasystem}, is strongly intertwined with the PerLa Query
+Language \cite{tse_perla}, a declarative SQL-like language for collecting data
+from WSNs and other distributed sensing networks. However, before delving into
+the substance of this middleware, the next section will provide a short survey
+on the different approaches proposed in literature for the management of
+Pervasive Systems.
 
 
 \section{Data management in Pervasive Systems}
+\ref{sec:state_art}
 
 Stato dell'arte, riprenderlo dalla TSE
