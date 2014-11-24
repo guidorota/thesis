@@ -13,11 +13,11 @@ amount of changes; some varied much, other less, while others practically
 remained unchanged (for example, the \texttt{Registry}).
 
 The main driving force that pushed this re-engineering endeavour was the need
-to strenghten the major Middleware APIs, and elegantly integrate all isolated
+to strengthen the major Middleware APIs, and elegantly integrate all isolated
 contributions made by past PerLa developers into a single, coherent product.
 Furthermore, this redesign proved to be an excellent opportunity for expanding
 the capabilities of the PerLa Middleware itself, and to better prepare it to
-cope with a costantly evolving Pervasive Environment where web-services and
+cope with a constantly evolving Pervasive Environment where web-services and
 RESTful data sources are ever more present. This last requirement, above
 everything else, has been crucial to the development of the final Middleware
 architecture described in this thesis, as it enforced a precarious balance
@@ -38,7 +38,7 @@ amounted to:
         event-driven paradigm;
 
     \item Improve the expandability of the system by introducing a modular
-        design composed of pluggable and independente software units;
+        design composed of pluggable and independent software units;
 
     \item Identify and solve potential bottlenecks that could prevent the
         Middleware from scaling gracefully under load.
@@ -212,7 +212,7 @@ interfaces to TinyOS networks.
 
 The introduction of a new modular \texttt{FPCFactory} Plugin System resulted in
 a complete redesign of the Device Descriptor itself, which changed its layout
-to accomodate a modular structure that closely follows the new
+to accommodate a modular structure that closely follows the new
 \texttt{FPCFactory} architecture. The new Device Descriptor is composed of the
 following elements:
 
@@ -284,7 +284,7 @@ in figure~\ref{fig:dd_namespace}: this Device Descriptor excerpt specifies two
 plugin namespaces, one for a \texttt{HTTPChannel}
 (\texttt{http://perla.dei.org/fpc/channel/http}), and the other for a
 \texttt{JSONMapper} (\texttt{http://perla.dei.org/fpc/message/json}); these two
-values, once processed by the texttt{FPCFactory}, are used for selecting the
+values, once processed by the /texttt{FPCFactory}, are used for selecting the
 specific plugin that will be used for constructing the corresponding
 \texttt{FPC} components. It is important to note that the
 \texttt{http://perla.dei.org/device} and

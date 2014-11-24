@@ -32,7 +32,7 @@ communication stack; as a result of this design choice, a wide variety of data
 management tasks, including but not limited to, networking, file handling, and
 automatic data generation can be implemented as \texttt{Channel}s. This concept
 is taken even further by the \texttt{SimulatorChannel}, a particular
-\texttt{Channel} implementation that generates radom data samples that allow
+\texttt{Channel} implementation that generates random data samples that allow
 the PerLa Middleware to be tested even when no devices are connected to it.
 
 The current Middleware architecture encourages the creation of several highly
@@ -147,7 +147,7 @@ This figure illustrates the \texttt{Channel} creation process executed by the
 Middleware upon reception of a new Device Descriptor.
 \begin{enumerate}
   \itemsep0em
-  \item JAXB binds the XML Device Descriptor to an apropriate
+  \item JAXB binds the XML Device Descriptor to an appropriate
 \texttt{ChannelDescriptor} object using namespace information \item A suitable
 \texttt{ChannelFactory} is selected at runtime using the
 \texttt{acceptedChannelDescriptorClass()} method
@@ -196,7 +196,7 @@ public interface IORequest {
 }
 \end{lstlisting}
 
-Every \texttt{Channel} imlementation is bundled with its own custom
+Every \texttt{Channel} implementation is bundled with its own custom
 \texttt{IORequest} class. Following up on previous examples, the
 \texttt{HTTPChannel} package contains a \texttt{HTTPIORequest} object, whereas
 the fictitious \texttt{SerialChannel} would be supplied with a
@@ -222,7 +222,7 @@ Creation is performed by means of a factory interface dubbed
 \texttt{IORequestBuilder}, which allows the Middleware to build new copies of
 an \texttt{IORequest} from a fixed template. It is important to note that
 request objects built using this technique do not contain \texttt{Payload}
-parameters; these are to be added manually before subbmitting the
+parameters; these are to be added manually before submitting the
 \texttt{IORequest} to a \texttt{Channel}.
 
 Besides \texttt{IORequest} creation, the \texttt{IORequestBuilder} interface
@@ -287,7 +287,7 @@ Steps 1 to 3 are performed only once after receiving the Device Descriptor,
 whereas steps 4 and 5 are repeated every time the REST API is to be invoked.
 \begin{enumerate}
   \itemsep0em
-  \item JAXB binds the XML Device Descriptor to an apropriate
+  \item JAXB binds the XML Device Descriptor to an appropriate
 \texttt{IORequestDescriptor} object using namespace information \item A
 suitable \texttt{IORequestBuilderFactory} is selected at runtime using the
 \texttt{acceptedIORequestDescriptorClass()} method
@@ -385,7 +385,7 @@ creates a happens-before relationship with \texttt{IOHandler.complete()} and
 to the \texttt{submit()} invocation is guaranteed to be visible in the
 \texttt{complete()} and \texttt{error()} callback methods.
 
-Asynchrous execution does not imply loss of control; ongoing I/O operations can
+Asynchronous execution does not imply loss of control; ongoing I/O operations can
 be monitored or cancelled by means of the \texttt{IOTask} object acquired upon
 submitting an \texttt{IORequest}. Listing~\ref{lst:iotask} shows all methods of
 the \texttt{IOTask} interface; method names are self explanatory, and the
@@ -417,12 +417,12 @@ be invoked with the \texttt{IORequest} parameter set to \texttt{null}.
 \label{sec:components.mapper}
 
 \texttt{Payload} is a container for raw sequences of bytes. In spite of its
-semplicity, this class forms the foundation of the entire PerLa Middleware, as
+simplicity, this class forms the foundation of the entire PerLa Middleware, as
 it is the vessel that conveys all information passing through the
 \texttt{Channel} interface.
 
 The data encapsulated in a \texttt{Payload} object is accessed one byte at a
-time; this granularity level is ideal for the implemention of an I/O access
+time; this granularity level is ideal for the implementation of an I/O access
 layer, whose sole concern consists in the transmission of information between
 two endpoints, but is not suited to other forms of data management. Processing
 the information contained in a \texttt{Payload} can be unwieldy and
@@ -572,7 +572,7 @@ public interface Mapper {
 
 Interactions with a \texttt{Mapper} usually begin with a call to the
 \texttt{createMessage()} method, whose execution results in the creation of an
-empty \texttt{Message} instance. Despite its unsuprising outcome, this method
+empty \texttt{Message} instance. Despite its unsurprising outcome, this method
 draws once again our attention to the close relationship between
 \texttt{Mapper}s and data types. Every \texttt{Mapper} instance is in fact
 committed to the management of a precise class of information, hence all
@@ -780,7 +780,7 @@ formats is automatically curated by the \texttt{FPC} by cross-comparing
 information excerpted from the Device Descriptor with the current device
 status. It should be clear that this technique alone is not enough to cover all
 practical use cases, as it falls short as soon as a device starts sending two
-or more message varieties concurrenty; in such scenarios, PerLa needs to search
+or more message varieties concurrently; in such scenarios, PerLa needs to search
 for clues that will help it recognize how the bytes being received are
 structured. These clues take the form of \textit{static} fields. When faced
 with an ambiguous situation, the \texttt{FPC} will try unmarshal the bytes
@@ -853,7 +853,7 @@ little or none modifications, as it doesn't depend on any particular
 
 PerLa \textit{Scripts} are also used to address minor compatibility problems
 that may arise when authoring new Device Descriptors; they can wrap an existing
-Middleware component and adapt its behaviour to handle an unforseen usage
+Middleware component and adapt its behaviour to handle an unforeseen usage
 scenario, convert information between different units of measure, alter a
 \texttt{Message} before it is sent to the intended recipient, or compute
 aggregations. It is important to note that \textit{Scripts} are slower than
@@ -898,7 +898,7 @@ the following actions:
 
 \begin{itemize}
         
-    \item Arithmetic operations (sum, subtration, product, division, modulo)
+    \item Arithmetic operations (sum, subtraction, product, division, modulo)
 
     \item Logical operations (or, and, not)
 
@@ -993,7 +993,7 @@ variable to the literal value \texttt{sample}.
 <i:set variable="cmd" field="operation" value="sample"/>
 \end{lstlisting}
 
-Converts a temperature reading from Celsius to Fahreheit degrees, and stores it
+Converts a temperature reading from Celsius to Fahrenheit degrees, and stores it
 in the \texttt{temp\_f} field of a hypothetical variable named \texttt{result}.
 
 \lstset{language=XML}
@@ -1194,11 +1194,11 @@ two mandatory parameters:
 This instruction is intended to be called multiple times in the lifetime of a
 single \texttt{Script} execution, as a single \texttt{put} operation can only
 be used to set one record field at a time. As soon as all the desired values
-are staged, the content of the entired staging area can be flushed into a new
+are staged, the content of the entire staging area can be flushed into a new
 record by means of the \texttt{emit} instruction.
 
 It is worth noting that the content of the staging area is not deleted once
-\texttt{emit} is invoked. Though this may seem counterintuitive or even
+\texttt{emit} is invoked. Though this may seem counter-intuitive or even
 undesirable, such behaviour allows for a simpler and more efficient management
 of aggregated data. The ability to retain all field values set with previous
 invocations of the \texttt{put} instruction is key to the example of
@@ -1431,7 +1431,7 @@ period of time, as their execution is triggered by each sample collected from
 the sensing network. To better cope with such usage scenario, the
 \texttt{Script Engine} implements a thread caching mechanism that reduces
 memory usage and startup times by reclaiming the runtime environment of each
-terminated \texttt{Script}, and repurposing it for a new execution. This
+terminated \texttt{Script}, and re-purposing it for a new execution. This
 caching technique greatly reduces the overall number of objects allocated by
 the Java Virtual Machine, and guarantees that the overhead due to the
 initialization of new \texttt{ExecutionContext} instances is shared between
@@ -1806,7 +1806,7 @@ an intermediate Java representation before being handed over to the
 \texttt{DeviceDescriptorParser} interface, ensures that the \texttt{FPCFactory}
 is not directly tied to any particular Device Descriptor format; as a result,
 the introduction of a new descriptor syntax does not entail any change to the
-\texttt{FPCFactory} itself, but only the creation of an approriate
+\texttt{FPCFactory} itself, but only the creation of an appropriate
 \texttt{DeviceDescriptorParser} class. At the present moment, the PerLa
 Middleware includes a \texttt{JaxbDeviceDescriptParser} implementation, which
 is responsible for translating the XML Device Descriptor syntax shown in
