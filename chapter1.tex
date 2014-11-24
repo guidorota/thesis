@@ -119,12 +119,32 @@ shifting the focus on the management of highly heterogeneous networks of
 sensing devices. SWORD \cite{sword} tries to achieve this goal by providing a
 central infrastructure that can be used to monitor events and signals collected
 from a distributed mesh of nodes. Unfortunately, its XML-over-HTTP messaging
-system considerably reduces the variety of sensing devices which can be
-integrated using this system.
+system considerably reduces the variety of devices that can be integrated. GSN
+\cite{aberer2006global}, on the other hand, is a Java Middleware based on the
+concept of \textit{Virtual Sensor}, a high-level software component aimed at
+providing a common interface that can be used to collect information generated
+by a single device of a sensing network. Virtual Sensors are created by means
+of a declarative XML descriptor, and can be interfaced with the remote
+endpoints through a specific device driver dubbed \textit{wrapper}.
+Unfortunately GSN does not provide any mechanism for automating the deployment
+of new Virtual Sensors.
 
-GSN, on the other hand, takes a different approach
+The TinyREST \cite{luckenbach2005tinyrest} project attempts to provide a
+RESTful \cite{fielding2000architectural} data access interface to each node
+available in a Pervasive System. This goal is achieved through a server
+infrastructure that performs a mapping between HTTP methods and various
+Input/Output operations performed by the devices of a sensing network. As a
+result, an HTTP GET request can be used to sample a physical phenomena, whereas
+a PUT operation allows users to command actuators or set variables on remote
+devices. Its reliance on the TinyOS makes it vulnerable to the same critiques
+made to TinyDB.
 
-
-GSN wrappers like logical objects
-
-Higher degree of abstraction with systems like cascadas
+Contiki \cite{dunkels2004contiki} is a lightweight and portable operating
+system specifically designed for memory-limited devices. Differently from
+TinyOS, Contiki tries to foster the same programming model available to desktop
+machines. Its kernel, whose footprint may ary between 10 and 30 KB of RAM,
+provides in fact a fully functional IPv4 and IPv6 networking stack, a
+multi-thread concurrency mechanism based on protothreads and an over-the-air
+programming mechanism. Differently from the other projects discussed in this
+section, Contiki does not provide any high-level abstraction for accessing the
+information produced by a Pervasive System.
