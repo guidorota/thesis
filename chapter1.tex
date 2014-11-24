@@ -24,8 +24,8 @@ around us in new and innovative ways; different computing devices and services
 must discover themselves and make mutual use of the information that they
 produce or consume, meshing together in what is called a Pervasive System.
 
-Firstly envisioned by Mark Weiser \cite{weiser}, Pervasive Systems are
-connected networks of independent and heterogeneous devices, whose ultimate
+Firstly envisioned by Mark Weiser \cite{weiser1991computer}, Pervasive Systems
+are connected networks of independent and heterogeneous devices, whose ultimate
 goal is to assist people in a way that is effectively invisible to the final
 user. They are the result of a post-pc era, where scores of computing gadgets
 are disseminated in our surroundings, enhancing our capabilities to sense the
@@ -79,6 +79,42 @@ Pervasive Systems.
 
 
 \section{Data management in Pervasive Systems}
-\ref{sec:state_art}
 
-Stato dell'arte, riprenderlo dalla TSE
+Early experiences in managing sensing networks were based on ad-hoc systems
+that provided bespoken solutions to specific applications. These approaches
+were usually built using proprietary hardware and highly customized software
+architectures, whose design was ultimately concerned with the implementation of
+a limited and well-defined series of task-oriented requirements. As shown in
+\cite{hartung2006firewxnet} \cite{mainwaring2002wireless}
+\cite{werner2005monitoring} \cite{juang2002energy} these highly personalized
+systems are poorly reuseable, since their architecture usually fails to provide
+a clear separation of concerns between the pure data access mechanisms employed
+to control the underlying sensing network, and the particular behaviour
+required by the specific application. It soon became clear that this strategy
+could not become a viable model for a simple and effective development of
+pervasive applications, as all the effort and expertise put in the
+implementation of such systems could not be efficiently exploited and shared in
+new projects.
+
+TinyDB \cite{madden2005tinydb} is one of the first endeavours that tried to
+provide a generic abstraction suitable for the development of sensing
+applications based on Pervasive Systems. A WSN managed by TinyDB is in fact
+presented to the final users as a vast streaming database controlled through
+SQL-like queries, which are appropriately interpreted and distributed to the
+single nodes of a pervasive system in order to specify a globally coordinated
+behaviour. Despite the general high-level abstraction employed by this system,
+the execution of TinyDB queries requires all nodes in the sensing network to be
+running TinyOS \cite{levis2005tinyos} --- an embedded operating system
+specifically designed to be used in wireless sensing networks --- therefore
+limiting the variety of devices which can be managed using this approach.
+
+Similarly to TinyDB, DSN \cite{chu2006entirely} aims at providing a
+database-like abstraction of an entire Pervasive System, which can be queried
+and controlled using a Datalog dialect dubbed Snlog.
+
+
+
+
+GSN wrappers like logical objects
+
+Higher degree of abstraction with systems like cascadas
