@@ -104,15 +104,25 @@ SQL-like queries, which are appropriately interpreted and distributed to the
 single nodes of a pervasive system in order to specify a globally coordinated
 behaviour. Despite the general high-level abstraction employed by this system,
 the execution of TinyDB queries requires all nodes in the sensing network to be
-running TinyOS \cite{levis2005tinyos} --- an embedded operating system
-specifically designed to be used in wireless sensing networks --- therefore
-limiting the variety of devices which can be managed using this approach.
+running TinyOS \cite{levis2005tinyos}, an embedded operating system
+specifically designed to be used in sensing devices, therefore limiting the
+variety of devices which can be managed using this approach.
 
 Similarly to TinyDB, DSN \cite{chu2006entirely} aims at providing a
 database-like abstraction of an entire Pervasive System, which can be queried
-and controlled using a Datalog dialect dubbed Snlog.
+and controlled using a Datalog dialect dubbed Snlog. A comparable ``WSN as a
+database'' abstraction, as will be shown in chapter~\ref{cha:perlasystem}, is a
+characteristic feature of the PerLa System as well.
 
+Other projects tried to approach the problem of handling a Pervasive System by
+shifting the focus on the management of highly heterogeneous networks of
+sensing devices. SWORD \cite{sword} tries to achieve this goal by providing a
+central infrastructure that can be used to monitor events and signals collected
+from a distributed mesh of nodes. Unfortunately, its XML-over-HTTP messaging
+system considerably reduces the variety of sensing devices which can be
+integrated using this system.
 
+GSN, on the other hand, takes a different approach
 
 
 GSN wrappers like logical objects
