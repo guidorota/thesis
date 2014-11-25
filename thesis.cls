@@ -29,6 +29,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{enumitem}
+\usepackage[titletoc]{appendix}
 \setlist{nosep}
 
 % Set numbering for \subsubsection elements and add them to the TOC
